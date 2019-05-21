@@ -1,4 +1,0 @@
----
-layout: editor
-permalink: /editor/
----
