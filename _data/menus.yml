@@ -8,7 +8,7 @@
   url: /tags/
   icon: "&#xe893;"
 - name: ABOUT
-  url: /about/
+  url: /pages/about.html
   icon: "&#xe893;"
 - name: navSearch
   switch: true
