@@ -1,37 +1,40 @@
-head: 
-   favicon: "https://github.com/SharryChoo/blog/raw/master/assets/images/avatar.jpg" #  the favicon
-   high_res_favicon: "https://github.com/SharryChoo/blog/raw/master/assets/images/avatar.jpg" #  the favicon using high quality format
-   apple_touch_icon: "https://github.com/SharryChoo/blog/raw/master/assets/images/avatar.jpg" # the iOS Home button icon
-   keywords: "blog jekyll mdui theme" #  the site keywords
+head:
+  favicon: "https://github.com/SharryChoo/blog/raw/master/assets/images/avatar.jpg" #  the favicon
+  high_res_favicon: "https://github.com/SharryChoo/blog/raw/master/assets/images/avatar.jpg" #  the favicon using high quality format
+  apple_touch_icon: "https://github.com/SharryChoo/blog/raw/master/assets/images/avatar.jpg" # the iOS Home button icon
+  keywords: "blog jekyll mdui theme" #  the site keywords
 
 uiux:
-   android_chrome_color: "#eeeeee" #  the color of the Chrome address bar
-   nprogress_color: "#29d" #  the color of the top loading progress bar
-   nprogress_buffer: 200 # the top loading progress bar buffers
-   meng: false # meng
+  android_chrome_color: "#eeeeee" #  the color of the Chrome address bar
+  nprogress_color: "#29d" #  the color of the top loading progress bar
+  nprogress_buffer: 200 # the top loading progress bar buffers
+  meng: false # meng
 
-background: 
-   purecolor: "#eeeeee" # the background color
-   background_img: "https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg"
+background:
+  background_img: "https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg"
+  switch: true
+  transparent_header: true
+  transparent_footer: false
+  text_color: '#000'
 
-img: 
-   avatar: "https://github.com/SharryChoo/blog/raw/master/assets/images/avatar.jpg" # your avatar
+img:
+  avatar: "https://github.com/SharryChoo/blog/raw/master/assets/images/avatar.jpg" # your avatar
 
-card: 
-   card_shadow: 1 # card shadow (0-24), 0 is not displayed
-   card_hoverable: false # When the hover to deepen the shadow
+card:
+  card_shadow: 1 # card shadow (0-24), 0 is not displayed
+  card_hoverable: false # When the hover to deepen the shadow
 
 many_authors: false
 
 sns_share: # SNS Share Switch
-   twitter: true
-   facebook: false
-   googleplus: false
-   weibo: true
-   linkedin: false
-   qq: true
-   telegram: true
-  
+  twitter: true
+  facebook: false
+  googleplus: false
+  weibo: true
+  linkedin: false
+  qq: true
+  telegram: true
+
 comment:
   used: "" # disqus,livere,gitment,valine
   # disqus config
@@ -57,9 +60,9 @@ comment:
 
 prism:
   themes: prism-okaidia
-  components: 
-    - bash 
-  plugins: 
+  components:
+    - bash
+  plugins:
 
 mathjax: true
 
