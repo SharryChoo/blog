@@ -4,7 +4,7 @@ title: "MVVM 初探"
 date: 2019-05-18
 categories: Android
 tags: framework mvvm
-img: https://i.loli.net/2018/02/13/5a8299ad7dff9.png
+img: https://github.com/SharryChoo/blog/blob/master/assets/images/android_jetpack.svg
 describe: MVVM 如何使用 ? 优势在哪里?
 ---
 ## 一. 什么是 MVVM ?
