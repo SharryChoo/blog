@@ -744,10 +744,10 @@ public class MainFragmentBindingImpl extends MainFragmentBinding implements com.
 - ViewDataBinidng 处理视图与 ViewModel 中 Observable 的绑定
   - 为 view 创建其对应的 WeakListener
   - WeakListener 的实现由 WeakPropertyListener 实现
-  - 将 WeakPropertyListnener 当做观察者, 将其添加到 Observable 的订阅集合中
+  - 将 WeakPropertyListener 当做观察者, 将其添加到 Observable 的订阅集合中
 - 当 Observable 的数据变更时, 便会推送给其订阅者集合
-  - 调用  WeakPropertyListnener.onPropertyChanged 处理数据变更
-  - 通过 ID 找到 WeakPropertyListnener 对应的 View
+  - 调用  WeakPropertyListener.onPropertyChanged 处理数据变更
+  - 通过 ID 找到 WeakPropertyListener 对应的 View
   - 通过 ViewDataBinding 的生成实现类的 executeBindings 更新指定 view 的数据
 
 可以看到这是一个典型的观察者的应用场景, TextView 为观察者, Observable 为被观察者, 数据变更时便会推送给观察者更新数据, 当然这只是一个最基础的应用场景, 其他的使用场景可以类比推理
