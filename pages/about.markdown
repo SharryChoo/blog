@@ -10,6 +10,7 @@ img: https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg
 - Job: Android Developer
 - GitHub: [SharryChoo](https://github.com/SharryChoo)
 - Mail: SharryChooCHN@Gmail.com
+
 ---
 
 ## Field
@@ -19,6 +20,7 @@ img: https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg
 - Android Framework
 - Android NDK
 - OpenCV
+
 ---
 
 ## Open Source
@@ -41,4 +43,5 @@ A framework help u build Toolbar more easier.
 A framework help u build Toolbar more easier.
 - [How to use](https://github.com/SharryChoo/PicturePicker/blob/release/README.md)
 - [Repository](https://github.com/SharryChoo/PicturePicker)
+
 ---
