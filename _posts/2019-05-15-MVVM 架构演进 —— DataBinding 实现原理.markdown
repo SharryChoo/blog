@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "DataBinding 如何实现数据绑定"
-date: 2019-05-14
+title: "MVVM 架构演进 —— DataBinding 实现原理"
+date: 2019-05-15
 categories: Android
 tags: framework mvvm
 img: https://github.com/SharryChoo/blog/raw/master/assets/images/category_android.jpg

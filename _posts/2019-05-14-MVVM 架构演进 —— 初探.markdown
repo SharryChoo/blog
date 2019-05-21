@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "MVVM 架构演进 —— DataBinding 实现原理"
-date: 2019-05-15
+title: "MVVM 架构演进 —— 初探"
+date: 2019-05-14
 categories: Android
 tags: framework mvvm
 img: https://github.com/SharryChoo/blog/raw/master/assets/images/category_android.jpg
@@ -148,9 +148,6 @@ ViewModel 中的代码也非常的简单, 直接构建了一些需要用的 Obse
 
 ## 四. 总结
 从 MVVM 的示例实现上可知, DataBinding 在 MVVM 的架构中起到了不可或缺的作用, 它将原本 MVP 中 View 与 Presenter 的交互转移给了 DataBinding, 让系统帮我们去维护复杂的交互流程
-```math
-Presetner = DataBinding/2 + ViewModel
-```
 
 ### 优势
 - 开发者无需关心 ViewModel 与 View 的交互, 这一操作交由了 DataBinding 完成, 因此开发者可以更高效的进行业务代码的开发
