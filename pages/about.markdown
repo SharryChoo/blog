@@ -1,3 +1,10 @@
+---
+layout: page
+title: "ABOUT"
+date: 2019-05-18
+img: https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg
+---
+
 ## 关于
 
 ## 联系
