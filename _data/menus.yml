@@ -1,14 +1,18 @@
 - name: HOME
   url: /
   icon: home
+
 - name: CATEGORY
   url: /pages/category.html
   icon: "&#xe53b;"
+
 - name: TAGS
   url: /pages/tags.html
   icon: "&#xe893;"
+
 - name: ABOUT
   url: /pages/about.html
   icon: "&#xe150;"
+
 - name: navSearch
   switch: true
