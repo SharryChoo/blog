@@ -2,10 +2,10 @@
   url: /
   icon: home
 - name: CATEGORY
-  url: /category/
+  url: /pages/category.html
   icon: "&#xe53b;"
 - name: TAGS
-  url: /tags/
+  url: /pages/tags.html
   icon: "&#xe893;"
 - name: ABOUT
   url: /pages/about.html
