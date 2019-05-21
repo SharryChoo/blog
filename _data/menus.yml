@@ -8,7 +8,7 @@
   url: /tags/
   icon: "&#xe893;"
 - name: ABOUT
-  url: /editor/
+  url: /love/
   icon: "&#xe150;"
 - name: navSearch
   switch: true
