@@ -1,5 +1,5 @@
 ## Blog
-https://github.com/SharryChoo/blog
+https://sharrychoo.github.io/blog/
 
 ## Theme template
 https://github.com/KeJunMao/jekyll-theme-mdui
