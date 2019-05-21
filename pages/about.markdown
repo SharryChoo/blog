@@ -16,6 +16,8 @@ img: https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg
 ## Field
 - Java/C/C++/Kotlin
 - Algorithm/Structure
+- Design Pattern
+- JVM
 - Linux Kernel
 - Android Framework
 - Android NDK
