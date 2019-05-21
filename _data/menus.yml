@@ -2,10 +2,10 @@
   url: /
   icon: home
 - name: CATEGORY
-  url: /pages/category.html
+  url: /category/
   icon: "&#xe53b;"
 - name: TAGS
-  url: /pages/tags.html
+  url: /tags/
   icon: "&#xe893;"
 - name: navSearch
   switch: true
