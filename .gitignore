@@ -1,6 +1,10 @@
-_site
+*.gem
+.bundle
 .sass-cache
+_site
+Gemfile.lock
+node_modules
 .jekyll-metadata
-.blog.iml
-.modules.xml
-.idea
+assets/live2d
+package-lock.json
+.vscode

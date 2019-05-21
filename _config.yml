@@ -1,18 +1,24 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely need to edit after that.
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'jekyll serve'. If you change this file, please restart the server process.
+title: "Jekyll-Theme-MDUI"
+description: "A Jekyll theme based on MDUI"
+url: 
+baseurl: ""
+author: "KeJun"
+paginate: 5
+paginate_path: "/blog/page:num/"
 
-# Site settings
-title: Sharry Blogs
-email: SharryChooCHN@Gmail.com
-description:  I'm a Android developer. Welcome to my personal blogs! 
-baseurl: "/blogs" # the subpath of your site, e.g. /blog
-url: "https://sharrychoo.github.io/blogs/" # the base hostname & protocol for your site
-twitter_username: SharryChoo
-github_username:  SharryChoo
+plugins:
+  - jekyll-sitemap
+  - jekyll-paginate
+  - jekyll-feed
 
-# Build settings
-markdown: kramdown
+exclude:
+  - package.json
+  - node_modules
+  - gulpfile.js
+  - Gemfile
+  - Gemfile.lock
+  - jekyll-theme-mdui.gemspec
+  - LICENSE.txt
+  - README.md
+  - vendor
+  - docs
