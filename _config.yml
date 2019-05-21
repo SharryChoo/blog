@@ -1,7 +1,7 @@
 title: "Sharry Blog"
 description: "An Android Developer"
-url: 
-baseurl: ""
+url: "https://sharrychoo.github.io/blog"
+baseurl: "/blog"
 author: "Sharry"
 paginate: 5
 paginate_path: "/blog/page:num/"
