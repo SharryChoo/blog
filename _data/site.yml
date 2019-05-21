@@ -11,7 +11,8 @@ uiux:
    meng: false # meng
 
 background: 
-   img: "https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg" # the background
+   purecolor: "#eeeeee" # the background color
+   background_img: "https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg"
 
 img: 
    avatar: "https://github.com/SharryChoo/blog/raw/master/assets/images/avatar.jpg" # your avatar
