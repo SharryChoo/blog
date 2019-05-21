@@ -5,7 +5,6 @@ date: 2019-05-18
 img: https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg
 ---
 
----
 ## About me
 - Name: SharryChoo
 - Job: Android Developer
@@ -13,7 +12,6 @@ img: https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg
 - Mail: SharryChooCHN@Gmail.com
 ---
 
----
 ## Field
 - Java/C/C++/Kotlin
 - Algorithm/Structure
@@ -23,7 +21,6 @@ img: https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg
 - OpenCV
 ---
 
----
 ## Open Source
 ### SRouter
 A framework for assisting in the renovation of Android componentization
