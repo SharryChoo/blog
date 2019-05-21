@@ -8,7 +8,7 @@
   url: /tags/
   icon: "&#xe893;"
 - name: ABOUT
-  url: /pages/about.markdown
+  url: /pages/about.html
   icon: "&#xe150;"
 - name: navSearch
   switch: true
