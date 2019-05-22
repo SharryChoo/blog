@@ -138,7 +138,6 @@ public interface SupportView<T extends ViewDataBinding> extends BaseView<T> {
 
 接下来我们以 Activity 为例, 看看 BaseView 的实现
 
-
 #### 2. BaseView 的实现
 我们先定义一个模板 Activity, 然后再此基础上进行 MVVM 的实现类拓展
 ```
@@ -225,7 +224,7 @@ public abstract class BaseMvvmActivity<DataBinding extends ViewDataBinding> exte
 可以看到支持 **MVVM 架构的 Activity 只需要重写 createView 这个方法就可以实现其功能了**
 - SupportView 中定义的接口, 根据当前 App 的 UI 进行通用展示
 
-好的, 从这里就可以看到多一个 BaseActivity 的好处了, 定义一个基础的模板, 我们可以在其基础上进行拓展, **在不改变使用方式的前提下实现对 MVP, MVVM 架构的支持, 遵守了开闭原则(对拓展开放, 读修改封闭), 也对日后新架构的拓展提供了可能**
+好的, 从这里就可以看到多一个 BaseActivity 的好处了, 定义一个基础的模板, 我们可以在其基础上进行拓展, **在不改变使用方式的前提下实现对 MVP, MVVM 架构的支持, 遵守了开闭原则(对拓展开放, 对修改封闭), 也对日后新架构的拓展提供了可能**
 
 #### 思考
 在前面的文章我们了解到 View 层数据的变更是通过在 xml 中指定了 ViewModel 中数据源之后, 由数据源通知的, 如下所示
