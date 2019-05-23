@@ -424,7 +424,7 @@ public class Sample1BindingAdapters {
 
 
 ## 总结
-不知道大家是否有这样的感觉, MVVM 框架的搭建比起 MVP 要简单的多, 我认为这是因为系统帮我们做了最终要的事情, 那便是 DataBinding, 初始写 MVVM 架构的时候, 可能会因为 ViewModel 中没有 View 而手足无措, 这个时候只需要将思维转变, **让 View 主动订阅 ViewModel 中的数据源即可实现最终目标**
+不知道大家是否有这样的感觉, MVVM 框架的搭建比起 MVP 要简单的多, 我认为这是因为系统帮我们做了最重要的事情, 那便是 DataBinding, 初始写 MVVM 架构的时候, 可能会因为 ViewModel 中没有 View 而手足无措, 这个时候只需要将思维转变, **让 View 主动订阅 ViewModel 中的数据源即可实现最终目标**
 
 这是一个响应式的过程, 笔者把这里的内容整理成了 [Demo](https://github.com/SharryChoo/MVVMSample), 希望能够帮助大家进一步理解 MVVM 架构
 
