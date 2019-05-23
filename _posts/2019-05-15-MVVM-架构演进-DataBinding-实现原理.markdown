@@ -307,10 +307,9 @@ public class DataBinderMapperImpl extends DataBinderMapper {
 好的, 可以看到最终我们获取到了 MainFragmentBindingImpl 这个对象, 这便是 ViewDataBinding 的实现类了, 它也是编译时生成的
 
 #### 流程回顾
-![ViewDataBinding 实例化流程](https://upload-images.jianshu.io/upload_images/4147272-61a0dc0daa43e9d5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![ViewDataBinding 实例化流程](https://i.loli.net/2019/05/23/5ce600e05d2c321221.png)
 
 这里我们还看没有看到 View 与 ViewModel 中的数据关联的过程, 接下来我们顺着 MainFragmentBindingImpl 的实例化继续探索
-
 
 ## 二. ViewDataBinding 的初始化
 ```
@@ -412,7 +411,6 @@ public abstract class ViewDataBinding extends BaseObservable {
 }
 ```
 好的, 可以看到最终看到了它调用了 ViewDataBinding.executeBindings 执行 Binding 操作
-
 
 ## 三. View 与 ObservableFiled 的绑定
 这个方法是交由子类重写的, 我们探究一下 MainFragmentBindingImpl 中是如何实现的
@@ -588,7 +586,7 @@ public class BaseObservable implements Observable {
 #### 回顾
 至此 DataBinding 框架便为我们成功的将 View 与 ViewModel 中的数据绑定了, 他们的关系如下
 
-![数据绑定的关系图](https://upload-images.jianshu.io/upload_images/4147272-f1c8777ddeaa0746.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![数据绑定的关系图](https://i.loli.net/2019/05/23/5ce600e05d2c321221.png)
 
 
 ## 四. ObservableField 通知观察者数据更新
