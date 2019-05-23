@@ -414,7 +414,7 @@ public abstract class ViewDataBinding extends BaseObservable {
 好的, 可以看到最终看到了它调用了 ViewDataBinding.executeBindings 执行 Binding 操作
 
 
-### 三. View 与 ObservableFiled 的绑定
+## 三. View 与 ObservableFiled 的绑定
 这个方法是交由子类重写的, 我们探究一下 MainFragmentBindingImpl 中是如何实现的
 ```
 public class MainFragmentBindingImpl extends MainFragmentBinding implements com.sharry.demo.mvvm.generated.callback.OnClickListener.Listener {
