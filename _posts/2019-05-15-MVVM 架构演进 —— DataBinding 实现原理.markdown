@@ -12,6 +12,7 @@ describe: DataBinding 在 MVVM 框架中起到了不可或缺的作用, 它是�
 我们知道 DataBinding 在 MVVM 架构中起到了不可或缺的作用, 它是削弱 View 层与 ViewModel 之间耦合的重中之重, 那么它是**如何做到当数据变更时便能够直接推送到 View 中的呢?**
 
 带着问题, 我们去探究一下 DataBinding 的实现, 先看看定义结构
+
 ### 一) Model
 ```
 // 全局的数据仓库
@@ -127,6 +128,7 @@ class MainViewModel : ViewModel() {
 ViewModel 中的代码也非常的简单, 只定义了一个 ObservableField, DataBinding 会直接通知 View 更新
 
 定义好到了实体类, 接下来我们就探索一下, DataBinding 是怎样实现 View 与 ViewModel 交互的
+
 
 ## 一. ViewDataBinding 的创建
 ```
@@ -309,6 +311,7 @@ public class DataBinderMapperImpl extends DataBinderMapper {
 
 这里我们还看没有看到 View 与 ViewModel 中的数据关联的过程, 接下来我们顺着 MainFragmentBindingImpl 的实例化继续探索
 
+
 ## 二. ViewDataBinding 的初始化
 ```
 public class MainFragmentBindingImpl extends MainFragmentBinding implements com.sharry.demo.mvvm.generated.callback.OnClickListener.Listener {
@@ -409,6 +412,7 @@ public abstract class ViewDataBinding extends BaseObservable {
 }
 ```
 好的, 可以看到最终看到了它调用了 ViewDataBinding.executeBindings 执行 Binding 操作
+
 
 ### 三. View 与 ObservableFiled 的绑定
 这个方法是交由子类重写的, 我们探究一下 MainFragmentBindingImpl 中是如何实现的
@@ -586,6 +590,7 @@ public class BaseObservable implements Observable {
 
 ![数据绑定的关系图](https://upload-images.jianshu.io/upload_images/4147272-f1c8777ddeaa0746.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
+
 ## 四. ObservableField 通知观察者数据更新
 当被观察者 Observable 调用 set 方法更新数据时, 便会通知订阅其观察者们, 我们看看它的实现
 ```
@@ -735,6 +740,7 @@ public class MainFragmentBindingImpl extends MainFragmentBinding implements com.
 
 ```
 好的, 可以看到观察者收到数据推送后, 最终会重新调用 MainFragmentBindingImpl.executeBindings 为控件更新数据, 至此一次数据推送就完成了
+
 
 ## 总结
 通过上面的分析可知 DataBinding 的工作原理主要有如下三个重要的步骤
