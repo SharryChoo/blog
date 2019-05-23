@@ -8,10 +8,12 @@ img: https://github.com/SharryChoo/blog/raw/master/assets/images/category_androi
 describe: 如何实现一套可用的 MVVM 架构? 需要注意哪些事项? 
 ---
 
+
 ## 前言
 学习了 MVVM 的 Demo, 翻阅了 DataBinding 的实现源码, 让我们对 MVVM 框架有了一个整体上的了解, 用一句话来概括就是, **MVVM 即通过 DataBinding 来解除 Presenter 与 View 依赖的 MVP 架构**, 这样的 Presenter 称之为 ViewModel
 
 不过 Demo 中的示例, 真实放到项目中, 会发现很多应用场景使用起来非常的困难, 甚至会让我们觉得没有 MVP 好用, 这篇文章记录了笔者在 MVP 向 MVVM 演进过程中的所见所想, 希望对看到这篇文章的人有所帮助
+
 
 ## 一. 设计要点
 MVVM 架构的搭建核心重点是为了解决 View 与 ViewModel 的通信问题
@@ -420,6 +422,7 @@ public class Sample1BindingAdapters {
 
 好的, 到这里我们 MVVM 的框架的搭建便进入尾声了, 接下来做个总结
 
+
 ## 总结
 不知道大家是否有这样的感觉, MVVM 框架的搭建比起 MVP 要简单的多, 我认为这是因为系统帮我们做了最终要的事情, 那便是 DataBinding, 初始写 MVVM 架构的时候, 可能会因为 ViewModel 中没有 View 而手足无措, 这个时候只需要将思维转变, **让 View 主动订阅 ViewModel 中的数据源即可实现最终目标**
 
@@ -427,6 +430,7 @@ public class Sample1BindingAdapters {
 
 ### 展望
 这样的 MVVM 架构, 已经能够满足日常开发需求了, 不过因为在 ViewModel 中含有对 ObservableField, LiveData 等 Android 依赖库, 让 ViewModel 层的单元测试变得比 MVP 中 Presenter 要困难的多, 有兴趣的小伙伴, 可以研究一下如何改进
+
 
 ## 参考文献
 - https://tech.meituan.com/2016/11/11/android-mvvm.html
