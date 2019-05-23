@@ -586,7 +586,7 @@ public class BaseObservable implements Observable {
 #### 回顾
 至此 DataBinding 框架便为我们成功的将 View 与 ViewModel 中的数据绑定了, 他们的关系如下
 
-![数据绑定的关系图](https://i.loli.net/2019/05/23/5ce600e05d2c321221.png)
+![数据绑定的关系图](https://i.loli.net/2019/05/23/5ce6015ae3dac56169.png)
 
 
 ## 四. ObservableField 通知观察者数据更新

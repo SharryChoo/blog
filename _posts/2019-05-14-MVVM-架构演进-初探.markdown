@@ -143,7 +143,7 @@ class MainViewModel : ViewModel() {
 ViewModel 中的代码也非常的简单, 直接构建了一些需要用的 ObservableXXX 类型的数据, 让其变更时, DataBinding 会直接通知 View 更新
 
 ### UML 图
-![MVVM 架构设计](https://i.loli.net/2019/05/23/5ce6015ae3dac56169.png)
+![MVVM 架构设计](https://i.loli.net/2019/05/23/5ce6004b11de920036.png)
 
 ## 四. 总结
 从 MVVM 的示例实现上可知, DataBinding 在 MVVM 的架构中起到了不可或缺的作用, 它将原本 MVP 中 View 与 Presenter 的交互转移给了 DataBinding, 让系统帮我们去维护复杂的交互流程
