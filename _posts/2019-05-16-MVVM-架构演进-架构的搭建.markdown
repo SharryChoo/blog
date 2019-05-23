@@ -433,6 +433,6 @@ public class Sample1BindingAdapters {
 
 
 ## 参考文献
-- https://tech.meituan.com/2016/11/11/android-mvvm.html
-- https://listenzz.github.io/android-lifecyle-works-perfectly-with-rxjava.html
-- https://developer.android.com/topic/libraries/architecture
+- [https://tech.meituan.com/2016/11/11/android-mvvm.html](https://tech.meituan.com/2016/11/11/android-mvvm.html)
+- [https://listenzz.github.io/android-lifecyle-works-perfectly-with-rxjava.html](https://listenzz.github.io/android-lifecyle-works-perfectly-with-rxjava.html)
+- [https://developer.android.com/topic/libraries/architecture](https://developer.android.com/topic/libraries/architecture)
