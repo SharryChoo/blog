@@ -42,7 +42,7 @@ A framework help u build Toolbar more easier.
 - [Repository](https://github.com/SharryChoo/SToolbar)
 
 ### PicturePicker
-A framework help u build Toolbar more easier.
+A framework for assisting in Android picture selection.
 - [How to use](https://github.com/SharryChoo/PicturePicker/blob/release/README.md)
 - [Repository](https://github.com/SharryChoo/PicturePicker)
 
