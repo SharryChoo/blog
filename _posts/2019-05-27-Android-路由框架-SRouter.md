@@ -18,7 +18,7 @@ describe: 如何实现项目组件化的最终目标? 如何使用 SRouter
 - **支持拓展与 RxJava 无缝衔接**
 
 ## 二. 功能集成
-[![New Version](https://jitpack.io/v/SharryChoo/SRouter.svg)](https://jitpack.io/#SharryChoo/SRouter)
+![New Version](https://jitpack.io/v/SharryChoo/SRouter.svg)
 
 ### Step 1
 在工程的根 build.gradle 中添加 jitpack 的 maven 仓库
