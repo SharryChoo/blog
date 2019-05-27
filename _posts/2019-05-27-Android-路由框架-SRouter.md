@@ -138,6 +138,7 @@ public class BaseApplication extends Application {
 - Activity
 - Fragment/Fragment(androidx)
 - IService: 用于自己实现目标的服务逻辑
+
 ```
 @Route( 
         authority = ModuleConstants.Personal.NAME,
