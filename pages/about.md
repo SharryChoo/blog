@@ -27,8 +27,8 @@ img: https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg
 
 ## Open Source
 ### SRouter
-A framework for assisting in the renovation of Android componentization
-- How to use
+A framework of componentization related to Android platform
+- [How to use](https://sharrychoo.github.io/blog/android/2019/05/27/Android-%E8%B7%AF%E7%94%B1%E6%A1%86%E6%9E%B6-SRouter.html)
 - [Repository](https://github.com/SharryChoo/SRouter)
 
 ### SCompressor
