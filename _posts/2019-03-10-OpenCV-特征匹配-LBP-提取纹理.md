@@ -1,9 +1,9 @@
 ---
 layout: post
 title: "OpenCV 特征匹配 —— LBP 提取纹理"
-date: 2019-05-09
+date: 2019-03-09
 categories: OpenCV
-tags: OpenCV Hist
+tags: OpenCV Feature
 img: https://i.loli.net/2019/05/29/5cee10b4a534832047.jpg
 describe: LBP 应用在哪些领域? 它的算法是如何实现的呢?
 ---

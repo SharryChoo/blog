@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "OpenCV 特征匹配 —— HOG 行人检测"
-date: 2019-05-09
+date: 2019-03-09
 categories: OpenCV
 tags: OpenCV Hist
 img: https://i.loli.net/2019/05/29/5cee10b4a534832047.jpg
