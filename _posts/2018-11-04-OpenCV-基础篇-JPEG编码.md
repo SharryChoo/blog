@@ -4,7 +4,7 @@ title: "OpenCV 基础篇 —— JPEG 编码"
 date: 2018-11-04
 categories: OpenCV
 tags: OpenCV
-img: https://i.loli.net/2019/05/29/5cedfb87aa3b480840.jpg
+img: https://i.loli.net/2019/05/29/5cee10b4a534832047.jpg
 describe: 常用的色彩空间的表示有哪些? 他们分别有什么优劣?
 ---
 
