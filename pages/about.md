@@ -2,7 +2,7 @@
 layout: page
 title: "ABOUT"
 date: 2019-05-18
-img: https://github.com/SharryChoo/blog/raw/master/assets/images/background.jpg
+img: https://i.loli.net/2019/05/29/5cee26f63d21637162.jpg
 ---
 
 ## About me
