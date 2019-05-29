@@ -4,7 +4,7 @@ title: "Android 路由框架 —— SRouter"
 date: 2019-05-27
 categories: Android
 tags: Framework
-img: https://i.loli.net/2019/05/27/5ceb9ad053cd327311.jpg
+img: https://i.loli.net/2019/05/29/5cee409f0b91457860.jpg
 describe: 如何实现项目组件化的最终目标? 如何使用 SRouter
 ---
 
