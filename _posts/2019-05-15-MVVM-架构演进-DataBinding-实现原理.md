@@ -3,7 +3,7 @@ layout: post
 title: "MVVM 架构演进 —— DataBinding 实现原理"
 date: 2019-05-15
 categories: Android
-tags: framework mvvm
+tags: Framework MVVM
 img: https://i.loli.net/2019/05/29/5cee27a9316eb47273.jpg
 describe: DataBinding 在 MVVM 框架中起到了不可或缺的作用, 它是如何实现数据绑定这一功能的呢?
 ---
