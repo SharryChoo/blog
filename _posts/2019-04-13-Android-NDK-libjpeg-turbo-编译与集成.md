@@ -2,9 +2,9 @@
 layout: post
 title: "Android 端 Libjpeg-turbo 编译与集成"
 date: 2019-04-13
-categories: Android
+categories: Android NDK
 tags: NDK
-img: https://i.loli.net/2019/05/29/5cee27a9316eb47273.jpg
+img: https://i.loli.net/2019/05/29/5cee3bb21183092007.jpg
 describe: 为何要使用 Libjpeg? 如何编译 Libjpeg 的 so 库?
 ---
 ## 前言
