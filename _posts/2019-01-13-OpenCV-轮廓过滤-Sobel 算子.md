@@ -131,7 +131,7 @@ void main() {
 ```
 ![Sobel](https://i.loli.net/2019/05/29/5cee204a7262722417.png)
 
-## 二. Scharr 算子
+## 三. Scharr 算子
 在 Sobel 上的增强, 效果最好, 速度稍慢
 
 ### 代码实现
