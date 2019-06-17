@@ -4,19 +4,19 @@ title: "Android 图片压缩框架 —— SCompressor"
 date: 2019-06-17
 categories: Android
 tags: Framework
-img: https://i.loli.net/2019/05/29/5cee409f0b91457860.jpg
+img: https://i.loli.net/2019/06/17/5d0757636010e90469.jpg
 describe: 如何使用 SCompressor?
 ---
 ---
-## 关于
+## 一. 关于
 一款关于 Android 端图片压缩解决方案的框架 (Core is [libjpeg-turbo 2.0.2](https://github.com/libjpeg-turbo/libjpeg-turbo/releases/tag/2.0.2))
 
 ---
-## Current Version 
+## 二. 最新版本 
 [![](https://jitpack.io/v/SharryChoo/SCompressor.svg)](https://jitpack.io/#SharryChoo/SCompressor)
 
 ---
-## 如何集成
+## 三. 如何集成
 ### Step 1
 在工程的根 build.gradle 中添加 jitpack 的 maven 仓库
 ```
@@ -38,14 +38,14 @@ dependencies {
 ```
 
 ---
-## 如何使用
-### 初始化
+## 四. 如何使用
+### 一) 初始化
 在 Application 创建时, 传入 Context 进行初始化操作
 ```
 SCompressor.init(this);
 ```
 
-### 配置输入源
+### 二) 配置输入源
 ```
 // 1. 支持压缩文件路径
 SCompressor.create()
@@ -84,7 +84,7 @@ SCompressor.create()
 
 如果使用了自定义数据源, 则需要在后面实现对应的 InputAdapter, 并且添加到 SCompressor 中
 
-### 配置压缩项
+### 三) 配置压缩项
 ```
 SCompressor.create()
         .setInputPath(url)
@@ -97,7 +97,7 @@ SCompressor.create()
         ......
 ```
 
-### 配置输出数据源
+### 四) 配置输出数据源
 ```
 // 1. 配置输出路径
 SCompressor.create()
@@ -144,7 +144,7 @@ SCompressor.create()
 
 如果使用了自定义输出源, 则需要在后面实现对应的 OutputAdapter, 并且添加到 SCompressor 中
 
-### 异步发起
+### 五) 异步发起
 ```
 // normal async call.
 SCompressor.create()
@@ -178,7 +178,7 @@ SCompressor.create()
         });
 ```
 
-### 同步发起
+### 六) 同步发起
 ```
 Bitmap bitmap = SCompressor.create()
         .setInputPath(inputPath)
@@ -187,10 +187,10 @@ Bitmap bitmap = SCompressor.create()
         .syncCall()
 ```
 
-### 其他 
+### 七) 其他 
 如果使用了自定义输入输出源, 则需要实现对应的 Adapter, 并且添加到 SCompressor
 
-#### InputAdapter
+#### 1. InputAdapter
 ```
 // Define Input Adapter
 InputAdapter<Object> myInputAdapter = new InputAdapter<Object>() {
@@ -212,7 +212,7 @@ InputAdapter<Object> myInputAdapter = new InputAdapter<Object>() {
 SCompressor.addInputAdapter(myInputAdapter);
 ```
 
-#### OutputAdapter
+#### 2. OutputAdapter
 ```
 OutputAdapter<Object> myOutputAdapter = new OutputAdapter<Object>() {
      @Override
