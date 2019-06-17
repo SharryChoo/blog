@@ -8,7 +8,7 @@ img: https://i.loli.net/2019/06/17/5d0757636010e90469.jpg
 describe: 如何使用 SCompressor?
 ---
 ---
-## 一. 关于
+## 一. [关于](https://github.com/SharryChoo/SCompressor)
 一款关于 Android 端图片压缩解决方案的框架 (Core is [libjpeg-turbo 2.0.2](https://github.com/libjpeg-turbo/libjpeg-turbo/releases/tag/2.0.2))
 
 ---
