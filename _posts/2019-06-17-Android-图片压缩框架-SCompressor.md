@@ -4,7 +4,7 @@ title: "Android 图片压缩框架 —— SCompressor"
 date: 2019-06-17
 categories: Android
 tags: Framework
-img: https://i.loli.net/2019/06/17/5d0757636010e90469.jpg
+img: https://i.loli.net/2019/06/17/5d07593ad56ab66651.jpg
 describe: 如何使用 SCompressor?
 ---
 ---
