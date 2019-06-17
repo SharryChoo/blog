@@ -5,19 +5,19 @@ date: 2019-05-27
 categories: Android
 tags: Framework
 img: https://i.loli.net/2019/05/29/5cee409f0b91457860.jpg
-describe: 如何实现项目组件化的最终目标? 如何使用 SRouter
+describe: SRouter 能够做些什么? 如何使用 SRouter?
 ---
-
-## [Repository](https://github.com/SharryChoo/SRouter)
 
 ## 一. 功能介绍
 - 支持解析 URL 直接进行路由跳转
 - 提供可自定义优先级的路由拦截器
 - 支持自定义跳转时的 Transaction 动画
-- **支持路由模块动态装载与卸载**
+- 支持路由模块动态装载与卸载
+- **支持通过路由获取 原生/AppCompat/AndroidX 包下的 Fragment**
 - **支持 Activity/Fragment 中 Intent 数据自动注入**
-- **支持直接获取目标页面的 Intent 返回值**
-- **支持拓展与 RxJava 无缝衔接**
+- **支持回调获取目标页面的 ActivityResult**
+- **支持灵活拓展实现与 RxJava 无缝衔接**
+- **支持使用接口方法进行路由跳转(与 Retrofit 类似)**
 
 ## 二. 功能集成
 ![New Version](https://jitpack.io/v/SharryChoo/SRouter.svg)
@@ -133,7 +133,7 @@ public class BaseApplication extends Application {
   - 根据业务需求, 运行时解注册想要使用的 module 
 
 ### 二) 路由跳转
-#### 1. 目标声明
+#### 目标声明
 路由目标声明使用 @Route 描述, 其可作用的 class 如下
 - Activity
 - Fragment/Fragment(androidx)/Fragment(v4)
@@ -159,8 +159,7 @@ class PersonalActivity : AppCompatActivity() {
 
 请确保 authority 与 path 的组合是唯一的
 
-#### 2. 跳转发起
-##### 普通跳转
+#### 普通跳转
 ```
 SRouter.request(ModuleConstants.Personal.NAME, ModuleConstants.Personal.PERSONAL_ACTIVITY)
         // 设置 Activity 转场动画
@@ -172,16 +171,16 @@ SRouter.request(ModuleConstants.Personal.NAME, ModuleConstants.Personal.PERSONAL
         // 执行跳转操作
         .navigation(this)
 ```
-##### url 跳转
+#### url 跳转
 ```
-val url = "router://found/found_activity?opr=15533&password=1234456"
+val url = "router://found/found_fragment?title=123.45&content=FoundContent"
 SRouter.request(url)
         ......
         .navigation(this)
 ```
 url 跳转即 request 构造时不同, 其他使用方式一致
 
-##### 获取 ActivityResult
+#### 获取 ActivityResult
 ```
 SRouter.request(ModuleConstants.Personal.NAME, ModuleConstants.Personal.PERSONAL_ACTIVITY)
         .setRequestCode(100)
@@ -198,7 +197,7 @@ navigation 方法支持传入一个 Callback, 当路由成功后可以获取到 
 - Fragment
 - Request
 
-##### 获取 Fragment
+#### 获取 Fragment
 ```
 SRouter.request(ModuleConstants.Personal.NAME, ModuleConstants.Personal.PERSONAL_FRGAMENT)
         .setRequestCode(100)
@@ -211,7 +210,7 @@ SRouter.request(ModuleConstants.Personal.NAME, ModuleConstants.Personal.PERSONAL
 获取 Fragment 的方式与获取 ActivityResult 是一致的
 - **需要指定 Fragment 的类型**, 支持 V4 和 Androidx 包下的 Fragment 
 
-##### 按需跳转
+#### 按需跳转
 如果你想控制路由跳转的时机, 以及中途取消等操作, 可以使用以下方式
 ```
 // 获取可跳转的 ICall 对象
@@ -236,10 +235,51 @@ val cancelable: ICancelable = call.post(object : IInterceptor.ChainCallback {
 cancelable.cancel()
 ```
 
+#### 模板接口跳转
+定义模板接口
+```
+public interface RouteApi {
+
+    @RouteMethod(
+            authority = ModuleConstants.Found.NAME,
+            path = ModuleConstants.Found.FOUND_FRAGMENT
+    )
+    ICall foundFragment(
+            @QueryParam(key = "title") double title,
+            @QueryParam(key = "content") String content
+    );
+
+    /**
+     * @param context 若无 context 参数, 会使用 application context 跳转
+     */
+    @RouteMethod(
+            authority = ModuleConstants.Personal.NAME,
+            path = ModuleConstants.Personal.PERSONAL_ACTIVITY,
+            interceptorURIs = ModuleConstants.App.LOGIN_INTERCEPTOR
+    )
+    ICall personalCenter(
+            Context context,
+            @QueryParam(key = "content") String content,
+            @RequestCode int requestCode,
+            @Flags int flags
+    );
+
+}
+```
+实例化路由接口
+```
+ val routeApi = SRouter.createApi(RouteApi::class.java)
+```
+使用路由接口跳转
+```
+val cancelable: ICancelable = routeApi.personalCenter(this).call()
+......
+```
+
 ### 二) 拦截器
 在 SRouter 中有效的拦截器, 需要用户实现 IInterceptor 接口
 
-#### 1. 拦截器的定义
+#### 拦截器的定义
 ```
 public class PermissionInterceptor implements IInterceptor {
 
@@ -276,8 +316,7 @@ public class PermissionInterceptor implements IInterceptor {
 
 路由跳转时会根据优先级进行排序
 
-#### 2. 拦截器的使用
-##### 方式一
+#### 使用方式一
 配合路由使用
 ```
 @Route(
@@ -290,7 +329,7 @@ public class PermissionInterceptor implements IInterceptor {
 class PersonalActivity : AppCompatActivity() {
 }
 ```
-##### 方式二
+#### 使用方式二
 在路由跳转时可以通过两种方式添加拦截器
 ```
 SRouter.request(xxx, xxx)
@@ -299,6 +338,24 @@ SRouter.request(xxx, xxx)
         // 添加拦截器的 URI
         .addInterceptorURI(ModuleConstants.Personal.PERMISSION_INTERCEPTOR)
         ......
+```
+#### 使用方式三
+在模板接口中的 @RouteMethod 中添加
+```
+public interface RouteApi {
+    @RouteMethod(
+            authority = ModuleConstants.Personal.NAME,
+            path = ModuleConstants.Personal.PERSONAL_ACTIVITY,
+	    // 添加跳转时的拦截器
+            interceptorURIs = ModuleConstants.Personal.PERMISSION_INTERCEPTOR
+    )
+    ICall personalCenter(
+            Context context,
+            @QueryParam(key = "content") String content,
+            @RequestCode int requestCode,
+            @Flags int flags
+    );
+}
 ```
 
 ### 三) 拓展
@@ -409,7 +466,7 @@ public final class ResponseObservable extends Observable<Response> {
 SRouter.addCallAdapter(new RxJavaAdapter());
 ```
 
-##### 4. 结合使用
+##### 4. 链式调用
 ```
 val disposable = SRouter.request(ModuleConstants.App.NAME, ModuleConstants.App.LOGIN_ACTIVITY)
         // 构建 Activity 相关配置
@@ -426,6 +483,36 @@ val disposable = SRouter.request(ModuleConstants.App.NAME, ModuleConstants.App.L
                     SRouter.navigation(chainContext.baseContext, chainContext.request)
                 }
         }
+```
+##### 5. 模板方法调用
+```
+public interface RouteApi {
+
+    @RouteMethod(
+            authority = ModuleConstants.Found.NAME,
+            path = ModuleConstants.Found.FOUND_FRAGMENT
+    )
+    ResponseObservable foundFragment(
+            @QueryParam(key = "title") double title,
+            @QueryParam(key = "content") String content
+    );
+
+    /**
+     * @param context 若无 context 参数, 会使用 application context 跳转
+     */
+    @RouteMethod(
+            authority = ModuleConstants.Personal.NAME,
+            path = ModuleConstants.Personal.PERSONAL_ACTIVITY,
+            interceptorURIs = ModuleConstants.App.LOGIN_INTERCEPTOR
+    )
+    ResponseObservable personalCenter(
+            Context context,
+            @QueryParam(key = "content") String content,
+            @RequestCode int requestCode,
+            @Flags int flags
+    );
+
+}
 ```
 这里只是以 RxJava 举例, 你可以自行实现 ICallAdapter 接口, 将路由的 ICall 适配成任何你想要的对象
 
