@@ -70,34 +70,35 @@ protected:
 
 为了实现更快速更高质量的 JPEG 有损压缩, 因此笔者选择编译 libjpeg-turbo, 来处理项目中的图片压缩, 据官方介绍, 得益于它高度优化的哈夫曼算法, 它比 libjpeg 要快上 2-6 倍, 接下来我们来一步一步的将它集成到项目中
 
-## 一. 准备工作
-### 一) 操作系统 
-Ubuntu-18.04.1
+## 一. 环境
+### 操作系统 
+MacOS Mojave version 10.14.5
 
-### 二) 依赖安装
-#### 1. NDK
-[android-ndk-r16b-linux-x86_64.zip](https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip)
-
-#### 2. CMake
-[CMake 3.12.1 的 Linux 版本](https://cmake.org/files/v3.12/cmake-3.12.1-Linux-x86_64.tar.gz)
-
-#### 3. make
-```
-sudo apt-get install make
-```
-
-#### 4. libjpeg-turbo
+### Libjpeg-turbo 版本
 从 Github 上下载最新的源码即可<br>
 https://github.com/libjpeg-turbo/libjpeg-turbo
 
-##### 注释版本号
-- 打开 libjpeg-turbo/sharedLibs/CMakeList.txt, 将设置版本号的位置注释, 否则在使用时, 可能会出现运行时缺少 so 库的问题
+### NDK 版本
+NDK16
 
-![注释版本号](https://user-gold-cdn.xitu.io/2019/4/13/16a16af9e818ef73?w=1240&h=566&f=png&s=299441)
+### cmake 版本
+```
+➜  ~ cmake -version
+cmake version 3.14.5
+```
 
-## 二. 编译
-### 一) 脚本编写
-Android 端脚本编写指南在 libjpeg-turbo 库中的 BUILDING.md 中有说明
+## 二. 准备
+### 注释版本号
+为了方便使用, 我们需要先注释版本号
+- 打开 libjpeg-turbo/sharedLibs/CMakeList.txt, 将设置版本号的位置注释
+```
+#set_target_properties(jpeg PROPERTIES SOVERSION ${SO_MAJOR_VERSION}
+#  VERSION ${SO_MAJOR_VERSION}.${SO_AGE}.${SO_MINOR_VERSION})
+```
+
+## 三. 编译
+### 脚本编写
+Android 端脚本编写指南在 libjpeg-turbo 库中的 [BUILDING.md](https://github.com/libjpeg-turbo/libjpeg-turbo/blob/master/BUILDING.md) 中有说明
 ```
 Building libjpeg-turbo for Android
 ----------------------------------
@@ -133,109 +134,45 @@ needs.
 ```
 我们按照它的要求, 进行 shell 脚本的编写即可, 编写后的shell 脚本如下
 ```
-#!/bin/sh
-
-# lib-name
-MY_LIBS_NAME=libjpeg-turbo
-# 源码文件目录
-MY_SOURCE_DIR=/home/sharry/Desktop/libjpeg-turbo-master
-# 编译的过程中产生的中间件的存放目录，为了区分编译目录，源码目录，install目录
-MY_BUILD_DIR=binary
-
-##  CMake 环境变量
-export PATH=/home/sharry/Desktop/cmake-3.12.1-Linux-x86_64/bin:$PATH
-
-NDK_PATH=/home/sharry/Desktop/android-ndk-r16b
-BUILD_PLATFORM=linux-x86_64
-TOOLCHAIN_VERSION=4.9
+# 定义变量
+ARCH=arm
+ANDROID_ARCH_ABI=armeabi-v7a
 ANDROID_VERSION=19
+NDK_PATH=/Users/sharrychoo/Library/Android/ndk/android-ndk-r16b
+PREFIX=`pwd`/android/${ARCH}/${CPU}
+CFALGS="-march=armv7-a -mfloat-abi=softfp -mfpu=neon"
 
-ANDROID_ARMV5_CFLAGS="-march=armv5te"
-ANDROID_ARMV7_CFLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=neon"  # -mfpu=vfpv3-d16  -fexceptions -frtti
-ANDROID_ARMV8_CFLAGS="-march=armv8-a"   # -mfloat-abi=softfp -mfpu=neon -fexceptions -frtti
-ANDROID_X86_CFLAGS="-march=i386 -mtune=intel -mssse3 -mfpmath=sse -m32"
-ANDROID_X86_64_CFLAGS="-march=x86-64 -msse4.2 -mpopcnt -m64 -mtune=intel"
+# 使用 cmake 命令生成 Makefile
+cmake -G"Unix Makefiles" \
+	-DANDROID_ABI=${ANDROID_ARCH_ABI} \
+	-DANDROID_ARM_MODE=${ARCH} \
+	-DANDROID_PLATFORM=android-${ANDROID_VERSION} \
+	-DANDROID_TOOLCHAIN=clang \
+	-DCMAKE_TOOLCHAIN_FILE=${NDK_PATH}/build/cmake/android.toolchain.cmake \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DANDROID_NDK=${NDK_PATH} \
+	-DCMAKE_POSITION_INDEPENDENT_CODE=1 \
+	-DCMAKE_INSTALL_PREFIX=${PREFIX} \
+	-DANDROID_ARM_NEON=TRUE \
+	-DANDROID_STL=c++_static \
+	-DCMAKE_C_FLAGS="${CFALGS} -Os -Wall -pipe -fPIC" \
+	-DCMAKE_CXX_FLAGS="${CFALGS} -Os -Wall -pipe -fPIC" \
+	-DANDROID_CPP_FEATURES=rtti exceptions \
+	-DWITH_JPEG8=1 \
+	..
 
-# params($1:arch,$2:arch_abi,$3:host,$4:compiler,$5:cflags,$6:processor)
-build_bin() {
-
-    echo "-------------------star build $2-------------------------"
-
-    ARCH=$1                # arm arm64 x86 x86_64
-    ANDROID_ARCH_ABI=$2    # armeabi armeabi-v7a x86 mips
-    # 最终编译的安装目录
-    PREFIX=$(pwd)/dist/${MY_LIBS_NAME}/${ANDROID_ARCH_ABI}/
-    HOST=$3
-    COMPILER=$4
-    PROCESSOR=$6
-    SYSROOT=${NDK_PATH}/platforms/android-${ANDROID_VERSION}/arch-${ARCH}
-    CFALGS="$5"
-    TOOLCHAIN=${NDK_PATH}/toolchains/${HOST}-${TOOLCHAIN_VERSION}/prebuilt/${BUILD_PLATFORM}
-    
-    # build 中间件
-    BUILD_DIR=./${MY_BUILD_DIR}/${ANDROID_ARCH_ABI}
-
-    export CFLAGS="$5 -Os -D__ANDROID_API__=${ANDROID_VERSION} --sysroot=${SYSROOT} \
-                   -isystem ${NDK_PATH}/sysroot/usr/include \
-                   -isystem ${NDK_PATH}/sysroot/usr/include/${HOST} "
-    export LDFLAGS=-pie
-
-    echo "path==>$PATH"
-    echo "build_dir==>$BUILD_DIR"
-    echo "ARCH==>$ARCH"
-    echo "ANDROID_ARCH_ABI==>$ANDROID_ARCH_ABI"
-    echo "HOST==>$HOST"
-    echo "CFALGS==>$CFALGS"
-    echo "COMPILER==>$COMPILER-gcc"
-    echo "PROCESSOR==>$PROCESSOR"
-
-    mkdir -p ${BUILD_DIR}   #创建当前arch_abi的编译目录,比如:binary/armeabi-v7a
-    cd ${BUILD_DIR}         #此处 进了当前arch_abi的2级编译目录
-
-# 运行时创建临时编译链文件toolchain.cmake
-cat >toolchain.cmake << EOF 
-set(CMAKE_SYSTEM_NAME Linux)
-set(CMAKE_SYSTEM_PROCESSOR $6)
-set(CMAKE_C_COMPILER ${TOOLCHAIN}/bin/${COMPILER}-gcc)
-set(CMAKE_FIND_ROOT_PATH ${TOOLCHAIN}/${COMPILER})
-EOF
-
-    cmake -G"Unix Makefiles" \
-          -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake \
-          -DCMAKE_POSITION_INDEPENDENT_CODE=1 \
-          -DCMAKE_INSTALL_PREFIX=${PREFIX} \
-          -DWITH_JPEG8=1 \
-          ${MY_SOURCE_DIR}
-
-    make clean
-    make
-    make install
-
-    #从当前arch_abi编译目录跳出，对应上面的cd ${BUILD_DIR},以便function多次执行
-    cd ../../
-
-    echo "-------------------$2 build end-------------------------"
-}
-
-# build armeabi
-build_bin arm armeabi arm-linux-androideabi arm-linux-androideabi "$ANDROID_ARMV5_CFLAGS" arm
+# 生成 so 库
+make clean
+make
+make install
 ```
+### 结果展示
+![生成结果](https://user-gold-cdn.xitu.io/2019/6/13/16b4e6ac29a66941?w=1186&h=392&f=png&s=100222)
 
-### 二) 执行编译脚本
-```
-sh build.sh
-```
-编译执行之后, 便会输出头文件 和 armeabi 架构的 so 库
-
-![头文件](https://user-gold-cdn.xitu.io/2019/4/13/16a16af9ff8ea0c1?w=568&h=257&f=png&s=15468)
-
-![so库](https://user-gold-cdn.xitu.io/2019/4/13/16a16afa0d6c1016?w=703&h=397&f=png&s=24066)
-
-## 三. 集成
+## 四. 集成
 ### 一) 添加
 将我们上面编译好的 so 和头文件拷贝到我们的项目中
-
-![添加](https://user-gold-cdn.xitu.io/2019/4/13/16a16afa1a5d42c1?w=419&h=382&f=png&s=16692)
+![添加](https://user-gold-cdn.xitu.io/2019/6/13/16b4e6ac29bc4564?w=339&h=255&f=png&s=2623)
 
 ### 二) CMake 链接
 在 CMake 中将我们的动态了添加进去
@@ -272,7 +209,7 @@ android {
         versionName "1.0"
         externalNativeBuild {
             ndk {
-                abiFilters "armeabi" // 只生成 armeabi 的 CPU 架构的 .so
+                abiFilters "armeabi-v7a"
             }
         }
     }
@@ -280,7 +217,7 @@ android {
 ```
 好的, 至此我们的集成就完成了, 接下来提供一些简单的用法
 
-## 四. 代码的编写与测试
+## 五. 代码的编写与测试
 我们编译 libjpeg-turbo 的主要目的就是为了进行 JPEG 的高质量压缩, 关于 libjpeg-turbo 的使用, 这里就不赘述了, 其官方提供好的 sample 如下<br>
 https://raw.githubusercontent.com/libjpeg-turbo/libjpeg-turbo/master/example.txt
 
@@ -348,7 +285,7 @@ Java_com_sharry_libscompressor_Core_nativeCompress(JNIEnv *env, jclass type, job
 }
 ```
 ### 效果展示
-![效果展示](https://user-gold-cdn.xitu.io/2019/4/13/16a16afa24d160d2?w=410&h=817&f=png&s=295623)
+![效果展示](https://user-gold-cdn.xitu.io/2019/6/13/16b4e6ac29f94bea?w=410&h=817&f=png&s=295622)
 
 ```
 I/Core: Request{inputSourceType = String, outputSourceType = Bitmap, quality = 70, destWidth = -1, destHeight = -1}
