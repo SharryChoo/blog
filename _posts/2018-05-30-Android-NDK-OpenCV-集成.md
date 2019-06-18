@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: post
 title: "Android 端 OpenCV 的集成"
 date: 2018-05-30
 categories: Android NDK

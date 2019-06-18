@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: post
 title: "OpenCV 特征匹配 —— HOG 行人检测"
 date: 2019-03-09
 categories: OpenCV

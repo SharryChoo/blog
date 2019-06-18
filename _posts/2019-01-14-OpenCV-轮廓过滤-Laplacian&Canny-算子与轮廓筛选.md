@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: post
 title: "OpenCV 轮廓过滤 —— Laplacian & Canny 算子与轮廓筛选"
 date: 2019-01-14
 categories: OpenCV

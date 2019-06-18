@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: post
 title: "OpenCV 特征匹配 —— LBP 提取纹理"
 date: 2019-03-09
 categories: OpenCV

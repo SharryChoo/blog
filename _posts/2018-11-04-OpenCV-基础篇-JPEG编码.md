@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: post
 title: "OpenCV 基础篇 —— JPEG 编码"
 date: 2018-11-04
 categories: OpenCV

@@ -55,7 +55,7 @@ comment:
   valine_placeholder: ""
 
 prism:
-  themes: prism-default
+  themes: prism-okaidia
   components:
     - bash
   plugins:
