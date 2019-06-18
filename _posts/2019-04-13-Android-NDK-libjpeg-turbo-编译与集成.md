@@ -167,11 +167,13 @@ make
 make install
 ```
 ### 结果展示
+
 ![生成结果](https://user-gold-cdn.xitu.io/2019/6/13/16b4e6ac29a66941?w=1186&h=392&f=png&s=100222)
 
 ## 四. 集成
 ### 一) 添加
 将我们上面编译好的 so 和头文件拷贝到我们的项目中
+
 ![添加](https://user-gold-cdn.xitu.io/2019/6/13/16b4e6ac29bc4564?w=339&h=255&f=png&s=2623)
 
 ### 二) CMake 链接
@@ -285,6 +287,7 @@ Java_com_sharry_libscompressor_Core_nativeCompress(JNIEnv *env, jclass type, job
 }
 ```
 ### 效果展示
+
 ![效果展示](https://user-gold-cdn.xitu.io/2019/6/13/16b4e6ac29f94bea?w=410&h=817&f=png&s=295622)
 
 ```
