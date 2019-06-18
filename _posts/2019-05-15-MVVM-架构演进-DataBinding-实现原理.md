@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: page
 title: "MVVM 架构演进 —— DataBinding 实现原理"
 date: 2019-05-15
 categories: Android

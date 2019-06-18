@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: page
 title: "Android 图片压缩框架 —— SCompressor"
 date: 2019-06-17
 categories: Android

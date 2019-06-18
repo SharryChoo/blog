@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: page
 title: "OpenCV 轮廓过滤 —— Sobel 算子"
 date: 2019-01-12
 categories: OpenCV

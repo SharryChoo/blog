@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: page
 title: "Android 端 Libjpeg-turbo 编译与集成"
 date: 2019-04-13
 categories: Android NDK
