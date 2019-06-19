@@ -2,6 +2,7 @@
 layout: article
 title: "Android 图片压缩框架 —— SCompressor"
 tags: Framework
+key: Android 图片压缩框架 —— SCompressor
 aside:
   toc: true
 sidebar:
