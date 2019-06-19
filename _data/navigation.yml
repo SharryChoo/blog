@@ -1,12 +1,12 @@
 header:
   - title: Home
-    url:   https://sharrychoo.github.io/blog/
+    url:   /index.html
   - title: Archive
     url:   /archive.html
   - title: About
     url:   /about.html
   - title: GitHub
-      url: https://github.com/SharryChoo
+    url: https://github.com/SharryChoo
 
 layouts:
   - title: Layouts
