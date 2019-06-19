@@ -7,6 +7,7 @@ aside:
 sidebar:
   nav: layouts
 ---
+
 ## OpenCV
 https://opencv.org/
 
