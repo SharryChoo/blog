@@ -7,15 +7,13 @@ aside:
 sidebar:
   nav: layouts
 ---
----
+
 ## [一.关于](https://github.com/SharryChoo/SCompressor)
 一款关于 Android 端图片压缩解决方案的框架 (Core is [libjpeg-turbo 2.0.2](https://github.com/libjpeg-turbo/libjpeg-turbo/releases/tag/2.0.2))
 
----
 ## 二. 最新版本 
 [![](https://jitpack.io/v/SharryChoo/SCompressor.svg)](https://jitpack.io/#SharryChoo/SCompressor)
 
----
 ## 三. 如何集成
 ### Step 1
 在工程的根 build.gradle 中添加 jitpack 的 maven 仓库
@@ -27,7 +25,6 @@ allprojects {
     }
 }
 ```
-
 ### Step 2
 在工程的 base 库中的 build.gradle 添加如下依赖
 ```
@@ -37,7 +34,6 @@ dependencies {
 }
 ```
 
----
 ## 四. 如何使用
 ### 一) 初始化
 在 Application 创建时, 传入 Context 进行初始化操作
@@ -231,7 +227,6 @@ OutputAdapter<Object> myOutputAdapter = new OutputAdapter<Object>() {
 // Add to scompressor.
 SCompressor.addOutputAdapter(myOutputAdapter);
 ```
----
 
 ## License
 ```
