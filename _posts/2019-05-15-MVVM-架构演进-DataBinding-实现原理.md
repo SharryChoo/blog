@@ -4,8 +4,6 @@ title: "MVVM 架构演进 —— DataBinding 实现原理"
 tags: Framework MVVM
 aside:
   toc: true
-sidebar:
-  nav: layouts
 ---
 
 ## 前言

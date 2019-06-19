@@ -4,8 +4,6 @@ title: "OpenCV 基础篇 —— JPEG 编码"
 tags: OpenCV
 aside:
   toc: true
-sidebar:
-  nav: layouts
 ---
 
 ## 前言

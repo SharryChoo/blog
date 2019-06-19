@@ -7,9 +7,3 @@ header:
     url:   /about.html
   - title: GitHub
     url: https://github.com/SharryChoo
-
-layouts:
-  - title: Layouts
-    children:
-      - title:  SCompressor
-        url:    /2019/06/17/Android-图片压缩框架-SCompressor.html

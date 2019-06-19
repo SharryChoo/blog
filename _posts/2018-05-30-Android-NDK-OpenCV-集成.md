@@ -4,8 +4,6 @@ title: "Android 端 OpenCV 的集成"
 tags: NDK
 aside:
   toc: true
-sidebar:
-  nav: layouts
 ---
 
 ## OpenCV

@@ -4,8 +4,6 @@ title: "OpenCV 特征匹配 —— LBP 提取纹理"
 tags: OpenCV Feature
 aside:
   toc: true
-sidebar:
-  nav: layouts
 ---
 
 ## 什么是 LBP?

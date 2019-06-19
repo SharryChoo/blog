@@ -4,8 +4,6 @@ title: "OpenCV 轮廓过滤 —— Sobel 算子"
 tags: OpenCV Filter
 aside:
   toc: true
-sidebar:
-  nav: layouts
 ---
 
 ## 图像轮廓过滤思路

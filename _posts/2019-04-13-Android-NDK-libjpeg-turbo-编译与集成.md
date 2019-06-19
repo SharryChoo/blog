@@ -4,8 +4,6 @@ title: "Android 端 Libjpeg-turbo 编译与集成"
 tags: NDK
 aside:
   toc: true
-sidebar:
-  nav: layouts
 ---
 
 ## 前言

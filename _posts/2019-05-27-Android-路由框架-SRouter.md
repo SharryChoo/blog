@@ -4,8 +4,6 @@ title: "Android 路由框架 —— SRouter"
 tags: Framework
 aside:
   toc: true
-sidebar:
-  nav: layouts
 ---
 
 ## 一. 功能介绍
