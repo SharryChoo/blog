@@ -6,7 +6,7 @@ key: SCompressor
 aside:
   toc: true
 sidebar:
-  nav: Layouts
+  nav: layouts
 ---
 
 ## [一.关于](https://github.com/SharryChoo/SCompressor)
