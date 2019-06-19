@@ -2,144 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="76f62187-e889-4573-8f33-25cb47f958e7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.github/ISSUE_TEMPLATE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gemfile" beforeDir="false" afterPath="$PROJECT_DIR$/Gemfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LICENSE.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/_config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_data/authors.yml" beforeDir="false" afterPath="$PROJECT_DIR$/_data/authors.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_data/category.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_data/friends.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_data/lang.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_data/meng.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_data/menus.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_data/site.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_data/sns.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/analytics/google.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/comment/comment.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/comment/disqus.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/comment/gitment.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/comment/livere.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/comment/valine.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/component/customCssJS.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/component/nprogress.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/component/sw.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/component/totop.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/category_list.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/category_post_list.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/component/highlight.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/component/imgboxed.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/component/lastupdate.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/component/lazyload.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/component/page_tags.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/component/qrcode.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/component/readtime.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/component/sns_share.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/component/toc.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/friends.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/page_content.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/page_content_no_toc.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/paginator_button.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/paginator_post_list.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/content/tags_list.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/footer/footer.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/head.html" beforeDir="false" afterPath="$PROJECT_DIR$/_includes/head.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/header/header.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/meng/aplayer.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/meng/background.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/meng/card.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/meng/console.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/meng/cplayer.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/meng/cursor.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/meng/head_card.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/meng/live2d.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/meng/title.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/submission/baidu.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/category_content.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/category_list.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/compress.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/default.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/friends.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/_layouts/home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/page.html" beforeDir="false" afterPath="$PROJECT_DIR$/_layouts/page.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/post.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/tags.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/css/customCss.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/css/global.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/avatar.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/background.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/category_android.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/js/History.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/js/customJS.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/category/Android.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/category/NDK.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/category/OpenCV.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/.nojekyll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/CNAME" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_coverpage.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_media/icon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_navbar.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_sidebar.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/analytics.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/comment.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/common-problem.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/contribution-list.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/creating-pages.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/creating-posts.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/custom-navbar.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/custom-sns.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/editor.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/fastjekyll.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/how-contribution.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/many_authors.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/meng-configuration.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/pwa.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/quickstart.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/rss.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/search.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/site-configuration.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/sitemap.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/theme-configuration.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/update-theme.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/used-technology.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/_navbar.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/_sidebar.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/analytics.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/comment.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/common-problem.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/contribution-list.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/creating-pages.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/creating-posts.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/custom-navbar.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/custom-sns.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/editor.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/fastjekyll.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/how-contribution.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/many_authors.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/meng-configuration.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/pwa.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/quickstart.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/rss.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/search.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/site-configuration.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/sitemap.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/theme-configuration.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/update-theme.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/zh-cn/used-technology.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gulpfile.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/about.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/about.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/category.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/tags.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/search.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sw.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tags.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2018-11-04-OpenCV-基础篇-JPEG编码.md" beforeDir="false" afterPath="$PROJECT_DIR$/_posts/2018-11-04-OpenCV-基础篇-JPEG编码.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2018-12-22-OpenCV-滤波处理-轮廓增强.md" beforeDir="false" afterPath="$PROJECT_DIR$/_posts/2018-12-22-OpenCV-滤波处理-轮廓增强.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2018-12-23-OpenCV-滤波处理-均值模糊与高斯模糊.md" beforeDir="false" afterPath="$PROJECT_DIR$/_posts/2018-12-23-OpenCV-滤波处理-均值模糊与高斯模糊.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-01-05-OpenCV-形态学-腐蚀与膨胀.md" beforeDir="false" afterPath="$PROJECT_DIR$/_posts/2019-01-05-OpenCV-形态学-腐蚀与膨胀.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-01-12-OpenCV-形态学-验证码提取.md" beforeDir="false" afterPath="$PROJECT_DIR$/_posts/2019-01-12-OpenCV-形态学-验证码提取.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-01-13-OpenCV-轮廓过滤-Sobel 算子.md" beforeDir="false" afterPath="$PROJECT_DIR$/_posts/2019-01-13-OpenCV-轮廓过滤-Sobel 算子.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-01-14-OpenCV-轮廓过滤-Laplacian&amp;Canny-算子与轮廓筛选.md" beforeDir="false" afterPath="$PROJECT_DIR$/_posts/2019-01-14-OpenCV-轮廓过滤-Laplacian&amp;Canny-算子与轮廓筛选.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -149,45 +19,92 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/_config.yml">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_posts/2019-05-27-Android-路由框架-SRouter.md">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="437">
-              <caret line="40" column="31" selection-start-line="40" selection-start-column="31" selection-end-line="40" selection-end-column="31" />
+            <state relative-caret-position="552">
+              <caret line="24" column="10" lean-forward="true" selection-start-line="24" selection-start-column="10" selection-end-line="24" selection-end-column="10" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/_data/authors.yml">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/_data/licenses.yml">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/_data/locale.yml">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/_data/navigation.yml">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/_data/variables.yml">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/_posts/2018-05-30-Android-NDK-OpenCV-集成.md">
           <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="92">
+              <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="7" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_posts/2018-11-02-OpenCV-基础篇-色彩空间表示.md">
+          <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="115">
-              <caret line="5" column="9" lean-forward="true" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="9" />
+              <caret line="5" column="11" lean-forward="true" selection-start-line="5" selection-start-column="11" selection-end-line="7" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_posts/2018-11-04-OpenCV-基础篇-JPEG编码.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="46">
+              <caret line="2" column="30" selection-start-line="2" selection-start-column="30" selection-end-line="2" selection-end-column="30" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_posts/2018-12-22-OpenCV-滤波处理-轮廓增强.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="46">
+              <caret line="2" column="28" selection-start-line="2" selection-start-column="28" selection-end-line="2" selection-end-column="28" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_posts/2018-12-23-OpenCV-滤波处理-均值模糊与高斯模糊.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="46">
+              <caret line="2" column="33" selection-start-line="2" selection-start-column="33" selection-end-line="2" selection-end-column="33" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_posts/2019-01-05-OpenCV-形态学-腐蚀与膨胀.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="92">
+              <caret line="4" selection-start-line="4" selection-end-line="7" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_posts/2019-01-12-OpenCV-形态学-验证码提取.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="46">
+              <caret line="2" column="28" selection-start-line="2" selection-start-column="28" selection-end-line="2" selection-end-column="28" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_posts/2019-01-13-OpenCV-轮廓过滤-Sobel 算子.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="46">
+              <caret line="2" column="32" selection-start-line="2" selection-start-column="32" selection-end-line="2" selection-end-column="32" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/_posts/2019-01-14-OpenCV-轮廓过滤-Laplacian&amp;Canny-算子与轮廓筛选.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="46">
+              <caret line="2" column="49" selection-start-line="2" selection-start-column="49" selection-end-line="2" selection-end-column="49" />
             </state>
           </provider>
         </entry>
@@ -214,6 +131,7 @@
       <find>prism.</find>
       <find>prism.js</find>
       <find>skin</find>
+      <find>&lt;/svg&gt;</find>
     </findStrings>
     <replaceStrings>
       <replace>/blogs/assets</replace>
@@ -226,6 +144,11 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="develop" />
+      </map>
+    </option>
     <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="IdeDocumentHistory">
@@ -259,15 +182,8 @@
         <option value="$PROJECT_DIR$/pages/about.md" />
         <option value="$PROJECT_DIR$/_data/meng.yml" />
         <option value="$PROJECT_DIR$/_data/site.yml" />
-        <option value="$PROJECT_DIR$/_posts/2018-11-02-OpenCV-基础篇-色彩空间表示.md" />
-        <option value="$PROJECT_DIR$/_posts/2018-11-04-OpenCV-基础篇-JPEG编码.md" />
-        <option value="$PROJECT_DIR$/_posts/2018-12-22-OpenCV-滤波处理-轮廓增强.md" />
-        <option value="$PROJECT_DIR$/_posts/2018-12-23-OpenCV-滤波处理-均值模糊与高斯模糊.md" />
-        <option value="$PROJECT_DIR$/_posts/2019-01-12-OpenCV-形态学-验证码提取.md" />
-        <option value="$PROJECT_DIR$/_posts/2019-01-05-OpenCV-形态学-腐蚀与膨胀.md" />
-        <option value="$PROJECT_DIR$/_posts/2019-01-13-OpenCV-轮廓过滤-Sobel 算子.md" />
+        <option value="$PROJECT_DIR$/_config.yml" />
         <option value="$PROJECT_DIR$/_posts/2019-01-30-OpenCV-统计学-直方图的绘制.md" />
-        <option value="$PROJECT_DIR$/_posts/2019-01-14-OpenCV-轮廓过滤-Laplacian&amp;Canny-算子与轮廓筛选.md" />
         <option value="$PROJECT_DIR$/_posts/2019-01-31-OpenCV-统计学-直方均衡补偿.md" />
         <option value="$PROJECT_DIR$/_posts/2019-03-09-OpenCV-特征匹配-HOG-行人检测.md" />
         <option value="$PROJECT_DIR$/_posts/2019-03-10-OpenCV-特征匹配-LBP-提取纹理.md" />
@@ -280,12 +196,19 @@
         <option value="$PROJECT_DIR$/_posts/2019-05-16-MVVM-架构演进-架构的搭建.md" />
         <option value="$PROJECT_DIR$/_posts/2019-05-27-Android-路由框架-SRouter.md" />
         <option value="$PROJECT_DIR$/_posts/2019-06-17-Android-图片压缩框架-SCompressor.md" />
+        <option value="$PROJECT_DIR$/_posts/2018-11-02-OpenCV-基础篇-色彩空间表示.md" />
         <option value="$PROJECT_DIR$/_posts/2018-05-30-Android-NDK-OpenCV-集成.md" />
-        <option value="$PROJECT_DIR$/_config.yml" />
+        <option value="$PROJECT_DIR$/_posts/2018-11-04-OpenCV-基础篇-JPEG编码.md" />
+        <option value="$PROJECT_DIR$/_posts/2018-12-22-OpenCV-滤波处理-轮廓增强.md" />
+        <option value="$PROJECT_DIR$/_posts/2018-12-23-OpenCV-滤波处理-均值模糊与高斯模糊.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-05-OpenCV-形态学-腐蚀与膨胀.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-12-OpenCV-形态学-验证码提取.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-13-OpenCV-轮廓过滤-Sobel 算子.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-14-OpenCV-轮廓过滤-Laplacian&amp;Canny-算子与轮廓筛选.md" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="209" />
     <option name="y" value="138" />
     <option name="width" value="1711" />
@@ -306,6 +229,11 @@
             <path>
               <item name="Blogs" type="b2602c69:ProjectViewProjectNode" />
               <item name="Blogs" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Blogs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Blogs" type="462c0819:PsiDirectoryNode" />
+              <item name="_posts" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -410,13 +338,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1558427474447</updated>
-    </task>
-    <task id="LOCAL-00052" summary="docs: update opencv image">
-      <created>1559105760065</created>
-      <option name="number" value="00052" />
-      <option name="presentableId" value="LOCAL-00052" />
-      <option name="project" value="LOCAL" />
-      <updated>1559105760065</updated>
     </task>
     <task id="LOCAL-00053" summary="docs: update opencv color space">
       <created>1559106705789</created>
@@ -754,25 +675,32 @@
       <option name="project" value="LOCAL" />
       <updated>1560851764877</updated>
     </task>
-    <option name="localTasksCounter" value="101" />
+    <task id="LOCAL-00101" summary="feat: update post to style">
+      <created>1560906654919</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
+      <option name="project" value="LOCAL" />
+      <updated>1560906654919</updated>
+    </task>
+    <option name="localTasksCounter" value="102" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="209" y="138" width="1711" height="903" extended-state="0" />
+    <frame x="-8" y="-8" width="1936" height="1050" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Captures" order="0" weight="0.25" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.25589836" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.22523962" />
       <window_info id="Structure" order="2" side_tool="true" />
       <window_info id="Image Layers" order="3" />
       <window_info id="Designer" order="4" />
       <window_info id="Resources Explorer" order="5" />
       <window_info id="Capture Tool" order="6" />
       <window_info id="Favorites" order="7" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="0" visible="true" weight="0.04" />
+      <window_info anchor="bottom" id="Version Control" order="0" weight="0.41466665" />
       <window_info anchor="bottom" id="TODO" order="1" />
       <window_info anchor="bottom" id="Find" order="2" weight="0.32933334" />
-      <window_info anchor="bottom" id="Terminal" order="3" weight="0.033444814" />
+      <window_info anchor="bottom" id="Terminal" order="3" visible="true" weight="0.033444814" />
       <window_info anchor="bottom" id="Event Log" order="4" side_tool="true" />
       <window_info anchor="bottom" id="Messages" order="5" />
       <window_info anchor="right" id="Capture Analysis" order="0" />
@@ -825,7 +753,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="docs: rename page" />
     <MESSAGE value="docs: post new pages" />
     <MESSAGE value="docs: modify pages" />
     <MESSAGE value="docs: update img reference" />
@@ -850,49 +777,10 @@
     <MESSAGE value="feat: update style" />
     <MESSAGE value="feat: update code style" />
     <MESSAGE value="feat: update page to post" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: update page to post" />
+    <MESSAGE value="feat: update post to style" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: update post to style" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/_data/friends.yml">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/category/OpenCV.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="46">
-          <caret line="2" column="3" lean-forward="true" selection-start-line="2" selection-start-column="3" selection-end-line="2" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2018-11-02-Opecv-基础篇-色彩空间表示.md" />
-    <entry file="file://$PROJECT_DIR$/_posts/2018-12-24-OpenCV-滤波处理-高斯模糊.md" />
-    <entry file="file://$PROJECT_DIR$/_posts/2019-03-05-OpenCV-轮廓过滤-轮廓查找.md" />
-    <entry file="file://$PROJECT_DIR$/category/NDK.html">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_data/category.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="92">
-          <caret line="4" column="59" selection-start-line="4" selection-start-column="59" selection-end-line="4" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/category/Android.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="46">
-          <caret line="2" column="3" selection-start-line="2" selection-start-column="3" selection-end-line="2" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pages/category.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="69">
-          <caret line="3" column="3" lean-forward="true" selection-start-line="3" selection-start-column="3" selection-end-line="3" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pages/tags.html">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/_data/menus.yml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="115">
@@ -949,153 +837,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2018-11-02-OpenCV-基础篇-色彩空间表示.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2018-11-04-OpenCV-基础篇-JPEG编码.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2018-12-22-OpenCV-滤波处理-轮廓增强.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2018-12-23-OpenCV-滤波处理-均值模糊与高斯模糊.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-01-12-OpenCV-形态学-验证码提取.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-01-05-OpenCV-形态学-腐蚀与膨胀.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-01-30-OpenCV-统计学-直方图的绘制.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-01-13-OpenCV-轮廓过滤-Sobel 算子.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-01-14-OpenCV-轮廓过滤-Laplacian&amp;Canny-算子与轮廓筛选.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-01-31-OpenCV-统计学-直方均衡补偿.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-03-09-OpenCV-特征匹配-HOG-行人检测.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-03-10-OpenCV-特征匹配-LBP-提取纹理.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-04-13-Android-NDK-libjpeg-turbo-编译与集成.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-04-21-OpenCV-实战-人像美容(一)-积分图算法.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-04-22-OpenCV-实战-人像美容(二)-美容实战.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-04-23-OpenCV-实战-二维码识别.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-05-14-MVVM-架构演进-初探.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-05-15-MVVM-架构演进-DataBinding-实现原理.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-05-16-MVVM-架构演进-架构的搭建.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-05-27-Android-路由框架-SRouter.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2019-06-17-Android-图片压缩框架-SCompressor.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/_layouts/page.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="276">
@@ -1142,17 +883,194 @@
     <entry file="file://$PROJECT_DIR$/_data/variables.yml">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2018-05-30-Android-NDK-OpenCV-集成.md">
+    <entry file="file://$PROJECT_DIR$/_config.yml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="115">
-          <caret line="5" column="9" lean-forward="true" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="9" />
+        <state relative-caret-position="506">
+          <caret line="40" column="31" selection-start-line="40" selection-start-column="31" selection-end-line="40" selection-end-column="31" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/_config.yml">
+    <entry file="file://$PROJECT_DIR$/assets/images/logo/logo.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/android-chrome-192x192.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/android-chrome-512x512.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/apple-touch-icon.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/browserconfig.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/favicon.ico">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/favicon-16x16.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/search.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/site.webmanifest">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/safari-pinned-tab.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-30-OpenCV-统计学-直方图的绘制.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="437">
-          <caret line="40" column="31" selection-start-line="40" selection-start-column="31" selection-end-line="40" selection-end-column="31" />
+        <state relative-caret-position="23">
+          <caret line="1" column="15" selection-start-line="1" selection-start-column="15" selection-end-line="1" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-31-OpenCV-统计学-直方均衡补偿.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="15" selection-start-line="1" selection-start-column="15" selection-end-line="1" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-03-09-OpenCV-特征匹配-HOG-行人检测.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="15" selection-start-line="1" selection-start-column="15" selection-end-line="1" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-03-10-OpenCV-特征匹配-LBP-提取纹理.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="15" selection-start-line="1" selection-start-column="15" selection-end-line="1" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-04-13-Android-NDK-libjpeg-turbo-编译与集成.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="15" selection-start-line="1" selection-start-column="15" selection-end-line="1" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-04-21-OpenCV-实战-人像美容(一)-积分图算法.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="15" selection-start-line="1" selection-start-column="15" selection-end-line="1" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-04-22-OpenCV-实战-人像美容(二)-美容实战.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="15" selection-start-line="1" selection-start-column="15" selection-end-line="1" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-04-23-OpenCV-实战-二维码识别.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="15" selection-start-line="1" selection-start-column="15" selection-end-line="1" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-05-14-MVVM-架构演进-初探.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="15" selection-start-line="1" selection-start-column="15" selection-end-line="1" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-05-15-MVVM-架构演进-DataBinding-实现原理.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="15" selection-start-line="1" selection-start-column="15" selection-end-line="1" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-05-16-MVVM-架构演进-架构的搭建.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="15" selection-start-line="1" selection-start-column="15" selection-end-line="1" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-06-17-Android-图片压缩框架-SCompressor.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="115">
+          <caret line="5" column="15" selection-start-line="5" selection-start-column="15" selection-end-line="5" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-05-27-Android-路由框架-SRouter.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="552">
+          <caret line="24" column="10" lean-forward="true" selection-start-line="24" selection-start-column="10" selection-end-line="24" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-05-30-Android-NDK-OpenCV-集成.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="92">
+          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="7" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-11-02-OpenCV-基础篇-色彩空间表示.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="115">
+          <caret line="5" column="11" lean-forward="true" selection-start-line="5" selection-start-column="11" selection-end-line="7" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-11-04-OpenCV-基础篇-JPEG编码.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="46">
+          <caret line="2" column="30" selection-start-line="2" selection-start-column="30" selection-end-line="2" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-12-22-OpenCV-滤波处理-轮廓增强.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="46">
+          <caret line="2" column="28" selection-start-line="2" selection-start-column="28" selection-end-line="2" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-12-23-OpenCV-滤波处理-均值模糊与高斯模糊.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="46">
+          <caret line="2" column="33" selection-start-line="2" selection-start-column="33" selection-end-line="2" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-05-OpenCV-形态学-腐蚀与膨胀.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="92">
+          <caret line="4" selection-start-line="4" selection-end-line="7" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-12-OpenCV-形态学-验证码提取.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="46">
+          <caret line="2" column="28" selection-start-line="2" selection-start-column="28" selection-end-line="2" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-13-OpenCV-轮廓过滤-Sobel 算子.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="46">
+          <caret line="2" column="32" selection-start-line="2" selection-start-column="32" selection-end-line="2" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-14-OpenCV-轮廓过滤-Laplacian&amp;Canny-算子与轮廓筛选.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="46">
+          <caret line="2" column="49" selection-start-line="2" selection-start-column="49" selection-end-line="2" selection-end-column="49" />
         </state>
       </provider>
     </entry>

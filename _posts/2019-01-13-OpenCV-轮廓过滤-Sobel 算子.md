@@ -1,11 +1,11 @@
 ---
 layout: article
 title: "OpenCV 轮廓过滤 —— Sobel 算子"
-date: 2019-01-12
-categories: OpenCV
 tags: OpenCV Filter
-img: https://i.loli.net/2019/05/29/5cee10b4a534832047.jpg
-describe: 如何进行轮廓过滤? Sobel 算子如何实现?
+aside:
+  toc: true
+sidebar:
+  nav: layouts
 ---
 
 ## 图像轮廓过滤思路

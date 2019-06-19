@@ -1,11 +1,11 @@
 ---
 layout: article
 title: "OpenCV 特征匹配 —— HOG 行人检测"
-date: 2019-03-09
-categories: OpenCV
 tags: OpenCV Hist
-img: https://i.loli.net/2019/05/29/5cee10b4a534832047.jpg
-describe: HOG 应用在哪些领域? 它是如何提取特征值的呢?
+aside:
+  toc: true
+sidebar:
+  nav: layouts
 ---
 
 ## 什么是 HOG

@@ -1,11 +1,11 @@
 ---
 layout: article
 title: "OpenCV 基础篇 —— JPEG 编码"
-date: 2018-11-04
-categories: OpenCV
 tags: OpenCV
-img: https://i.loli.net/2019/05/29/5cee10b4a534832047.jpg
-describe: Jpeg 有损压缩是如何工作的?
+aside:
+  toc: true
+sidebar:
+  nav: layouts
 ---
 
 ## 前言

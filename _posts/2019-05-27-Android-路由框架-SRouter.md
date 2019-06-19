@@ -1,11 +1,11 @@
 ---
 layout: article
 title: "Android 路由框架 —— SRouter"
-date: 2019-05-27
-categories: Android
 tags: Framework
-img: https://i.loli.net/2019/05/29/5cee409f0b91457860.jpg
-describe: SRouter 能够做些什么? 如何使用 SRouter?
+aside:
+  toc: true
+sidebar:
+  nav: layouts
 ---
 
 ## 一. 功能介绍

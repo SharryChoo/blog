@@ -1,11 +1,11 @@
 ---
 layout: article
 title: "OpenCV 轮廓过滤 —— Laplacian & Canny 算子与轮廓筛选"
-date: 2019-01-14
-categories: OpenCV
 tags: OpenCV Filter
-img: https://i.loli.net/2019/05/29/5cee10b4a534832047.jpg
-describe: Laplacian 与 Canny 如何实现? 如何进行轮廓筛选?
+aside:
+  toc: true
+sidebar:
+  nav: layouts
 ---
 
 ## 一. Laplacian

@@ -1,11 +1,11 @@
 ---
 layout: article
 title: "Android 端 Libjpeg-turbo 编译与集成"
-date: 2019-04-13
-categories: Android NDK
 tags: NDK
-img: https://i.loli.net/2019/05/29/5cee3fb7005ba82501.jpg
-describe: 为何要使用 Libjpeg? 如何编译 Libjpeg 的 so 库?
+aside:
+  toc: true
+sidebar:
+  nav: layouts
 ---
 ## 前言
 Android 提供的 JPEG 压缩, 是由外部链接库中的 libjpeg 实现的, 但 Google 考虑到 Android 设备性能的瓶颈, **在 Skia 调用中的三方链接库 libjpeg 时, 多处进行了阉割处理**, 这样带来的好处就是压缩的速度更快了, 但细节丢失严重, 压缩后甚至有偏绿的情况, 下面的代码便是 Android 执行 JPEG 压缩的关键
