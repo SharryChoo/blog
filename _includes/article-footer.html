@@ -38,10 +38,6 @@
     {%- include article/footer/author-profile.html author=_author -%}
   {%- endif -%}
 
-  {%- if _show_subscribe -%}
-    <div class="article__subscribe">{%- include article/footer/subscribe.html -%}</div>
-  {%- endif -%}
-
   {%- if _license != false -%}
     {%- assign _data_license = site.data.licenses-%}
     {%- if site.license -%}
