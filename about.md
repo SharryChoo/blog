@@ -22,13 +22,11 @@ header:
 article_header:
   type: overlay
   theme: dark
-  background_color: '#203028'
   background_image:
-    gradient: 'linear-gradient(135deg, rgba(34, 139, 87 , .4), rgba(139, 34, 139, .4))'
     src: https://i.loli.net/2019/05/29/5cee26f63d21637162.jpg
 ---
 
-## About me
+## Info
 - Name: SharryChoo
 - Job: Android Developer
 - GitHub: [SharryChoo](https://github.com/SharryChoo)
@@ -36,7 +34,7 @@ article_header:
 
 ---
 
-## Field
+## Skills
 - Java/C/C++/Kotlin
 - Algorithm/Structure
 - Design Pattern
@@ -48,7 +46,7 @@ article_header:
 
 ---
 
-## Open Source
+## Production
 ### SRouter
 A framework of componentization related to Android platform
 - [How to use](https://github.com/SharryChoo/SRouter/blob/release/README.md)
