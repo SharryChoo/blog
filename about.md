@@ -15,7 +15,7 @@ article_header:
 ## About me
 - Name: SharryChoo
 - Job: Android Developer
-- GitHub: [SharryChoo](https://github.com/SharryChoo)
+- GitHub: [https://github.com/SharryChoo](https://github.com/SharryChoo)
 - Mail: SharryChooCHN@Gmail.com
 
 ---
