@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: article
 title: "Android 路由框架 —— SRouter"
 date: 2019-05-27
 categories: Android

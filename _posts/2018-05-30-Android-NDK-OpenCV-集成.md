@@ -1,11 +1,11 @@
 ---
-layout: post
+layout: article
 title: "Android 端 OpenCV 的集成"
 tags: NDK
-article_header:
-  type: cover
-  image:
-    url: https://i.loli.net/2019/05/29/5cee3fb7005ba82501.jpg
+aside:
+  toc: true
+sidebar:
+  nav: layouts
 ---
 ## OpenCV
 https://opencv.org/
