@@ -1,50 +1,40 @@
 header:
-
-  - title:
-      en: &EN       Home
-      en-GB: *EN
-      en-US: *EN
-      en-CA: *EN
-      en-AU: *EN
-      zh-Hans: &ZH_HANS  主页
-      zh: *ZH_HANS
-      zh-CN: *ZH_HANS
-      zh-SG: *ZH_HANS
-    url: https://sharrychoo.github.io/blog/
-
-  - titles:
-      en: &EN       Archive
-      en-GB: *EN
-      en-US: *EN
-      en-CA: *EN
-      en-AU: *EN
-      zh-Hans: &ZH_HANS  归档
-      zh: *ZH_HANS
-      zh-CN: *ZH_HANS
-      zh-SG: *ZH_HANS
-      zh-Hant: &ZH_HANT  歸檔
-      zh-TW: *ZH_HANT
-      zh-HK: *ZH_HANT
-      ko: &KO       아카이브
-      ko-KR: *KO
-    url: /archive.html
-
-  - titles:
-      en: &EN       About
-      en-GB: *EN
-      en-US: *EN
-      en-CA: *EN
-      en-AU: *EN
-      zh-Hans: &ZH_HANS  关于
-      zh: *ZH_HANS
-      zh-CN: *ZH_HANS
-      zh-SG: *ZH_HANS
-      zh-Hant: &ZH_HANT  關於
-      zh-TW: *ZH_HANT
-      zh-HK: *ZH_HANT
-      ko: &KO       소개
-      ko-KR: *KO
-    url: /about.html
-
+  - title: Home
+    url:   https://sharrychoo.github.io/blog/
+  - title: Archive
+    url:   /archive.html
+  - title: About
+    url:   /about.html
   - title: GitHub
       url: https://github.com/SharryChoo
+
+layouts:
+  - title: Layouts
+    children:
+      - title:  Single
+        url:    /page/single.html
+      - title:  Aside
+        url:    /page/aside.html
+      - title:  Sidebar
+        url:    /page/sidebar.html
+
+      - title:  Sidebar (Aside)
+        url:    /page/sidebar-aside.html
+      - title:  Article Header Overlay Background Fill
+        url:    /page/article-header-overlay-background-fill.html
+      - title:  Article Header Overlay Background Image
+        url:    /page/article-header-overlay-background-image.html
+
+      - title:  Article Header Image
+        url:    /page/article-header-cover-image.html
+      - title:  Article Header Overlay Background Image (Customized Header Background)
+        url:    /page/article-header-overlay-background-image-header-background.html
+      - title:  Article Header Image (Customized Header Background)
+        url:    /page/article-header-cover-image-header-background.html
+
+      - title:  Article Header Overlay Background Fill (Immersive + Translucent Header)
+        url:    /page/article-header-overlay-background-fill-immersive-translucent-header.html
+      - title:  Article Header Overlay Background Image (Immersive + Translucent Header)
+        url:    /page/article-header-overlay-background-image-immersive-translucent-header.html
+      - title:  Article Header Image (Immersive + Translucent Header)
+        url:    /page/article-header-cover-image-immersive-translucent-header.html
