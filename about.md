@@ -1,20 +1,6 @@
 ---
 layout: article
-titles:
-  en      : &EN       About
-  en-GB   : *EN
-  en-US   : *EN
-  en-CA   : *EN
-  en-AU   : *EN
-  zh-Hans : &ZH_HANS  关于
-  zh      : *ZH_HANS
-  zh-CN   : *ZH_HANS
-  zh-SG   : *ZH_HANS
-  zh-Hant : &ZH_HANT  關於
-  zh-TW   : *ZH_HANT
-  zh-HK   : *ZH_HANT
-  ko      : &KO       소개
-  ko-KR   : *KO
+titles: About
 key: page-about
 mode: immersive
 header:
@@ -26,7 +12,7 @@ article_header:
     src: https://i.loli.net/2019/05/29/5cee26f63d21637162.jpg
 ---
 
-## Info
+## About me
 - Name: SharryChoo
 - Job: Android Developer
 - GitHub: [SharryChoo](https://github.com/SharryChoo)
