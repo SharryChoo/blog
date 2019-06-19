@@ -11,6 +11,7 @@ aside:
 
 我们带着这个问题去探索一下 DataBinding 的工作流程.
 
+<!--more-->
 
 ## 一. ViewDataBinding 的创建
 ```

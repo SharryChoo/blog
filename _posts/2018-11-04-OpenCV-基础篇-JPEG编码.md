@@ -17,6 +17,8 @@ aside:
 
 ![色彩空间的转化](https://i.loli.net/2019/05/29/5cee0e7cc282499705.png)
 
+<!--more-->
+
 ## 二. 离散余弦变换DCT(Discrete Cosine Transform)
 对每个矩阵进行 DCT 操作
   - 矩阵的左上角的直流分量保存了一个大的数值, 其他分量都接近于 0 

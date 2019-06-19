@@ -12,6 +12,8 @@ aside:
 ## 二. 最新版本 
 [![](https://jitpack.io/v/SharryChoo/SCompressor.svg)](https://jitpack.io/#SharryChoo/SCompressor)
 
+<!--more-->
+
 ## 三. 如何集成
 ### Step 1
 在工程的根 build.gradle 中添加 jitpack 的 maven 仓库

@@ -8,6 +8,9 @@ aside:
 
 ## 前言
 Android 提供的 JPEG 压缩, 是由外部链接库中的 libjpeg 实现的, 但 Google 考虑到 Android 设备性能的瓶颈, **在 Skia 调用中的三方链接库 libjpeg 时, 多处进行了阉割处理**, 这样带来的好处就是压缩的速度更快了, 但细节丢失严重, 压缩后甚至有偏绿的情况, 下面的代码便是 Android 执行 JPEG 压缩的关键
+
+<!--more-->
+
 ```
 /**
  * SkImageDecoder_libjpeg.cpp

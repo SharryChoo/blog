@@ -15,6 +15,8 @@ aside:
 &nbsp;&nbsp;      -1,&nbsp;&nbsp; 4,             -1, <br>
 &nbsp;&nbsp;&nbsp; 0,&nbsp;      -1,&nbsp;&nbsp;  0]
 
+<!--more-->
+
 ### 代码实现
 ```
 #include<opencv2/opencv.hpp>

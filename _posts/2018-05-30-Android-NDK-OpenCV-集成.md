@@ -13,6 +13,8 @@ https://opencv.org/
 https://github.com/opencv/opencv/releases
 - 下载 opencv-3.4.4-android-sdk.zip
 
+<!--more-->
+
 ## 拷贝头文件和 so 到 Android 工程
 - E:\OpenCV\opencv-3.4.4-android-sdk\sdk\native\libs\armeabi
 - E:\OpenCV\opencv-3.4.4-android-sdk\sdk\native\jni\include

@@ -20,6 +20,8 @@ aside:
 ## 二. 功能集成
 ![New Version](https://jitpack.io/v/SharryChoo/SRouter.svg)
 
+<!--more-->
+
 ### Step 1
 在工程的根 build.gradle 中添加 jitpack 的 maven 仓库
 ```
