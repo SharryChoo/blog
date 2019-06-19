@@ -1,11 +1,11 @@
 ---
 layout: post
 title: "Android 端 OpenCV 的集成"
-date: 2018-05-30
-categories: Android NDK
 tags: NDK
-img: https://i.loli.net/2019/05/29/5cee3fb7005ba82501.jpg
-describe: 为何要使用 Libjpeg? 如何编译 Libjpeg 的 so 库?
+article_header:
+  type: cover
+  image:
+    url: https://i.loli.net/2019/05/29/5cee3fb7005ba82501.jpg
 ---
 ## OpenCV
 https://opencv.org/

@@ -1,0 +1,1160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="76f62187-e889-4573-8f33-25cb47f958e7" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.github/ISSUE_TEMPLATE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Gemfile" beforeDir="false" afterPath="$PROJECT_DIR$/Gemfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LICENSE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/_config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_data/authors.yml" beforeDir="false" afterPath="$PROJECT_DIR$/_data/authors.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_data/category.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_data/friends.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_data/lang.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_data/meng.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_data/menus.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_data/site.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_data/sns.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/analytics/google.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/comment/comment.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/comment/disqus.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/comment/gitment.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/comment/livere.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/comment/valine.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/component/customCssJS.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/component/nprogress.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/component/sw.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/component/totop.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/category_list.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/category_post_list.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/component/highlight.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/component/imgboxed.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/component/lastupdate.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/component/lazyload.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/component/page_tags.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/component/qrcode.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/component/readtime.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/component/sns_share.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/component/toc.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/friends.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/page_content.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/page_content_no_toc.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/paginator_button.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/paginator_post_list.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/content/tags_list.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/footer/footer.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/head.html" beforeDir="false" afterPath="$PROJECT_DIR$/_includes/head.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/header/header.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/meng/aplayer.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/meng/background.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/meng/card.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/meng/console.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/meng/cplayer.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/meng/cursor.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/meng/head_card.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/meng/live2d.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/meng/title.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/submission/baidu.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/category_content.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/category_list.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/compress.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/default.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/friends.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/_layouts/home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/page.html" beforeDir="false" afterPath="$PROJECT_DIR$/_layouts/page.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/post.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/tags.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/customCss.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/global.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/avatar.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/background.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/category_android.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js/History.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js/customJS.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/Android.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/NDK.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/OpenCV.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/.nojekyll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/CNAME" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_coverpage.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_media/icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_navbar.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_sidebar.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/analytics.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/comment.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/common-problem.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/contribution-list.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/creating-pages.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/creating-posts.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/custom-navbar.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/custom-sns.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/editor.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/fastjekyll.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/how-contribution.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/many_authors.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/meng-configuration.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/pwa.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/quickstart.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/rss.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/search.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/site-configuration.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/sitemap.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/theme-configuration.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/update-theme.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/used-technology.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/_navbar.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/_sidebar.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/analytics.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/comment.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/common-problem.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/contribution-list.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/creating-pages.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/creating-posts.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/custom-navbar.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/custom-sns.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/editor.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/fastjekyll.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/how-contribution.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/many_authors.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/meng-configuration.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/pwa.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/quickstart.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/rss.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/search.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/site-configuration.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/sitemap.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/theme-configuration.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/update-theme.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/zh-cn/used-technology.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gulpfile.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/about.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/about.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/category.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/tags.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sw.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tags.json" beforeDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/_config.yml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="437">
+              <caret line="40" column="31" selection-start-line="40" selection-start-column="31" selection-end-line="40" selection-end-column="31" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_data/authors.yml">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_data/licenses.yml">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_data/locale.yml">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_data/navigation.yml">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_data/variables.yml">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_posts/2018-05-30-Android-NDK-OpenCV-集成.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="115">
+              <caret line="5" column="9" lean-forward="true" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>/blogs</find>
+      <find>manifest.json</find>
+      <find>site.baseurl</find>
+      <find>/assets</find>
+      <find>apple-touch-icon</find>
+      <find>kejun</find>
+      <find>img</find>
+      <find>最终</find>
+      <find>meng</find>
+      <find>Prism</find>
+      <find>theme</find>
+      <find>markdown</find>
+      <find>okaidia</find>
+      <find>content</find>
+      <find>imgboxed</find>
+      <find>prism.</find>
+      <find>prism.js</find>
+      <find>skin</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>/blogs/assets</replace>
+    </replaceStrings>
+    <dirStrings>
+      <dir>F:\Blogs\assets</dir>
+      <dir>F:\Blogs\_posts</dir>
+      <dir>F:\Blogs</dir>
+    </dirStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-05-15-MVVM-架构演进-DataBinding-实现原理.markdown" />
+        <option value="$PROJECT_DIR$/_posts/2019-05-14-MVVM-架构演进-初探.markdown" />
+        <option value="$PROJECT_DIR$/_posts/2019-05-16-MVVM-架构演进-架构的搭建.markdown" />
+        <option value="$PROJECT_DIR$/_posts/2018-11-02-Opecv-基础篇-色彩空间表示.md" />
+        <option value="$PROJECT_DIR$/_posts/2018-11-02-OpenCV-基础篇-JPEG编码.md" />
+        <option value="$PROJECT_DIR$/_posts/2018-12-24-OpenCV-滤波处理-高斯模糊.md" />
+        <option value="$PROJECT_DIR$/_posts/2018-12-23-OpenCV-滤波处理-均值模糊.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-05-OpenCV-形态学-验证码提取.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-13-OpenCV-轮廓过滤-Laplacian&amp;Canny算子.md" />
+        <option value="$PROJECT_DIR$/_data/authors.yml" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-14-OpenCV-统计学-直方图的绘制.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-31-OpenCV-统计学-直方均衡补偿处理图像.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-03-05-OpenCV-轮廓过滤-轮廓查找.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-14-OpenCV-轮廓过滤-Laplacian&amp;Canny算子.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-05-09-OpenCV-特征匹配-HOG-算法.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-05-09-OpenCV-特征匹配-HOG-行人检测.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-05-10-OpenCV-特征匹配-LBP-提取纹理.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-04-21-OpenCV-实战-人像美容(二).md" />
+        <option value="$PROJECT_DIR$/_posts/2019-04-21-OpenCV-实战-人像美容(二)-美容实战.md" />
+        <option value="$PROJECT_DIR$/_data/menus.yml" />
+        <option value="$PROJECT_DIR$/_posts/2019-04-21-OpenCV-实战-二维码识别.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-05-14-Android-NDK-libjpeg-turbo-编译与集成.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-04-13-Android-NDK-OpenCV-集成.md" />
+        <option value="$PROJECT_DIR$/_data/category.yml" />
+        <option value="$PROJECT_DIR$/pages/about.md" />
+        <option value="$PROJECT_DIR$/_data/meng.yml" />
+        <option value="$PROJECT_DIR$/_data/site.yml" />
+        <option value="$PROJECT_DIR$/_posts/2018-11-02-OpenCV-基础篇-色彩空间表示.md" />
+        <option value="$PROJECT_DIR$/_posts/2018-11-04-OpenCV-基础篇-JPEG编码.md" />
+        <option value="$PROJECT_DIR$/_posts/2018-12-22-OpenCV-滤波处理-轮廓增强.md" />
+        <option value="$PROJECT_DIR$/_posts/2018-12-23-OpenCV-滤波处理-均值模糊与高斯模糊.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-12-OpenCV-形态学-验证码提取.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-05-OpenCV-形态学-腐蚀与膨胀.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-13-OpenCV-轮廓过滤-Sobel 算子.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-30-OpenCV-统计学-直方图的绘制.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-14-OpenCV-轮廓过滤-Laplacian&amp;Canny-算子与轮廓筛选.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-01-31-OpenCV-统计学-直方均衡补偿.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-03-09-OpenCV-特征匹配-HOG-行人检测.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-03-10-OpenCV-特征匹配-LBP-提取纹理.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-04-13-Android-NDK-libjpeg-turbo-编译与集成.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-04-21-OpenCV-实战-人像美容(一)-积分图算法.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-04-22-OpenCV-实战-人像美容(二)-美容实战.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-04-23-OpenCV-实战-二维码识别.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-05-14-MVVM-架构演进-初探.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-05-15-MVVM-架构演进-DataBinding-实现原理.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-05-16-MVVM-架构演进-架构的搭建.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-05-27-Android-路由框架-SRouter.md" />
+        <option value="$PROJECT_DIR$/_posts/2019-06-17-Android-图片压缩框架-SCompressor.md" />
+        <option value="$PROJECT_DIR$/_posts/2018-05-30-Android-NDK-OpenCV-集成.md" />
+        <option value="$PROJECT_DIR$/_config.yml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="209" />
+    <option name="y" value="138" />
+    <option name="width" value="1711" />
+    <option name="height" value="903" />
+  </component>
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="PackagesPane" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Blogs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Blogs" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="android.sdk.path" value="E:/Android/SDK" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../AndroidSpace/Library/SCompressor" />
+    <property name="settings.editor.selected.configurable" value="AndroidSdkUpdater" />
+  </component>
+  <component name="PsiViewer.ProjectComponent">
+    <option name="HIGHLIGHT" value="false" />
+    <option name="FILTER_WHITESPACE" value="false" />
+    <option name="SHOW_PROPERTIES" value="true" />
+    <option name="SPLIT_DIVIDER_POSITION" value="300" />
+    <option name="AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="AUTOSCROLL_FROM_SOURCE" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\Blogs\_posts" />
+      <recent name="F:\Blogs\_data" />
+      <recent name="F:\Blogs\category" />
+      <recent name="F:\Blogs\assets\images" />
+      <recent name="F:\Blogs\pages" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\Blogs\_posts" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="&lt;template&gt;" type="Applet" default="true" selected="false">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
+    <configuration name="&lt;template&gt;" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" default="true" selected="false">
+      <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application">
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="TestNG">
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="76f62187-e889-4573-8f33-25cb47f958e7" name="Default Changelist" comment="" />
+      <created>1558427474447</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1558427474447</updated>
+    </task>
+    <task id="LOCAL-00052" summary="docs: update opencv image">
+      <created>1559105760065</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1559105760065</updated>
+    </task>
+    <task id="LOCAL-00053" summary="docs: update opencv color space">
+      <created>1559106705789</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1559106705789</updated>
+    </task>
+    <task id="LOCAL-00054" summary="docs: post new pages">
+      <created>1559107609300</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1559107609300</updated>
+    </task>
+    <task id="LOCAL-00055" summary="docs: post new pages">
+      <created>1559107631368</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1559107631368</updated>
+    </task>
+    <task id="LOCAL-00056" summary="docs: update page">
+      <created>1559107725255</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1559107725255</updated>
+    </task>
+    <task id="LOCAL-00057" summary="docs: update page">
+      <created>1559108190389</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1559108190389</updated>
+    </task>
+    <task id="LOCAL-00058" summary="docs: rename page">
+      <created>1559108213004</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1559108213004</updated>
+    </task>
+    <task id="LOCAL-00059" summary="docs: post new pages">
+      <created>1559109251131</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1559109251131</updated>
+    </task>
+    <task id="LOCAL-00060" summary="docs: post new pages">
+      <created>1559109992105</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1559109992105</updated>
+    </task>
+    <task id="LOCAL-00061" summary="docs: modify pages">
+      <created>1559110095385</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1559110095385</updated>
+    </task>
+    <task id="LOCAL-00062" summary="docs: update img reference">
+      <created>1559111946762</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1559111946762</updated>
+    </task>
+    <task id="LOCAL-00063" summary="docs: publish new pages">
+      <created>1559113093326</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1559113093326</updated>
+    </task>
+    <task id="LOCAL-00064" summary="docs: publish new pages">
+      <created>1559113407880</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1559113407880</updated>
+    </task>
+    <task id="LOCAL-00065" summary="docs: update pages">
+      <created>1559113470068</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1559113470068</updated>
+    </task>
+    <task id="LOCAL-00066" summary="docs: update pages tags">
+      <created>1559113616161</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1559113616161</updated>
+    </task>
+    <task id="LOCAL-00067" summary="docs: update pages tags">
+      <created>1559113721688</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1559113721688</updated>
+    </task>
+    <task id="LOCAL-00068" summary="docs: update pages tags">
+      <created>1559113752370</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1559113752370</updated>
+    </task>
+    <task id="LOCAL-00069" summary="docs: update page content">
+      <created>1559114225185</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1559114225185</updated>
+    </task>
+    <task id="LOCAL-00070" summary="docs: publish new pages">
+      <created>1559114691165</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1559114691165</updated>
+    </task>
+    <task id="LOCAL-00071" summary="docs: publish new pages">
+      <created>1559115253062</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1559115253062</updated>
+    </task>
+    <task id="LOCAL-00072" summary="docs: update page name">
+      <created>1559115302473</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1559115302473</updated>
+    </task>
+    <task id="LOCAL-00073" summary="docs: update page math latex">
+      <created>1559115479838</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1559115479838</updated>
+    </task>
+    <task id="LOCAL-00074" summary="docs: update page math latex">
+      <created>1559115560084</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1559115560084</updated>
+    </task>
+    <task id="LOCAL-00075" summary="docs: update page img">
+      <created>1559115644120</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1559115644120</updated>
+    </task>
+    <task id="LOCAL-00076" summary="docs: update page title">
+      <created>1559115771931</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1559115771931</updated>
+    </task>
+    <task id="LOCAL-00077" summary="docs: publish new pages">
+      <created>1559116202451</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1559116202451</updated>
+    </task>
+    <task id="LOCAL-00078" summary="docs: publish new pages">
+      <created>1559116239116</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1559116239116</updated>
+    </task>
+    <task id="LOCAL-00079" summary="docs: update page content">
+      <created>1559116306018</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1559116306018</updated>
+    </task>
+    <task id="LOCAL-00080" summary="docs: publish new page">
+      <created>1559116576663</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1559116576663</updated>
+    </task>
+    <task id="LOCAL-00081" summary="docs: Add new category">
+      <created>1559116790833</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1559116790833</updated>
+    </task>
+    <task id="LOCAL-00082" summary="docs: Add new page">
+      <created>1559117496704</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1559117496704</updated>
+    </task>
+    <task id="LOCAL-00083" summary="docs: update page format">
+      <created>1559117627537</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1559117627537</updated>
+    </task>
+    <task id="LOCAL-00084" summary="docs: update ndk img">
+      <created>1559117777738</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1559117777738</updated>
+    </task>
+    <task id="LOCAL-00085" summary="docs: update router img">
+      <created>1559118000218</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1559118000219</updated>
+    </task>
+    <task id="LOCAL-00086" summary="docs: update page title">
+      <created>1559120387323</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1559120387323</updated>
+    </task>
+    <task id="LOCAL-00087" summary="docs: update page image url">
+      <created>1559633323039</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1559633323039</updated>
+    </task>
+    <task id="LOCAL-00088" summary="docs: add new page">
+      <created>1560761630983</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1560761630983</updated>
+    </task>
+    <task id="LOCAL-00089" summary="docs: update new page">
+      <created>1560762243598</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1560762243598</updated>
+    </task>
+    <task id="LOCAL-00090" summary="docs: update new page">
+      <created>1560762471778</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1560762471778</updated>
+    </task>
+    <task id="LOCAL-00091" summary="docs: update new page">
+      <created>1560762708613</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1560762708613</updated>
+    </task>
+    <task id="LOCAL-00092" summary="docs: update new page">
+      <created>1560849129112</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1560849129112</updated>
+    </task>
+    <task id="LOCAL-00093" summary="docs: update pages">
+      <created>1560849200621</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1560849200621</updated>
+    </task>
+    <task id="LOCAL-00094" summary="docs: update pages">
+      <created>1560849276283</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1560849276283</updated>
+    </task>
+    <task id="LOCAL-00095" summary="docs: update pages">
+      <created>1560849408990</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1560849408990</updated>
+    </task>
+    <task id="LOCAL-00096" summary="docs: update pages">
+      <created>1560849478681</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1560849478681</updated>
+    </task>
+    <task id="LOCAL-00097" summary="feat: add new yml">
+      <created>1560850320713</created>
+      <option name="number" value="00097" />
+      <option name="presentableId" value="LOCAL-00097" />
+      <option name="project" value="LOCAL" />
+      <updated>1560850320713</updated>
+    </task>
+    <task id="LOCAL-00098" summary="feat: update style">
+      <created>1560850546731</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1560850546731</updated>
+    </task>
+    <task id="LOCAL-00099" summary="feat: update code style">
+      <created>1560850713220</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1560850713220</updated>
+    </task>
+    <task id="LOCAL-00100" summary="feat: update page to post">
+      <created>1560851764876</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1560851764877</updated>
+    </task>
+    <option name="localTasksCounter" value="101" />
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="209" y="138" width="1711" height="903" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Captures" order="0" weight="0.25" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.25589836" />
+      <window_info id="Structure" order="2" side_tool="true" />
+      <window_info id="Image Layers" order="3" />
+      <window_info id="Designer" order="4" />
+      <window_info id="Resources Explorer" order="5" />
+      <window_info id="Capture Tool" order="6" />
+      <window_info id="Favorites" order="7" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="0" visible="true" weight="0.04" />
+      <window_info anchor="bottom" id="TODO" order="1" />
+      <window_info anchor="bottom" id="Find" order="2" weight="0.32933334" />
+      <window_info anchor="bottom" id="Terminal" order="3" weight="0.033444814" />
+      <window_info anchor="bottom" id="Event Log" order="4" side_tool="true" />
+      <window_info anchor="bottom" id="Messages" order="5" />
+      <window_info anchor="right" id="Capture Analysis" order="0" />
+      <window_info anchor="right" id="Theme Preview" order="1" />
+      <window_info anchor="right" id="Palette&#9;" order="2" />
+      <window_info anchor="right" id="PsiViewer" order="3" />
+    </layout>
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.md" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list />
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="docs: rename page" />
+    <MESSAGE value="docs: post new pages" />
+    <MESSAGE value="docs: modify pages" />
+    <MESSAGE value="docs: update img reference" />
+    <MESSAGE value="docs: update pages tags" />
+    <MESSAGE value="docs: update page name" />
+    <MESSAGE value="docs: update page math latex" />
+    <MESSAGE value="docs: update page img" />
+    <MESSAGE value="docs: publish new pages" />
+    <MESSAGE value="docs: update page content" />
+    <MESSAGE value="docs: publish new page" />
+    <MESSAGE value="docs: Add new category" />
+    <MESSAGE value="docs: Add new page" />
+    <MESSAGE value="docs: update page format" />
+    <MESSAGE value="docs: update ndk img" />
+    <MESSAGE value="docs: update router img" />
+    <MESSAGE value="docs: update page title" />
+    <MESSAGE value="docs: update page image url" />
+    <MESSAGE value="docs: add new page" />
+    <MESSAGE value="docs: update new page" />
+    <MESSAGE value="docs: update pages" />
+    <MESSAGE value="feat: add new yml" />
+    <MESSAGE value="feat: update style" />
+    <MESSAGE value="feat: update code style" />
+    <MESSAGE value="feat: update page to post" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: update page to post" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/_data/friends.yml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/category/OpenCV.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="46">
+          <caret line="2" column="3" lean-forward="true" selection-start-line="2" selection-start-column="3" selection-end-line="2" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-11-02-Opecv-基础篇-色彩空间表示.md" />
+    <entry file="file://$PROJECT_DIR$/_posts/2018-12-24-OpenCV-滤波处理-高斯模糊.md" />
+    <entry file="file://$PROJECT_DIR$/_posts/2019-03-05-OpenCV-轮廓过滤-轮廓查找.md" />
+    <entry file="file://$PROJECT_DIR$/category/NDK.html">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_data/category.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="92">
+          <caret line="4" column="59" selection-start-line="4" selection-start-column="59" selection-end-line="4" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/category/Android.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="46">
+          <caret line="2" column="3" selection-start-line="2" selection-start-column="3" selection-end-line="2" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pages/category.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="69">
+          <caret line="3" column="3" lean-forward="true" selection-start-line="3" selection-start-column="3" selection-end-line="3" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pages/tags.html">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_data/menus.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="115">
+          <caret line="5" column="16" selection-start-line="5" selection-start-column="8" selection-end-line="5" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_includes/content/component/highlight.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="11" column="12" lean-forward="true" selection-start-line="11" selection-start-column="12" selection-end-line="11" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pages/about.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="92">
+          <caret line="4" column="57" lean-forward="true" selection-start-line="4" selection-start-column="5" selection-end-line="4" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_data/meng.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="263">
+          <caret line="14" column="7" selection-start-line="14" selection-start-column="2" selection-end-line="14" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pages/about.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="92">
+          <caret line="4" selection-start-line="4" selection-end-line="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_data/lang.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="521">
+          <caret line="102" column="8" lean-forward="true" selection-start-line="102" selection-start-column="8" selection-end-line="102" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/zh-cn/how-contribution.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="598">
+          <caret line="26" column="5" lean-forward="true" selection-start-line="26" selection-start-column="5" selection-end-line="26" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/zh-cn/theme-configuration.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="200" lean-forward="true" selection-start-line="200" selection-end-line="200" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-11-02-OpenCV-基础篇-色彩空间表示.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-11-04-OpenCV-基础篇-JPEG编码.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-12-22-OpenCV-滤波处理-轮廓增强.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-12-23-OpenCV-滤波处理-均值模糊与高斯模糊.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-12-OpenCV-形态学-验证码提取.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-05-OpenCV-形态学-腐蚀与膨胀.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-30-OpenCV-统计学-直方图的绘制.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-13-OpenCV-轮廓过滤-Sobel 算子.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-14-OpenCV-轮廓过滤-Laplacian&amp;Canny-算子与轮廓筛选.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-01-31-OpenCV-统计学-直方均衡补偿.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-03-09-OpenCV-特征匹配-HOG-行人检测.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-03-10-OpenCV-特征匹配-LBP-提取纹理.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-04-13-Android-NDK-libjpeg-turbo-编译与集成.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-04-21-OpenCV-实战-人像美容(一)-积分图算法.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-04-22-OpenCV-实战-人像美容(二)-美容实战.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-04-23-OpenCV-实战-二维码识别.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-05-14-MVVM-架构演进-初探.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-05-15-MVVM-架构演进-DataBinding-实现原理.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-05-16-MVVM-架构演进-架构的搭建.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-05-27-Android-路由框架-SRouter.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2019-06-17-Android-图片压缩框架-SCompressor.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_layouts/page.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="276">
+          <caret line="12" column="45" lean-forward="true" selection-start-line="12" selection-start-column="45" selection-end-line="12" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_data/site.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="411">
+          <caret line="62" column="13" lean-forward="true" selection-start-line="62" selection-start-column="13" selection-end-line="62" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="291">
+          <caret line="25" column="26" lean-forward="true" selection-start-line="25" selection-start-column="26" selection-end-line="25" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-07-01-welcome.md">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-06-01-header-image.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="11" column="11" lean-forward="true" selection-start-line="11" selection-start-column="11" selection-end-line="11" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_data/authors.yml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_data/licenses.yml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_data/locale.yml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_data/navigation.yml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_data/variables.yml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2018-05-30-Android-NDK-OpenCV-集成.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="115">
+          <caret line="5" column="9" lean-forward="true" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_config.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="437">
+          <caret line="40" column="31" selection-start-line="40" selection-start-column="31" selection-end-line="40" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
