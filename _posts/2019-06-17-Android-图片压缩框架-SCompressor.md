@@ -2,11 +2,11 @@
 layout: article
 title: "Android 图片压缩框架 —— SCompressor"
 tags: Framework
-key: Android 图片压缩框架 —— SCompressor
+key: SCompressor
 aside:
   toc: true
 sidebar:
-  nav: layouts
+  nav: Layouts
 ---
 
 ## [一.关于](https://github.com/SharryChoo/SCompressor)

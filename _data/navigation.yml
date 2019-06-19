@@ -11,5 +11,5 @@ header:
 layouts:
   - title: Layouts
     children:
-      - title:  Android 图片压缩框架 —— SCompressor
+      - title:  SCompressor
         url:    /2019/06/17/Android-图片压缩框架-SCompressor.html
