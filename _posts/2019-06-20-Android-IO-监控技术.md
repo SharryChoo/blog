@@ -16,6 +16,8 @@ aside:
 ## 二. 如何实现 IO 监控
 IO 的监控, 有如下几个思路分别是 Java Hook 和 Native Hook
 
+<!--more-->
+
 说起 Java Hook 主要有插桩和动态代理两种方式
 - 插桩: 无法覆盖所有的 IO 操作, 大量系统代码也存在 IO 操作
 - 动态代理: 
