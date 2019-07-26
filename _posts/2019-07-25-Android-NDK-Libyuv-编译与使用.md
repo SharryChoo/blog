@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android-NDk-Libyuv 编译与使用"
+title: "Android NDK —— Libyuv 编译与使用"
 tags: NDK
 aside:
   toc: true
@@ -183,6 +183,8 @@ void LibyuvUtil::NV21ToI420(jbyte *src, jbyte *dst, int width, int height) {
     - V: 跨距为 width/2
 - ABGR: 跨距为 4 *width
 
+对常用的色彩空间不了解的, [点击这里查看](https://sharrychoo.github.io/blog/2018/11/02/OpenCV-%E5%9F%BA%E7%A1%80%E7%AF%87-%E8%89%B2%E5%BD%A9%E7%A9%BA%E9%97%B4%E8%A1%A8%E7%A4%BA.html)
+
 ## 总结
 通过 libyuv 进行旋转镜像转码等操作, 其时长如下
 - 旋转镜像: 5~8mm
@@ -191,3 +193,6 @@ void LibyuvUtil::NV21ToI420(jbyte *src, jbyte *dst, int width, int height) {
 可以看到比起 java 代码, 几乎快了 3 倍, 这已经能够满足流畅录制的需求了
 
 笔者将常用的 YUV 操作整理成了[demo 点击查看](https://github.com/SharryChoo/LibyuvSample), 如有需要可以将代码直接拷走使用
+
+## 参考文献
+- https://www.jianshu.com/p/533479615b2b

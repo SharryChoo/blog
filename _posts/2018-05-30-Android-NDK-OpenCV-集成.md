@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android 端 OpenCV 的集成"
+title: "Android NDK —— OpenCV 的集成"
 tags: NDK
 aside:
   toc: true
