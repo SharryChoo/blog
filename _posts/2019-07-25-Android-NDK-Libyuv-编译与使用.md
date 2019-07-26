@@ -183,7 +183,7 @@ void LibyuvUtil::NV21ToI420(jbyte *src, jbyte *dst, int width, int height) {
     - V: 跨距为 width/2
 - ABGR: 跨距为 4 *width
 
-对常用的色彩空间不了解的, [点击这里查看](https://sharrychoo.github.io/blog/2018/11/02/OpenCV-%E5%9F%BA%E7%A1%80%E7%AF%87-%E8%89%B2%E5%BD%A9%E7%A9%BA%E9%97%B4%E8%A1%A8%E7%A4%BA.html)
+若对常用的色彩空间不熟悉, [请点击这里查看](https://sharrychoo.github.io/blog/2018/11/02/OpenCV-%E5%9F%BA%E7%A1%80%E7%AF%87-%E8%89%B2%E5%BD%A9%E7%A9%BA%E9%97%B4%E8%A1%A8%E7%A4%BA.html)
 
 ## 总结
 通过 libyuv 进行旋转镜像转码等操作, 其时长如下
