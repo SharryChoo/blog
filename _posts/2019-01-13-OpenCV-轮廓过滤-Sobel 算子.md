@@ -1,7 +1,7 @@
 ---
 layout: article
 title: "OpenCV 轮廓过滤 —— Sobel 算子"
-tags: OpenCV Filter
+tags: OpenCV
 aside:
   toc: true
 ---
