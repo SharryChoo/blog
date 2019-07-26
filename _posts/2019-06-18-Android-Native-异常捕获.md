@@ -1,7 +1,7 @@
 ---
 layout: article
 title: "Android-Native 异常捕获"
-tags: NDK PerformanceOptimization
+tags: PerformanceOptimization
 aside:
   toc: true
 ---

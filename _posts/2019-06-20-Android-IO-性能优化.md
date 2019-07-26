@@ -1,7 +1,7 @@
 ---
 layout: article
 title: "Android-IO 性能优化"
-tags: NDK PerformanceOptimization
+tags: PerformanceOptimization
 aside:
   toc: true
 ---
