@@ -36,6 +36,8 @@ class BaseApplication : android.app.Application() {
 }
 ```
 
+<!--more-->
+
 ## 实现原理
 ```
 public final class LeakCanary {
