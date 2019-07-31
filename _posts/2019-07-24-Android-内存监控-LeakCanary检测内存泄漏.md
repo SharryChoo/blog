@@ -15,6 +15,8 @@ aside:
 
 这里主要分析 LeakCanary 的 **使用流程** 和 **工作原理**
 
+<!--more-->
+
 ## 一. 使用流程
 ### 一) 添加依赖
 在 build.gradle 中
