@@ -7,38 +7,92 @@ aside:
 ---
 
 ## 前言
-LeakCanary 是 Android 端用于自动检测内存泄漏的工具, 其使用方式如下
+[LeakCanary](https://github.com/square/leakcanary) 是 Square 用于 Android 端用于自动检测内存泄漏的开源库
 
+使用这个工具可以方便的监控 Activity 和 Fragment 的内存泄漏情况, 并且提供了可视化界面, 可以在开发过程中很好的暴露和排查问题
+
+![Sample](https://i.loli.net/2019/07/31/5d40faf65a2a183363.jpg)
+
+这里主要分析 LeakCanary 的 **使用流程** 和 **工作原理**
+
+## 一. 使用流程
+### 一) 添加依赖
 在 build.gradle 中
 ```
 dependencies {
     ......
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
-    // releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+    implementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+    ......
+}
+```
+### 二) 编写工具类
+编写 LeakCanary 工具类
+```
+public class LeakCanaryUtil {
+
+    private static RefWatcher sRefWatcher;
+
+    /**
+     * Initialize, please invoke in {@link Application#onCreate()}
+     */
+    public static void init(@NonNull Application application) {
+        if (BuildConfig.IS_RELEASE) {
+            return;
+        }
+        if (LeakCanary.isInAnalyzerProcess(application)) {
+            return;
+        }
+        sRefWatcher = LeakCanary.install(application);
+    }
+
+    /**
+     * Watches the provided references and checks if it can be GCed. This method is non blocking,
+     * the check is done on the {@link com.squareup.leakcanary.WatchExecutor} this {@link RefWatcher} has been constructed
+     * with.
+     */
+    public static void watch(@Nullable Object obj) {
+        if (sRefWatcher == null || obj == null) {
+            return;
+        }
+        sRefWatcher.watch(obj);
+    }
 
 }
 ```
+RefWatcher 便是进行内存泄漏分析的接口类, 当我们调用了 LeakCanary.install 之后便会自动进行 Activity 的监控
+
+### 三) 使用
+#### 1. 初始化
 在 Application 中
 ```
 class BaseApplication : android.app.Application() {
 
+    private RefWatcher mRefWatcher;
+
     override fun onCreate() {
         super.onCreate()
         ......
-        // 若在 LeakCanary 的分析进程, 则无需注册 LeakCanary
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            return
-        }
-         // 注册 LeakCanary
-        LeakCanary.install(this)
+        LeakCanaryUtil.init(this);
     }
 
 }
 ```
 
-<!--more-->
+#### 2. 监控其他对象
+若想监控其他对象, 使用只需要调用 RefWatcher.watch 便可, Fragment 的监控如下
+```
+public abstract class BaseFragment extends Fragment {
+   
+    @Override
+    public void onDetach() {
+        // ......
+        LeakCanaryUtil.watch(this);
+    }
 
-## 实现原理
+}
+```
+
+## 二. 工作原理
 ```
 public final class LeakCanary {
     
@@ -296,8 +350,6 @@ public final class RefWatcher {
 
 便是通过这种方式巧妙的实现了 Activity 的内存泄漏分析
 
-### 思考
-被 GC 的对象是如何添加到 ReferenceQueue 中的呢?
-
 ## 参考文献
-https://cloud.tencent.com/developer/article/1169327
+- https://square.github.io/leakcanary/
+- https://cloud.tencent.com/developer/article/1169327
