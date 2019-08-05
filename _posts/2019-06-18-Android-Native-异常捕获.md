@@ -1,6 +1,7 @@
 ---
 layout: article
 title: "Android Native 异常捕获"
+key: "Android Native 异常捕获" 
 tags: PerformanceOptimization
 aside:
   toc: true

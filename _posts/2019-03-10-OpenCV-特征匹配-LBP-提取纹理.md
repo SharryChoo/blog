@@ -1,6 +1,7 @@
 ---
 layout: article
 title: "OpenCV 特征匹配 —— LBP 提取纹理"
+key:  "OpenCV 特征匹配 —— LBP 提取纹理"
 tags: OpenCV
 aside:
   toc: true

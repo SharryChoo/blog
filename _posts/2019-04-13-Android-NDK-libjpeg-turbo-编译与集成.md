@@ -1,6 +1,7 @@
 ---
 layout: article
 title: "Android NDK —— Libjpeg-turbo 编译与集成"
+key: "Android NDK —— Libjpeg-turbo 编译与集成" 
 tags: NDK
 aside:
   toc: true

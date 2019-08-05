@@ -1,6 +1,7 @@
 ---
 layout: article
 title: "Android 路由框架 —— SRouter"
+key:  "Android 路由框架 —— SRouter"
 tags: Framework
 aside:
   toc: true
