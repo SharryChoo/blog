@@ -24,11 +24,12 @@ article_header:
 - Java/C/C++/Kotlin
 - Algorithm/Structure
 - Design Pattern
-- JVM/Dalvik/ART
+- JVM/Dalvik
 - Linux Kernel
 - Android Framework
 - Android NDK
 - OpenCV
+- OpenGL
 
 ---
 
