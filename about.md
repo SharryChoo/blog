@@ -21,10 +21,10 @@ article_header:
 ---
 
 ## Skills
-- Java/C/C++/Kotlin
-- Algorithm/Structure
+- Java / C/ C++ / Kotlin
+- Algorithm / Structure
 - Design Pattern
-- JVM/Dalvik
+- JVM / Dalvik
 - Linux Kernel
 - Android Framework
 - Android NDK
