@@ -7,7 +7,6 @@ aside:
   toc: true
 ---
 
-
 ## 前言
 APP 的性能优化之路是永无止境的, 这里学习一个**腾讯开源用于提升本地存储效率的轻量级存储框架** [MMKV](https://github.com/Tencent/MMKV)
 
@@ -19,6 +18,8 @@ APP 的性能优化之路是永无止境的, 这里学习一个**腾讯开源用
 
 ## 一. MMKV 使用方式
 以下介绍简单的使用方式, 更多详情请查看 [Wiki](https://github.com/Tencent/MMKV/wiki/android_setup_cn)
+
+<!--more-->
 
 ### 依赖注入
 在 App 模块的 build.gradle 文件里添加:
