@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 存储优化 MMKV 集成与原理"
-key: "Android 存储优化 MMKV 集成与原理"
+title: "Android 存储优化 —— MMKV 集成与原理"
+key: "Android 存储优化 —— MMKV 集成与原理"
 tags: PerformanceOptimization
 aside:
   toc: true
@@ -100,7 +100,7 @@ MMKV: sqlite read String: loop[1000]: 93 ms
 ```
 可以看到 MMKV 无论是对比 SP 还是 SQLite, 在性能上都有非常大的优势
 
-![单进程读写性能对比](F4AB24E97FA64BDD96D69497D7656738)
+![单进程读写性能对比](https://i.loli.net/2019/08/15/xIgAq2fEDvlZ4dc.png)
 
 更详细的性能测试见 [wiki](https://github.com/Tencent/MMKV/wiki/android_benchmark_cn)
 
@@ -829,7 +829,7 @@ bool MMKV::ensureMemorySize(size_t newSize) {
 
 通过 encode 的分析, 我们得知 MMKV 文件的存储方式如下
 
-![MMKV 文件存储格式](50379A34206E4D74A34346E50D495AFF)
+![MMKV 文件存储格式](https://i.loli.net/2019/08/15/Y3xknw8GSXPbQVK.png)
 
 接下来看看 decode 的流程
 
@@ -884,7 +884,7 @@ const MMBuffer &MMKV::getDataForKey(const std::string &key) {
 看到这里可能会有一个疑问, **为什么 m_dic 不直接存储 key 和 value 原始数据呢, 这样查询效率不是更快吗?**
 - 如此一来查询效率的确会更快, 因为少了 ProtocolBuffer 解码的过程
 
-![读取性能对比](60B4F9FF7C1340BFBCE75449104F1A7C)
+![读取性能对比](https://i.loli.net/2019/08/15/8gpChT6l2soamzD.png)
 
 从图上的结果可以看出, MMKV 的读取性能时略低于 SharedPreferences 的, 这里笔者给出自己的思考
 - **m_dic 在数据重整中也起到了非常重要的作用, 需要依靠 m_dic 将数据写入到 mmap 的文件映射区**, 这个过程是非常耗时的, 若是原始的 value, 则需要对所有的 value 再进行一次 ProtocolBuffer 编码操作, 尤其是当数据量比较庞大时, 其带来的性能损耗更是无法忽略的
