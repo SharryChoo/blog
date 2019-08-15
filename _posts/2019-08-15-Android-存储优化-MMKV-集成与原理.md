@@ -16,7 +16,7 @@ APP 的性能优化之路是永无止境的, 这里学习一个**腾讯开源用
 
 因此需要一种替代的轻量级存储方案, MMKV 便是这样的一个框架
 
-## 一. MMKV 使用方式
+## 一. MMKV 集成与测试
 以下介绍简单的使用方式, 更多详情请查看 [Wiki](https://github.com/Tencent/MMKV/wiki/android_setup_cn)
 
 <!--more-->
@@ -30,7 +30,7 @@ dependencies {
 }
 ```
 
-### 初始化
+#### 初始化
 ```
 // 设置初始化的根目录
 String dir = getFilesDir().getAbsolutePath() + "/mmkv_2";
@@ -75,7 +75,8 @@ private void testImportSharedPreferences() {
 }
 ```
 
-## 二. 性能对比
+### 数据测试
+以下是 MMKV、SharedPreferences 和 SQLite 同步写入 1000 条数据的测试结果
 ```
 // MMKV
 MMKV: MMKV write int: loop[1000]: 12 ms
@@ -98,16 +99,13 @@ MMKV: sqlite read int: loop[1000]: 136 ms
 MMKV: sqlite write String: loop[1000]: 29 ms
 MMKV: sqlite read String: loop[1000]: 93 ms
 ```
-可以看到 MMKV 无论是对比 SP 还是 SQLite, 在性能上都有非常大的优势
+可以看到 MMKV 无论是对比 SP 还是 SQLite, 在性能上都有非常大的优势, 官方提供的数据测试结果如下
 
 ![单进程读写性能对比](https://i.loli.net/2019/08/15/xIgAq2fEDvlZ4dc.png)
 
 更详细的性能测试见 [wiki](https://github.com/Tencent/MMKV/wiki/android_benchmark_cn)
 
-## 三. 原理分析
-前面分析了 MMKV 的使用方式和其性能分析, 这里我们剖析一下它的实现原理, 看看它是如何将性能做到这个地步的
-
-这里对主要对 MMKV 的基本操作进行剖析
+了解 MMKV 的使用方式和测试结果, 让我对其实现原理产生了很大的好奇心, 接下来便看看它是如何将性能做到这个地步的, 这里对主要对 MMKV 的基本操作进行剖析
 - 初始化 
 - 实例化
 - encode
@@ -116,7 +114,7 @@ MMKV: sqlite read String: loop[1000]: 93 ms
 
 我们从初始化的流程开始分析
 
-### 一) 初始化
+## 一. 初始化
 ```
 public class MMKV implements SharedPreferences, SharedPreferences.Editor {
     
@@ -200,7 +198,7 @@ void MMKV::initializeMMKV(const std::string &rootDir) {
 
 接下来我们看看这个目录创建的过程
 
-#### 目录的创建
+### 目录的创建
 ```
 // MmapedFile.cpp
 bool mkPath(char *path) {
@@ -240,7 +238,7 @@ bool mkPath(char *path) {
 
 好的, 文件目录创建好了之后, Native 层的初始化操作便结束了, 接下来看看 MMKV 实例构建的过程
 
-### 二) 实例化
+## 二. 实例化
 ```
 public class MMKV implements SharedPreferences, SharedPreferences.Editor {
 
@@ -388,7 +386,7 @@ MMKV::MMKV(
 
 接下来我们先看看, 文件的映射
 
-#### 1. 文件映射到内存
+### 文件映射到内存
 ```
 // MmapedFile.cpp
 MmapedFile::MmapedFile(const std::string &path, size_t size, bool fileType)
@@ -453,7 +451,7 @@ MmapedFile 的构造函数处理的事务如下
 
 结下来看看数据的载入
 
-#### 2. 数据的载入
+### 数据的载入
 ```
 // MMKV.cpp
 void MMKV::loadFromFile() {
@@ -558,7 +556,7 @@ void MMKV::loadFromFile() {
 - **从文件中读取数据到 m_dic 之后, 会将 mdic 回写到文件中**, 其重写的目的是为了剔除重复的数据
   - 关于为什么会出现重复的数据, 在后面 encode 操作中再分析
 
-#### 3. 回顾
+### 回顾
 到这里 MMKV 实例的构建就完成了, 有了 m_dic 这个内存缓存, 我们进行数据查询的效率就大大提升了
 
 从最终的结果来看它与 SP 是一致的, 都是初次加载时会将文件中所有的数据加载到散列表中, 不过 MMKV 多了一步数据回写的操作, 因此当数据量比较大时, 对实例构建的速度有一定的影响
@@ -571,7 +569,7 @@ E/TAG: create SharedPreferences instance time is 1 ms
 
 从结果上来看, MMVK 的确在实例构造速度上有一定的劣势, 不过得益于是将 m_dic 中的数据写入到 mmap 的内存, 其真正进行文件写入的时机由 Linux 内核决定, 再加上文件的页缓存机制, 所以速度上虽有劣势, 但不至于无法接受
 
-### 三) encode
+## 三. encode
 关于 **encode 即数据的添加与更新**的流程, 这里以 encodeString 为例
 ```
 public class MMKV implements SharedPreferences, SharedPreferences.Editor {
@@ -628,7 +626,7 @@ bool MMKV::setStringForKey(const std::string &value, const std::string &key) {
 - 数据编码
 - 更新键值对
 
-#### 1. 数据的编码
+### 数据的编码
 MMKV 采用的是 ProtocolBuffer 编码方式, 这里就不做过多介绍了, 具体请查看 [Google 官方文档](https://developers.google.com/protocol-buffers/docs/encoding)
 ```
 // MiniPBCoder.cpp
@@ -706,7 +704,7 @@ void CodedOutputData::writeString(const string &value) {
 
 有了编码好的数据缓冲区, 接下来看看更新键值对的操作
 
-#### 2. 更新键值对
+### 键值对的更新
 ```
 // MMKV.cpp
 bool MMKV::setStringForKey(const std::string &value, const std::string &key) {
@@ -764,7 +762,7 @@ bool MMKV::appendDataWithKey(const MMBuffer &data, const std::string &key) {
 
 关于写入到文件映射的过程, 上面代码中的注释也非常的清晰, 接下来我们 ensureMemorySize 是如何进行数据的重整与扩容的
 
-##### 数据的重整与扩容
+#### 数据的重整与扩容
 ```
 // MMKV.cpp
 bool MMKV::ensureMemorySize(size_t newSize) {
@@ -816,7 +814,7 @@ bool MMKV::ensureMemorySize(size_t newSize) {
 - **文件扩容时机**
   - 所需空间的 1.5 倍超过了当前文件的总大小时, 扩容为之前的两倍
 
-#### 3. 回顾
+### 回顾
 至此 encode 的流程我们就走完了, 回顾一下整个 encode 的流程
 - 使用 ProtocolBuffer 编码 value
 - 将 **key** 和 **编码后的 value** 使用 ProtocolBuffer 的格式 append 到文件映射区内存的尾部
@@ -834,7 +832,7 @@ bool MMKV::ensureMemorySize(size_t newSize) {
 
 接下来看看 decode 的流程
 
-### 四) decode
+## 四. decode
 decode 的过程同样以 decodeString 为例
 ```
 // native-bridge.cpp
@@ -881,7 +879,7 @@ const MMBuffer &MMKV::getDataForKey(const std::string &key) {
 ```
 好的可以看到 decode 的流程比较简单, 先从内存缓存中获取 key 对应的 value 的 ProtocolBuffer 内存区域, 再解析这块内存区域, 从中获取真正的 value 值
 
-#### 思考
+### 思考
 看到这里可能会有一个疑问, **为什么 m_dic 不直接存储 key 和 value 原始数据呢, 这样查询效率不是更快吗?**
 - 如此一来查询效率的确会更快, 因为少了 ProtocolBuffer 解码的过程
 
@@ -893,7 +891,7 @@ const MMBuffer &MMKV::getDataForKey(const std::string &key) {
 既然 m_dic 还承担着方便数据复写的功能, 那**能否再添加一个内存缓存专门用于存储原始的 value 呢?**
 - 当然可以, 这样 MMKV 的读取定是能够达到 SharedPreferences 的水平, 不过 value 的内存消耗则会加倍, **MMKV 作为一个轻量级缓存的框架, 查询时时间的提升幅度还不足以用内存加倍的代价去换取**, 我想这是 Tencent 在进行多方面权衡之后, 得到的一个比较合理的解决方案
 
-### 五) 进程读写的同步
+## 五. 进程读写的同步
 说起进程间读写同步, 我们很自然的想到 Linux 的共享内存配合信号量使用的案例, 但是这种方式有一个弊端, 那就是**当持有锁的进程意外死亡的时候, 并不会释放其拥有的信号量, 若多进程之间存在竞争, 那么阻塞的进程将不会被唤醒**, 这是非常危险的
 
 MMKV 是采用 **文件锁** 的方式来进行进程间的同步操作
@@ -903,7 +901,7 @@ MMKV 是采用 **文件锁** 的方式来进行进程间的同步操作
 
 接下来我看看 MMKV 加解锁的操作
 
-#### 1. 文件共享锁
+### 文件共享锁
 ```
 MMKV::MMKV(
     const std::string &mmapID, int size, MMKVMode mode, string *cryptKey, string *relativePath)
@@ -932,7 +930,7 @@ MMKV::MMKV(
 ```
 可以看到在我们前面分析过的构造函数中, MMKV 对文件锁进行了初始化, 并且创建了共享锁和排它锁, 并在跨进程操作时开启, 当进行读操作时, 启动了共享锁
 
-#### 2. 文件排它锁
+### 文件排它锁
 ```
 bool MMKV::fullWriteback() {
     ......
@@ -963,7 +961,7 @@ bool MMKV::fullWriteback() {
 ```
 在进行数据回写的函数中, 启动了排它锁
 
-#### 3. 读写效率表现
+### 读写效率表现
 其进程同步读写的性能表现如下
 
 ![进程同步读写表现](https://i.loli.net/2019/08/15/cH6GlXVobQBWDfZ.png)
