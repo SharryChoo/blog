@@ -892,6 +892,85 @@ const MMBuffer &MMKV::getDataForKey(const std::string &key) {
 既然 m_dic 还承担着方便数据复写的功能, 那**能否再添加一个内存缓存专门用于存储原始的 value 呢?**
 - 当然可以, 这样 MMKV 的读取定是能够达到 SharedPreferences 的水平, 不过 value 的内存消耗则会加倍, **MMKV 作为一个轻量级缓存的框架, 查询时时间的提升幅度还不足以用内存加倍的代价去换取**, 我想这是 Tencent 在进行多方面权衡之后, 得到的一个比较合理的解决方案
 
+### 五) 进程读写的同步
+说起进程间读写同步, 我们很自然的想到 Linux 的共享内存配合信号量使用的案例, 但是这种方式有一个弊端, 那就是**当持有锁的进程意外死亡的时候, 并不会释放其拥有的信号量, 若多进程之间存在竞争, 那么阻塞的进程将不会被唤醒**, 这是非常危险的
+
+MMKV 是采用 **文件锁** 的方式来进行进程间的同步操作
+- **LOCK_SH(共享锁)**: 多个进程可以使用同一把锁, 常被用作读共享锁
+- **LOCK_EX(排他锁)**: 同时只允许一个进程使用, 常被用作写锁
+- **LOCK_UN**: 释放锁
+
+接下来我看看 MMKV 加解锁的操作
+
+#### 1. 文件共享锁
+```
+MMKV::MMKV(
+    const std::string &mmapID, int size, MMKVMode mode, string *cryptKey, string *relativePath)
+    : m_mmapID(mmapedKVKey(mmapID, relativePath))
+    // 创建文件锁的描述
+    , m_fileLock(m_metaFile.getFd())
+    // 描述共享锁
+    , m_sharedProcessLock(&m_fileLock, SharedLockType)
+    // 描述排它锁
+    , m_exclusiveProcessLock(&m_fileLock, ExclusiveLockType)
+    // 判读是否为进程间通信
+    , m_isInterProcess((mode & MMKV_MULTI_PROCESS) != 0 || (mode & CONTEXT_MODE_MULTI_PROCESS) != 0)
+    , m_isAshmem((mode & MMKV_ASHMEM) != 0) {
+    ......
+    // 根据是否跨进程操作判断共享锁和排它锁的开关
+    m_sharedProcessLock.m_enable = m_isInterProcess;
+    m_exclusiveProcessLock.m_enable = m_isInterProcess;
+
+    // sensitive zone
+    {
+        // 文件读操作, 启用了文件共享锁
+        SCOPEDLOCK(m_sharedProcessLock);
+        loadFromFile();
+    }
+}
+```
+可以看到在我们前面分析过的构造函数中, MMKV 对文件锁进行了初始化, 并且创建了共享锁和排它锁, 并在跨进程操作时开启, 当进行读操作时, 启动了共享锁
+
+#### 2. 文件排它锁
+```
+bool MMKV::fullWriteback() {
+    ......
+    auto allData = MiniPBCoder::encodeDataWithObject(m_dic);
+    // 启动了排它锁
+    SCOPEDLOCK(m_exclusiveProcessLock);
+    if (allData.length() > 0) {
+        if (allData.length() + Fixed32Size <= m_size) {
+            if (m_crypter) {
+                m_crypter->reset();
+                auto ptr = (unsigned char *) allData.getPtr();
+                m_crypter->encrypt(ptr, ptr, allData.length());
+            }
+            writeAcutalSize(allData.length());
+            delete m_output;
+            m_output = new CodedOutputData(m_ptr + Fixed32Size, m_size - Fixed32Size);
+            m_output->writeRawData(allData); // note: don't write size of data
+            recaculateCRCDigest();
+            m_hasFullWriteback = true;
+            return true;
+        } else {
+            // ensureMemorySize will extend file & full rewrite, no need to write back again
+            return ensureMemorySize(allData.length() + Fixed32Size - m_size);
+        }
+    }
+    return false;
+}
+```
+在进行数据回写的函数中, 启动了排它锁
+
+#### 3. 读写效率表现
+其进程同步读写的性能表现如下
+
+![进程同步读写表现](https://i.loli.net/2019/08/15/cH6GlXVobQBWDfZ.png)
+
+可以看到进程同步读写的效率也是非常 nice 的
+
+关于跨进程同步就介绍到这里, 当然 MMKV 的文件锁并没有表面上那么简单, 文件锁为状态锁, 无论加了多少次锁, 一个解锁操作就全解除, 显然无法应对子函数嵌套调用的问题, **MMKV 内部通过了自行实现计数器来实现锁的可重入性**, 更多的细节可以查看 [wiki](https://github.com/Tencent/MMKV/wiki/android_ipc)
+
 ## 总结
 通过上面的分析, 我们对 MMKV 有了一个整体上的把控, 其具体的表现如下所示
 
@@ -904,9 +983,12 @@ const MMBuffer &MMKV::getDataForKey(const std::string &key) {
 开发成本 | 优 | 使用方式较为简单
 兼容性 | 优 | 各个安卓版本都前后兼容
 
-虽然 MMKV 一些场景下比 SP 稍慢(如: 首次实例化会进行数据的复写剔除重复数据, 比 SP 稍慢, 查询数据时存在 ProtocolBuffer 解码, 比 SP 稍慢), 但其**逆天的数据写入速度、mmap Linux 内核保证数据的同步, 以及 ProtocolBuffer 编码带来的更小的本地存储空间占用等都是非常棒的闪光点**, 而且在分析 MMKV 的代码的过程中, 也从中学习到了很多, 非常感谢 Tencent 为开源社区做出的贡献
+虽然 MMKV 一些场景下比 SP 稍慢(如: 首次实例化会进行数据的复写剔除重复数据, 比 SP 稍慢, 查询数据时存在 ProtocolBuffer 解码, 比 SP 稍慢), 但其**逆天的数据写入速度、mmap Linux 内核保证数据的同步, 以及 ProtocolBuffer 编码带来的更小的本地存储空间占用等都是非常棒的闪光点**
+
+在分析 MMKV 的代码的过程中, 从中学习到了很多知识, 非常感谢 Tencent 为开源社区做出的贡献
 
 ## 参考文献
 - https://github.com/Tencent/MMKV/wiki/android_setup_cn
 - https://developers.google.com/protocol-buffers/docs/encoding
 - https://time.geekbang.org/column/article/76677
+- https://www.cnblogs.com/kex1n/p/7100107.html
