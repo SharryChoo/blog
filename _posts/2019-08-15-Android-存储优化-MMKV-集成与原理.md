@@ -16,7 +16,7 @@ APP 的性能优化之路是永无止境的, 这里学习一个**腾讯开源用
 
 因此需要一种替代的轻量级存储方案, MMKV 便是这样的一个框架
 
-## MMKV 集成与测试
+## 集成与测试
 以下介绍简单的使用方式, 更多详情请查看 [Wiki](https://github.com/Tencent/MMKV/wiki/android_setup_cn)
 
 <!--more-->
