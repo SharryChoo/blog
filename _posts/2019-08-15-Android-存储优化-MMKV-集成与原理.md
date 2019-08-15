@@ -16,7 +16,7 @@ APP 的性能优化之路是永无止境的, 这里学习一个**腾讯开源用
 
 因此需要一种替代的轻量级存储方案, MMKV 便是这样的一个框架
 
-## 一. MMKV 集成与测试
+## MMKV 集成与测试
 以下介绍简单的使用方式, 更多详情请查看 [Wiki](https://github.com/Tencent/MMKV/wiki/android_setup_cn)
 
 <!--more-->
@@ -114,7 +114,7 @@ MMKV: sqlite read String: loop[1000]: 93 ms
 
 我们从初始化的流程开始分析
 
-## 一. 初始化
+## 初始化
 ```
 public class MMKV implements SharedPreferences, SharedPreferences.Editor {
     
@@ -238,7 +238,7 @@ bool mkPath(char *path) {
 
 好的, 文件目录创建好了之后, Native 层的初始化操作便结束了, 接下来看看 MMKV 实例构建的过程
 
-## 二. 实例化
+## 实例化
 ```
 public class MMKV implements SharedPreferences, SharedPreferences.Editor {
 
@@ -569,7 +569,7 @@ E/TAG: create SharedPreferences instance time is 1 ms
 
 从结果上来看, MMVK 的确在实例构造速度上有一定的劣势, 不过得益于是将 m_dic 中的数据写入到 mmap 的内存, 其真正进行文件写入的时机由 Linux 内核决定, 再加上文件的页缓存机制, 所以速度上虽有劣势, 但不至于无法接受
 
-## 三. encode
+## encode
 关于 **encode 即数据的添加与更新**的流程, 这里以 encodeString 为例
 ```
 public class MMKV implements SharedPreferences, SharedPreferences.Editor {
@@ -832,7 +832,7 @@ bool MMKV::ensureMemorySize(size_t newSize) {
 
 接下来看看 decode 的流程
 
-## 四. decode
+## decode
 decode 的过程同样以 decodeString 为例
 ```
 // native-bridge.cpp
@@ -891,7 +891,7 @@ const MMBuffer &MMKV::getDataForKey(const std::string &key) {
 既然 m_dic 还承担着方便数据复写的功能, 那**能否再添加一个内存缓存专门用于存储原始的 value 呢?**
 - 当然可以, 这样 MMKV 的读取定是能够达到 SharedPreferences 的水平, 不过 value 的内存消耗则会加倍, **MMKV 作为一个轻量级缓存的框架, 查询时时间的提升幅度还不足以用内存加倍的代价去换取**, 我想这是 Tencent 在进行多方面权衡之后, 得到的一个比较合理的解决方案
 
-## 五. 进程读写的同步
+## 进程读写的同步
 说起进程间读写同步, 我们很自然的想到 Linux 的共享内存配合信号量使用的案例, 但是这种方式有一个弊端, 那就是**当持有锁的进程意外死亡的时候, 并不会释放其拥有的信号量, 若多进程之间存在竞争, 那么阻塞的进程将不会被唤醒**, 这是非常危险的
 
 MMKV 是采用 **文件锁** 的方式来进行进程间的同步操作
