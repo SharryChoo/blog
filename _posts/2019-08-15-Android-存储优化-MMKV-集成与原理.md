@@ -112,6 +112,7 @@ MMKV: sqlite read String: loop[1000]: 93 ms
 - 实例化
 - encode
 - decode
+- 进程读写的同步
 
 我们从初始化的流程开始分析
 
@@ -969,7 +970,7 @@ bool MMKV::fullWriteback() {
 
 可以看到进程同步读写的效率也是非常 nice 的
 
-关于跨进程同步就介绍到这里, 当然 MMKV 的文件锁并没有表面上那么简单, 文件锁为状态锁, 无论加了多少次锁, 一个解锁操作就全解除, 显然无法应对子函数嵌套调用的问题, **MMKV 内部通过了自行实现计数器来实现锁的可重入性**, 更多的细节可以查看 [wiki](https://github.com/Tencent/MMKV/wiki/android_ipc)
+关于跨进程同步就介绍到这里, 当然 MMKV 的文件锁并没有表面上那么简单, 因为文件锁为状态锁, 无论加了多少次锁, 一个解锁操作就全解除, 显然无法应对子函数嵌套调用的问题, **MMKV 内部通过了自行实现计数器来实现锁的可重入性**, 更多的细节可以查看 [wiki](https://github.com/Tencent/MMKV/wiki/android_ipc)
 
 ## 总结
 通过上面的分析, 我们对 MMKV 有了一个整体上的把控, 其具体的表现如下所示
