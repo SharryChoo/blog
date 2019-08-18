@@ -1,7 +1,6 @@
 ---
 layout: article
 titles: About
-key: page-about
 mode: immersive
 header:
   theme: dark
