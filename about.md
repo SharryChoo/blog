@@ -38,19 +38,19 @@ A framework of componentization related to Android platform
 - [How to use](https://github.com/SharryChoo/SRouter/blob/release/README.md)
 - [Repository](https://github.com/SharryChoo/SRouter)
 
-### SCompressor
-A framework that help u get extreme quality compressed picture.(Core is libjpeg-turbo)
-- [How to use](https://github.com/SharryChoo/SCompressor/blob/release/README.md)
-- [Repository](https://github.com/SharryChoo/SCompressor)
-
-### PicturePicker
+### SPicturePicker
 A framework for assisting in Android picture selection.
-- [How to use](https://github.com/SharryChoo/PicturePicker/blob/release/README.md)
-- [Repository](https://github.com/SharryChoo/PicturePicker)
+- [How to use](https://github.com/SharryChoo/SPicturePicker/blob/release/README.md)
+- [Repository](https://github.com/SharryChoo/SPicturePicker)
 
 ### SToolbar
 A framework help u build Toolbar more easier.
 - [How to use](https://juejin.im/post/5bb099ff5188255c6a044ce2)
 - [Repository](https://github.com/SharryChoo/SToolbar)
+
+### SCompressor
+A framework that help u get extreme quality compressed picture.(Core is libjpeg-turbo)
+- [How to use](https://github.com/SharryChoo/SCompressor/blob/release/README.md)
+- [Repository](https://github.com/SharryChoo/SCompressor)
 
 ---
