@@ -1,79 +1,23 @@
 ---
 layout: article
-title: "Android NDK —— Libjpeg-turbo 编译与集成"
-key: "Android NDK —— Libjpeg-turbo 编译与集成" 
+title: "Android NDK —— JPEG 压缩的优化"
+key: "Android NDK —— JPEG 压缩的优化"
 tags: NDK
 aside:
   toc: true
 ---
 
 ## 前言
-Android 提供的 JPEG 压缩, 是由外部链接库中的 libjpeg 实现的, 但 Google 考虑到 Android 设备性能的瓶颈, **在 Skia 调用中的三方链接库 libjpeg 时, 多处进行了阉割处理**, 这样带来的好处就是压缩的速度更快了, 但细节丢失严重, 压缩后甚至有偏绿的情况, 下面的代码便是 Android 执行 JPEG 压缩的关键
+若想将一 RGB 的像素值封装成 JPEG 输出, 主要需要经过如下几步
 
-<!--more-->
+色彩空间的转化 -> 离散余弦变换DCT -> 数据量化(Quantization) -> 压缩编码
 
-```
-/**
- * SkImageDecoder_libjpeg.cpp
- */
-class SkJPEGImageEncoder : public SkImageEncoder {
-protected:
-    virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) {
-        ......
-        // 1. 初始化 libjpeg
-        jpeg_create_compress(&cinfo);
-        // 设置一些参数
-        cinfo.dest = &sk_wstream;
-        cinfo.image_width = bm.width();
-        cinfo.image_height = bm.height();
-        cinfo.input_components = 3;
-        // FIXME: Can we take advantage of other in_color_spaces in libjpeg-turbo?
-        cinfo.in_color_space = JCS_RGB;
-        // The gamma value is ignored by libjpeg-turbo.
-        cinfo.input_gamma = 1;
-        jpeg_set_defaults(&cinfo);
-        // 这个标志用于控制是否使用优化的哈夫曼表
-        cinfo.optimize_coding = TRUE;
-        jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
-        
-        // 2. 开始压缩
-        jpeg_start_compress(&cinfo, TRUE);
+为了优化 Android 的 JPEG 压缩率, 这里利用 libjpeg-turbo 探究一下 **不同压缩编码的性能表现**, 文章主体如下
+- 编译 libjpeg-turbo
+- JPEG 压缩编码性能比较
+- Android JPEG 压缩的优化
 
-        const int       width = bm.width();
-        uint8_t*        oneRowP = oneRow.reset(width * 3);
-
-        const SkPMColor* colors = bm.getColorTable() ? bm.getColorTable()->readColors() : nullptr;
-        const void*      srcRow = bm.getPixels();
-        
-        while (cinfo.next_scanline < cinfo.image_height) {
-            JSAMPROW row_pointer[1];    /* pointer to JSAMPLE row[s] */
-            writer(oneRowP, srcRow, width, colors);
-            row_pointer[0] = oneRowP;
-            (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
-            srcRow = (const void*)((const char*)srcRow + bm.rowBytes());
-        }
-        
-        // 3. 结束压缩
-        jpeg_finish_compress(&cinfo);
-        
-        // 4. 释放内存
-        jpeg_destroy_compress(&cinfo);
-
-        return true;
-    }
-};
-```
-从上面的代码中, 我们定位到 cinfo.optimize_coding 这个参数
-- Android7.0 之后, 这个参数为 true
-  - 在图片压缩的时候, 会根据图片去计算其对应的哈夫曼表, 图片质量更高, 但是图片占用的磁盘空间也相应更高
-- Android7.0 之前, 这个参数为 false
-  - 使用默认的哈夫曼表, 不会去根据图片进行特定的计算, 经 Google 测试, 图片质量比使用哈夫曼低两倍左右
-
-除此之外早期的 Android 版本, 同样考虑到性能问题, skia 引擎写了一个函数替代了原来 libjpeg 的转换函数, 好处是提高了编码速度, 坏处就是牺牲了每一个像素的精度
-
-为了实现更快速更高质量的 JPEG 有损压缩, 因此笔者选择编译 libjpeg-turbo, 来处理项目中的图片压缩, 据官方介绍, 得益于它高度优化的哈夫曼算法, 它比 libjpeg 要快上 2-6 倍, 接下来我们来一步一步的将它集成到项目中
-
-## 一. 环境
+## 一. 编译 libjpeg-turbo
 ### 操作系统 
 MacOS Mojave version 10.14.5
 
@@ -90,7 +34,6 @@ NDK16
 cmake version 3.14.5
 ```
 
-## 二. 准备
 ### 注释版本号
 为了方便使用, 我们需要先注释版本号
 - 打开 libjpeg-turbo/sharedLibs/CMakeList.txt, 将设置版本号的位置注释
@@ -99,7 +42,6 @@ cmake version 3.14.5
 #  VERSION ${SO_MAJOR_VERSION}.${SO_AGE}.${SO_MINOR_VERSION})
 ```
 
-## 三. 编译
 ### 脚本编写
 Android 端脚本编写指南在 libjpeg-turbo 库中的 [BUILDING.md](https://github.com/libjpeg-turbo/libjpeg-turbo/blob/master/BUILDING.md) 中有说明
 ```
@@ -169,145 +111,98 @@ make clean
 make
 make install
 ```
-### 结果展示
+如此便可以获得 libjpeg 的 so 库, 将其和头文件拷贝到工程中即可使用, 关于 libjpeg-turbo 的使用, 这里就不赘述了, 其官方提供好的 sample 如下
+- [https://raw.githubusercontent.com/libjpeg-turbo/libjpeg-turbo/master/example.txt](https://raw.githubusercontent.com/libjpeg-turbo/libjpeg-turbo/master/example.txt)
 
-![生成结果](https://user-gold-cdn.xitu.io/2019/6/13/16b4e6ac29a66941?w=1186&h=392&f=png&s=100222)
+得到了 libjpeg-turbo 的 so, 接下来便可以探究 JPEG 压缩编码的表现了
 
-## 四. 集成
-### 一) 添加
-将我们上面编译好的 so 和头文件拷贝到我们的项目中
+## 二. JPEG 压缩编码性能比较
+libjpeg-turbo 支持的编码算法如下
+- 霍夫曼编码
+  - 优化的霍夫曼
+  - 未优化的霍夫曼
+- 算术编码
 
-![添加](https://user-gold-cdn.xitu.io/2019/6/13/16b4e6ac29bc4564?w=339&h=255&f=png&s=2623)
+**我们将压缩质量设置 5, 看看他们在空间和时间两个个维度上的表现**
 
-### 二) CMake 链接
-在 CMake 中将我们的动态了添加进去
+### 空间与时间
 ```
-# 链接头文件
-include_directories(${source_dir}/jniLibs/include)
-
-# libjpeg-turbo
-add_library(libjpeg SHARED IMPORTED)
-set_target_properties(
-        libjpeg
-        PROPERTIES
-        IMPORTED_LOCATION
-        ${source_dir}/jniLibs/armeabi/libjpeg.so
-)
-
-# 将打包的 so 链接到项目中
-target_link_libraries(
-        ......
-        libjpeg
-        ......
-)
+Origin file length is 8284kb
+// 未优化的霍夫曼编码
+libjpeg-turbo compressed file length is 433kb, cost time is 456ms
+// 优化的霍夫曼编码
+libjpeg-turbo compressed file length is 260kb, cost time is 499ms
+// 算术编码
+libjpeg-turbo compressed file length is 148kb, cost time is 459ms
 ```
+- 压缩率上
+  - **优化的霍夫曼编码比未优化的高 30%**
+  - **算术编码比优化的霍夫曼编码高 40%**
+- 时间消耗上, 优化的霍夫曼编码稍慢
 
-### 三)  build.gradle 
-因为我们只编译了 armeabi 架构的 so, 因此我们需要再 gradle 中添加 filters
+### 问题探究
+##### 为什么算术编码比优化的霍夫曼编码压缩率高? 
+- 算术编码若想完成解码需求, **需要保存原始数据的编码表和长度大小, 以及编码后的一个浮点数值**
+  - 编码表的大小与数据的重复度成正相关
+- 霍夫曼编码若想完成解码需求, **需要保存霍夫曼编码树和编码后的整个数据**
+  - 霍夫曼树的大小与数据的重复度成正相关 
+
+算术编码从实现上就比霍夫曼更加优秀, 它编码后的结果为一个浮点数值, 而霍夫曼编码则需要保存编码后的整个数据, 这正是算术编码比霍夫曼编码的压缩率高 40% 的原因
+
+##### 为什么优化的霍夫曼编码比未优化的压缩率高?
+优化的霍夫曼编码, 即根据源数据的计算一个霍夫曼树, 并且按照这个霍夫曼树进行霍夫曼编码, 而未优化的霍夫曼算法是直接使用 Libjpeg 提供的默认的霍夫曼树进行编码
+- 优势: 省去了构建霍夫曼树和霍夫曼树映射表的过程
+- 劣势: **默认的霍夫曼树为了保证通用性, 势必要考虑所有的数值(假设为 0-255), 因此这个霍夫曼树要比根据数据源构建的要大一些**
+
+了解优化的霍夫曼编码压缩率更高的原因, 其耗时更久的疑惑也同样得以解决了
+
+## 三. Android JPEG 压缩的优化
+Android 的 2D 处理框架为 Skia, 在 JPEG 图像压缩上它链接了 libjpeg-turbo, 不同的是 Google 在不同的 Android 版本上的使用方式有所不同
+- [Android 7.0 以下的设备未开启优化的霍夫曼编码](http://androidxref.com/6.0.1_r10/xref/external/skia/src/images/SkImageDecoder_libjpeg.cpp#onEncode)
 ```
-android {
-    compileSdkVersion 28
-    defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-        externalNativeBuild {
-            ndk {
-                abiFilters "armeabi-v7a"
-            }
-        }
-    }
+jpeg_set_defaults(&cinfo);
+// ... 此处未开启优化的霍夫曼压缩
+#ifdef DCT_IFAST_SUPPORTED
+    // 使用了快速的离散余弦变化, 丢失了精度
+    cinfo.dct_method = JDCT_IFAST;
+#endif
+```
+- [Android 7.0 以上的 skia 开启了优化的霍夫曼编码](http://androidxref.com/7.0.0_r1/xref/external/skia/src/images/SkImageDecoder_libjpeg.cpp#onEncode)
+```
+// 开启了优化的霍夫曼编码
+cinfo.optimize_coding = TRUE;
+// ...关闭了快速离散余弦, 使用了默认的离散余弦算法
+```
+了解了 Android 对 libjpeg 的使用思路, 接下来看看如何制定优化方案
+
+### 优化方案
+在 Android 7.0 以下的设备, 其 skia 的压缩实现是使用未优化的霍夫曼编码
+- 使用优化的霍夫曼编码提升 30% 的压缩率
+- 使用算术编码来提升 40% 的压缩率
+  - 使用算术编码生成的 jpeg 可能存在兼容性问题
+- 关闭快速离散余弦算法, 解决精度丢失的问题
+
+在 Android 7.0 以上的设备, 其 skia 的压缩实现为使用优化的霍夫曼编码, 可以采用以下的方式优化
+- 通过使用算术编码来提升 40% 的压缩率
+  - 使用算术编码生成的 jpeg 可能存在兼容性问题
+ 
+代码流程如下所示
+```
+// 在 Android 7.0 以上并且未开启算术编码, 使用 skia 实现
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !request.isArithmeticCoding) {
+    skiaCompress(request, downsampledBitmap, outputFile);
+} 
+// 在 Android 7.0 以下, 或开启了算术编码时使用我们自己的 libjpeg-turbo 实现
+else {
+    libjpegTurboCompress(request, downsampledBitmap, outputFile);
 }
 ```
-好的, 至此我们的集成就完成了, 接下来提供一些简单的用法
 
-## 五. 代码的编写与测试
-我们编译 libjpeg-turbo 的主要目的就是为了进行 JPEG 的高质量压缩, 关于 libjpeg-turbo 的使用, 这里就不赘述了, 其官方提供好的 sample 如下<br>
-https://raw.githubusercontent.com/libjpeg-turbo/libjpeg-turbo/master/example.txt
-
-**简单的来说, 就是将 Bitmap 的颜色通道转为 BGR, 然后传给 libjpeg-turbo API 即可**, 代码还是非常简单的
-```
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_sharry_libscompressor_Core_nativeCompress(JNIEnv *env, jclass type, jobject bitmap,
-                                                   jint quality, jstring destPath_) {
-    // 1. 获取 bitmap 信息
-    AndroidBitmapInfo info;
-    AndroidBitmap_getInfo(env, bitmap, &info);
-    int cols = info.width;
-    int rows = info.height;
-    int format = info.format;
-    LOGI("Bitmap width is %d, height is %d", cols, rows);
-    // 若不为 ARGB8888, 则不给予压缩
-    if (format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
-        LOGE("Unsupported Bitmap channels, Please ensure channels is ARGB_8888.");
-        return false;
-    }
-    // 2. 解析数据
-    LOGI("Parse bitmap pixels");
-    // 锁定画布
-    uchar *pixels = NULL;
-    AndroidBitmap_lockPixels(env, bitmap, (void **) &pixels);
-    if (pixels == NULL) {
-        LOGE("Fetch Bitmap data failed.");
-        return false;
-    }
-    // 创建存储数组
-    uchar *data = (uchar *) malloc(static_cast<size_t>(cols * rows * 3));
-    uchar *data_header_pointer = data;// 临时保存 data 的首地址, 用于后续释放内存
-    uchar r, g, b;
-    int row = 0, col = 0, pixel;
-    for (row = 0; row < rows; ++row) {
-        for (col = 0; col < cols; ++col) {
-            // 2.1 获取像素值
-            pixel = *((int *) pixels);
-            // ...                                              // 忽略 A 通道值
-            r = static_cast<uchar>((pixel & 0x00FF0000) >> 16); // 获取 R 通道值
-            g = static_cast<uchar>((pixel & 0x0000FF00) >> 8);  // 获取 G 通道值
-            b = static_cast<uchar>((pixel & 0x000000FF));       // 获取 B 通道值
-            pixels += 4;
-            // 2.2 为 Data 填充数据
-            *(data++) = b;
-            *(data++) = g;
-            *(data++) = r;
-        }
-    }
-    // 解锁画布
-    AndroidBitmap_unlockPixels(env, bitmap);
-
-    // 3. 使用 libjpeg 进行图片质量压缩
-    LOGI("Lib jpeg turbo do compress");
-    char *output_filename = (char *) (env)->GetStringUTFChars(destPath_, NULL);
-    int result = LibJpegTurboUtils::write_JPEG_file(data_header_pointer, rows, cols,
-                                                    output_filename,
-                                                    quality);
-    // 4. 释放资源
-    LOGI("Release memory");
-    free((void *) data_header_pointer);
-    env->ReleaseStringUTFChars(destPath_, output_filename);
-    return result;
-}
-```
-### 效果展示
-
-![效果展示](https://user-gold-cdn.xitu.io/2019/6/13/16b4e6ac29f94bea?w=410&h=817&f=png&s=295622)
-
-```
-I/Core: Request{inputSourceType = String, outputSourceType = Bitmap, quality = 70, destWidth = -1, destHeight = -1}
-// 采样压缩之后
-E/Core_native: ->> Bitmap width is 1512, height is 2016
-E/Core_native: ->> Parse bitmap pixels
-E/Core_native: ->> Lib jpeg turbo do compress
-E/Core_native: ->> Release memory
-I/Core: ->> output file is: /data/user/0/com.sharry.scompressor/cache/1555157510264.jpg
-// 质量压缩之后
-I/Core: ->> Output file length is 196kb
-```
-可以看到 1512 x 2016 的图片,  在 quality 为 70 的情况下压缩之后, 为 196kb, 当然他的依旧是非常清晰的
+以上的优化采用了时间换空间的思路, 现如今手机的性能日益强劲, 使用毫秒级的时间差异去换取更好的压缩率, 能够加快图片在网络上的传输, 个人认为还是非常值得的
 
 ## 总结
-到这里我们的编译与集成就完成了, 整体的过程还是比较简单的, 其效果也非常的 nice, 而且不会受到 Android SDK 版本的困扰, 感兴趣的同学可以按照上述的方式试试看。
+
 
 ## 参考文献
-[https://blog.csdn.net/yuxiatongzhi/article/details/81743249](https://blog.csdn.net/yuxiatongzhi/article/details/81743249)
+- [https://blog.csdn.net/yuxiatongzhi/article/details/81743249](https://blog.csdn.net/yuxiatongzhi/article/details/81743249)
+- [https://blog.csdn.net/qq_36752072/article/details/77986159](https://blog.csdn.net/qq_36752072/article/details/77986159)
