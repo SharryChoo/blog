@@ -111,7 +111,9 @@ make clean
 make
 make install
 ```
-如此便可以获得 libjpeg 的 so 库, 将其和头文件拷贝到工程中即可使用, 关于 libjpeg-turbo 的使用, 这里就不赘述了, 其官方提供好的 sample 如下
+如此便可以获得 libjpeg 的 so 库, 将其和头文件拷贝到工程中即可使用
+
+关于 libjpeg-turbo 的使用, 这里就不赘述了, 其官方提供好的 sample 如下
 - [https://raw.githubusercontent.com/libjpeg-turbo/libjpeg-turbo/master/example.txt](https://raw.githubusercontent.com/libjpeg-turbo/libjpeg-turbo/master/example.txt)
 
 得到了 libjpeg-turbo 的 so, 接下来便可以探究 JPEG 压缩编码的表现了
@@ -157,6 +159,7 @@ libjpeg-turbo compressed file length is 148kb, cost time is 459ms
 了解优化的霍夫曼编码压缩率更高的原因, 其耗时更久的疑惑也同样得以解决了
 
 ## 三. Android JPEG 压缩的优化
+### 源码实现
 Android 的 2D 处理框架为 Skia, 在 JPEG 图像压缩上它链接了 libjpeg-turbo, 不同的是 Google 在不同的 Android 版本上的使用方式有所不同
 - [Android 7.0 以下的设备未开启优化的霍夫曼编码](http://androidxref.com/6.0.1_r10/xref/external/skia/src/images/SkImageDecoder_libjpeg.cpp#onEncode)
 ```
@@ -177,13 +180,13 @@ cinfo.optimize_coding = TRUE;
 
 ### 优化方案
 在 Android 7.0 以下的设备, 其 skia 的压缩实现是使用未优化的霍夫曼编码
-- 使用优化的霍夫曼编码提升 30% 的压缩率
-- 使用算术编码来提升 40% 的压缩率
+- 使用优化的霍夫曼编码, 提升 30% 的压缩率
+- 使用算术编码来, 提升 70% 的压缩率
   - 使用算术编码生成的 jpeg 可能存在兼容性问题
 - 关闭快速离散余弦算法, 解决精度丢失的问题
 
 在 Android 7.0 以上的设备, 其 skia 的压缩实现为使用优化的霍夫曼编码, 可以采用以下的方式优化
-- 通过使用算术编码来提升 40% 的压缩率
+- 通过使用算术编码, 来提升 40% 的压缩率
   - 使用算术编码生成的 jpeg 可能存在兼容性问题
  
 代码流程如下所示
@@ -198,10 +201,9 @@ else {
 }
 ```
 
-以上的优化采用了时间换空间的思路, 现如今手机的性能日益强劲, 使用毫秒级的时间差异去换取更好的压缩率, 能够加快图片在网络上的传输, 个人认为还是非常值得的
 
 ## 总结
-
+通过本次学习, 很好的利用了 libjpeg-turbo 解决了 Android JPEG 压缩率低的问题, 现如今手机的性能日益强劲, 采用了时间换空间的思路, 使用毫秒级的时间差异去换取更好的压缩率, 能够加快图片在网络上的传输, 个人认为还是非常值得的
 
 ## 参考文献
 - [https://blog.csdn.net/yuxiatongzhi/article/details/81743249](https://blog.csdn.net/yuxiatongzhi/article/details/81743249)
