@@ -23,7 +23,7 @@ MacOS Mojave version 10.14.5
 
 ### Libjpeg-turbo 版本
 从 Github 上下载最新的源码即可<br>
-https://github.com/libjpeg-turbo/libjpeg-turbo
+[https://github.com/libjpeg-turbo/libjpeg-turbo](https://github.com/libjpeg-turbo/libjpeg-turbo)
 
 ### NDK 版本
 NDK16
