@@ -203,7 +203,7 @@ else {
 
 
 ## 总结
-通过本次学习, 很好的利用了 libjpeg-turbo 解决了 Android JPEG 压缩率低的问题, 现如今手机的性能日益强劲, 采用了时间换空间的思路, 使用毫秒级的时间差异去换取更好的压缩率, 能够加快图片在网络上的传输, 个人认为还是非常值得的
+通过本次的学习与实践, 很好的利用了 libjpeg-turbo 解决了 Android JPEG 压缩率低的问题, 现如今手机的性能日益强劲, 采用了时间换空间的思路, 使用毫秒级的时间差异去换取更好的压缩率, 能够加快图片在网络上的传输, 个人认为还是非常值得的
 
 ## 参考文献
 - [https://blog.csdn.net/yuxiatongzhi/article/details/81743249](https://blog.csdn.net/yuxiatongzhi/article/details/81743249)
