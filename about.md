@@ -16,7 +16,7 @@ article_header:
 - 爱好: 技术、读书、音乐、篮球、追番
 - 关注领域：音视频、AI
 - 最喜欢的句子： 每个人生命中都有无比艰苦的那一年，将人生变得美好而辽阔。 —— 《岛上书店》 
-- [读过的书](https://sharrychoo.github.io/blog/2016/05/30/book-list.html)
+- [读过的一些书](https://sharrychoo.github.io/blog/2016/05/30/book-list.html)
 
 ---
 
