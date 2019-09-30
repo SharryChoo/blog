@@ -21,7 +21,7 @@ article_header:
 ---
 
 ## Contact Me
-- GitHub: [https://github.com/SharryChoo](https://github.com/SharryChoo)
+- GitHub: [SharryChoo](https://github.com/SharryChoo)
 - 简书: [SharryChoo](https://www.jianshu.com/u/c3c6db35f3d2)
 - Twitter: [SharryChoo](https://twitter.com/SharryChoo)
 - Instagram: [SharryChoo](https://www.instagram.com/sharrychoochn/?hl=zh-cn)
