@@ -12,45 +12,20 @@ article_header:
 ---
 
 ## About me
-- Name: SharryChoo
-- Job: Android Developer
+- 姓名: 朱晓宇(SharryChoo)
+- 爱好: 技术、读书、音乐、篮球
+- 关注领域：音视频、AI
+- 最喜欢的句子： 每个人生命中都有无比艰苦的那一年，将人生变得美好而辽阔。 —— 《岛上书店》 
+- 读过的书
+
+---
+
+## Contact Me
 - GitHub: [https://github.com/SharryChoo](https://github.com/SharryChoo)
-- Mail: SharryChooCHN@Gmail.com
-
----
-
-## Skills
-- Java / C/ C++ / Kotlin
-- Algorithm / Structure
-- Design Pattern
-- JVM / Dalvik
-- Linux Kernel
-- Android Framework
-- Android NDK
-- OpenCV
-- OpenGL
-
----
-
-## Production
-### SAlbum
-A album framework helper u picking picture or video related to Android platform.
-- [How to use](https://github.com/SharryChoo/SAlbum/blob/release/README.md)
-- [Repository](https://github.com/SharryChoo/SAlbum)
-
-### SRouter
-A framework of componentization related to Android platform.
-- [How to use](https://github.com/SharryChoo/SRouter/blob/release/README.md)
-- [Repository](https://github.com/SharryChoo/SRouter)
-
-### SCompressor
-A framework that help u get extreme quality compressed picture.(Core is libjpeg-turbo)
-- [How to use](https://github.com/SharryChoo/SCompressor/blob/release/README.md)
-- [Repository](https://github.com/SharryChoo/SCompressor)
-
-### SToolbar
-A framework help u build Toolbar more easier.
-- [How to use](https://juejin.im/post/5bb099ff5188255c6a044ce2)
-- [Repository](https://github.com/SharryChoo/SToolbar)
+- 简书: [SharryChoo](https://www.jianshu.com/u/c3c6db35f3d2)
+- Twitter:[SharryChoo](https://twitter.com/SharryChoo)
+- Instagram:[SharryChoo](https://www.instagram.com/sharrychoochn/?hl=zh-cn)
+- 网易云音乐电台: [同一条 Line](https://music.163.com/#/djradio?id=794045364)
+- Email: SharryChooCHN@Gmail.com
 
 ---
