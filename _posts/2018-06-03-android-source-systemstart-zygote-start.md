@@ -359,5 +359,5 @@ class ZygoteServer {
 
 **Zygote 进程的职责如下**
 - 创建 Android 虚拟机 Dalvik/ART
-- 孵化 SystemService 进程
-- 通过监听 Socket 端口, 处理其他应用进程的 fork 请求
+- 孵化 SystemServer 进程
+- 通过监听 Socket 端口, 处理进程的 fork 请求
