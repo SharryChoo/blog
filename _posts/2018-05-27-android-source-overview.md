@@ -6,6 +6,7 @@ tags: AndroidFramework
 aside:
   toc: true
 ---
+
 ## 前言
 从 17 年下半年, 学习 Android 系统架构已经有一段时间了, 学习的目的主要有如下几点
 - 满足求知欲
