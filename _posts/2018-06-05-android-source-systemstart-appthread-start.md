@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 系统启动篇 之 SystemServer 进程的启动"
-key: "Android 系统架构 —— 系统启动篇 之 SystemServer 进程的启动" 
+title: "Android 系统架构 —— 系统启动篇 之 应用进程的启动"
+key: "Android 系统架构 —— 系统启动篇 之 应用进程的启动" 
 tags: AndroidFramework
 aside:
   toc: true
