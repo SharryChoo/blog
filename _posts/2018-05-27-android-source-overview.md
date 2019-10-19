@@ -7,7 +7,7 @@ aside:
   toc: true
 ---
 ## 前言
-从 18 年学习 Android 系统架构已经有一段时间了, 学习的目的主要有如下几点
+从 17 年下半年, 学习 Android 系统架构已经有一段时间了, 学习的目的主要有如下几点
 - 满足求知欲
 - 提升源码阅读能力
 - 了解 Android 系统运行方式, 更好的追踪和解决开发中的问题
@@ -17,7 +17,8 @@ aside:
 - 比如在学习系统服务进程时, 因为其涉及到了 Binder 驱动, 于是不得不去补 Binder 驱动的知识, Binder 驱动定义在 Linux 内核中, 不得不去补 Linux 内核的知识
 
 这里笔者记录一下自己的 Android 系统的学习方式, 其需要的基础知识如下
-- C/C++
+- 应用层开发基础
+- C/C++ 基础
 - Linux 内核机制
 
 <!--more-->
@@ -34,14 +35,8 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 - Binder: IPC 通信驱动
 - Logger: 日志打印驱动
 - Ashmem: 共享内存驱动
-```
-graph BT
-ProcessManagement-->LinuxDeviceDriver
-MemoryManagement-->LinuxDeviceDriver
-Binder-->LinuxDeviceDriver
-Ashmem-->LinuxDeviceDriver
-Logger-->LinuxDeviceDriver
-```
+
+![Linux 内核层](https://i.loli.net/2019/10/19/9vVfYIx8bu7g5Xo.jpg)
 
 ### 用户空间层
 用户空间从由底部至上包括
@@ -62,12 +57,7 @@ Logger-->LinuxDeviceDriver
   - 即 Android 为应用层开发提供的 Java API
 - 应用开发层(Application)
 
-```
-graph BT
-ApplicationFramework-->Application
-ExternalLibraries&AndroidRuntime-->ApplicationFramework
-HAL-->ExternalLibraries&AndroidRuntime
-```
+![用户空间层](https://i.loli.net/2019/10/19/bDvXL4MBZwTnzHC.jpg)
 
 ## 学习思路
 笔者学习的思路主要是流程分析法, 先走通一条 Line, 然后抽丝剥茧的学习重要的功能实现
@@ -78,7 +68,7 @@ HAL-->ExternalLibraries&AndroidRuntime
     - 应用进程的启动
   - 服务管理进程的启动
     - 服务管理进程为 Binder 驱动的上下文管理者, 因此需要和 Binder 驱动的知识串联
-- 数据交互篇
+- 数据交互篇Å
   - Handler 线程间通信
   - Binder 进程间通信
   - Asheme 进程间通信
