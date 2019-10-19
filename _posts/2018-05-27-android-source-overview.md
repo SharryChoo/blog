@@ -17,7 +17,7 @@ aside:
 在学习 Android 系统架构的过程中, 留下印象最深刻的便是, **很难将零散的 Android 知识组织成自己的知识体系**
 - 比如在学习系统服务进程时, 因为其涉及到了 Binder 驱动, 于是不得不去补 Binder 驱动的知识, Binder 驱动定义在 Linux 内核中, 不得不去补 Linux 内核的知识
 
-这里笔者记录一下自己的 Android 系统的学习方式, 在归纳总结中补缺补差, 希望能够和大家一起进步, 其需要的基础知识如下
+这里笔者记录一下自己的 Android 系统源码的学习之路, 在归纳总结中补缺补差, 希望能够和大家一起进步, 其需要的基础知识如下
 - 应用层开发基础
 - C/C++ 基础
 - Linux 内核机制
@@ -88,6 +88,8 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
   - Dalvik
   - ART
 
-## 参考
-- http://gityuan.com/android/
+## 学习资料
+- <<Android 系统源代码情景分析(第三版)>>
+- <<深入理解 Linux 内核>>
 - https://blog.csdn.net/Luoshengyang/article/details/8923485
+- http://gityuan.com/android/
