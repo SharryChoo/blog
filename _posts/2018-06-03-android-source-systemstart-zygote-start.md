@@ -13,6 +13,8 @@ aside:
 ## Zygote 进程的作用
 顾明思议, Zygote 是孵化器的意思, 在 Android 系统中, 所有的应用程序进程以及用来运行系统关键服务的 System 进程, 都是由 Zygote 创建的, **它就是孵化器进程**
 
+<!--more-->
+
 ## Zygote 启动脚本
 这里选取 init.rc 分析
 ```
