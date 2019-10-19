@@ -10,7 +10,7 @@ aside:
 ## 前言
 我们知道 Android 是基于 Linux 内核的, 因此 Android 系统的启动与 Linux 内核类似
 
-当 bootloader 中的 kernal.img 选择了操作系统之后, 便会进入 Linux 内核的初始化流程了, 内核启动的初始化由 start_kernel() 开始, 在 init/main.c 文件中, 这是 Linux 的基础知识, 这里就不赘述了
+当 bootloader 中的 kernel.img 选择了操作系统之后, 便会进入 Linux 内核的初始化流程了, 内核启动的初始化由 start_kernel() 开始, 在 init/main.c 文件中, 这是 Linux 的基础知识, 这里就不赘述了
 
 Linux 的启动的参与的进程如下
 - **0 号进程**
