@@ -11,7 +11,7 @@ aside:
 
 <!--more-->
  
-关于[软件渲染的相关知识请点击查阅](https://sharrychoo.github.io/blog/2018/10/10/android-source-graphic-producer7.html), 这里我们先回顾一下硬件加速绘制的时机
+关于[软件渲染的相关知识请点击这里回顾](https://sharrychoo.github.io/blog/2018/10/10/android-source-graphic-producer7.html), 这里我们先回顾一下硬件加速绘制的时机
 ```
 public final class ViewRootImpl implements ViewParent,
         View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
