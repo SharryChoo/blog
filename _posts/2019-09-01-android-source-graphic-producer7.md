@@ -8,12 +8,11 @@ aside:
 ---
 
 ## 前言
-通过对 OpenCV 和 OpenGL 的学习, 笔者对图像图形学有了一定的了解, 因此这里再回过头来看看 Android 的图形架构, 是如何进行渲染操作的
+通过对 OpenCV 和 OpenGL 的学习, 笔者对图像图形学有了一定的了解, 因此这里再回过头来看看 Android 的图形架构的后半部分
 
 <!--more-->
 
-## 回顾
-其通过之前的分析可知, view 的绘制流程发生在 ViewRootImpl 的 performTraversals 中, 我们这次主要分析 View 的渲染
+通过之前的分析可知, view 的绘制流程发生在 ViewRootImpl 的 performTraversals 中, 我们这次主要分析 View 的渲染
 ```
 public final class ViewRootImpl implements ViewParent,
         View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
