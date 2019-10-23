@@ -300,7 +300,7 @@ status_t Surface::lock(
 - 它首先获取了一块图像缓冲区的描述 GraphicBuffer
 - 然后通过 backBuffer->lockAsync **获取 图像缓冲区 的 共享内存 映射到当前进程的虚拟首地址**, 最终将参数保存到 outBuffer 中
 
-GraphicBuffer 相关的操作是由 HAL 的 Gralloc 实现的, 其相关实现可以参考 [罗生阳的文章](https://blog.csdn.net/luoshengyang/article/details/7747932)
+GraphicBuffer 相关的操作是由 HAL 的 Gralloc 实现的, 其相关实现可以参考 [罗升阳的文章](https://blog.csdn.net/luoshengyang/article/details/7747932)
 
 ##### 思考
 从这里我们可以看到, GraphicBuffer 的缓存区是一块共享内存区域, 那为什么 Android 不使用 Binder 驱动进行数据的交互呢?
