@@ -93,8 +93,8 @@ Android 图形渲染架构, 可以从生产者和消费者两个方面去理解,
  - [View 的测量](https://sharrychoo.github.io/blog/2018/09/01/android-source-graphic-producer4.html)
  - [窗体的重置](https://sharrychoo.github.io/blog/2018/09/20/android-source-graphic-producer5.html)
  - [View 的布局](https://sharrychoo.github.io/blog/2018/09/25/android-source-graphic-producer6.html)
- - [View 的软件渲染](https://sharrychoo.github.io/blog/2019/10/10/android-source-graphic-producer7.html)
- - [View 的硬件渲染](https://sharrychoo.github.io/blog/2019/09/15/android-source-graphic-producer8.html)
+ - [View 的软件渲染](https://sharrychoo.github.io/blog/2018/10/10/android-source-graphic-producer7.html)
+ - [View 的硬件渲染](https://sharrychoo.github.io/blog/2019/08/14/android-source-graphic-producer8.html)
 
 ### 消费进程
 消费进程是指 SurfaceFlinger, 其相关文章如下
