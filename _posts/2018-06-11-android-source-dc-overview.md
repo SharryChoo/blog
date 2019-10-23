@@ -13,7 +13,7 @@ aside:
 - 进程间通信
   - Android 特色
     - Binder 驱动
-    - Ashmem 共享内存(Linux SharedMemory + Binder 驱动)
+    - Ashmem 共享内存
   - Linux 支持
     - 信号
     - pipe
@@ -50,7 +50,6 @@ Binder 驱动用于在 Android 中提供**高效**、**便捷**和**轻量级**�
 ### 使用场景
 - 应用进程之间的跨进程通信
 - 系统服务进程与服务管理进程之间的交互
-
 
 ### 学习路线
 笔者学习 Binder 驱动, 是由浅入深的方式进行
