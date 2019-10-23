@@ -124,7 +124,7 @@ public final class ViewRootImpl implements ViewParent,
     
 }
 ```
-好的, 可以看到软件绘制主要有三部
+好的, 可以看到软件绘制主要有三步
 - 首先是通过 Surface 的 lockCanvas 获取一个画笔 Canvas, 它是 Android 2D 图像库 Skia 的一个上层封装
 - 然后调用了 View 的 draw 方法
 - 最后调用了 unlockCanvasAndPost 解锁画笔, 将数据同步给 SurfaceFinger 缓冲区, 进行渲染
