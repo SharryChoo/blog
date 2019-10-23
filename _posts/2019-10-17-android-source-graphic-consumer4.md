@@ -173,7 +173,7 @@ status_t ConsumerBase::acquireBufferLocked(BufferItem *item,
 可以看到, 这里调用了 mConsumer 的 acquireBuffer 来请求一个 GraphicBuffer, 这个 mConsumer 即为 IGraphicBufferConsumer 的 Binder 本地实现对象 [GraphicBufferConsumer](http://androidxref.com/9.0.0_r3/xref/frameworks/native/libs/gui/BufferQueueConsumer.cpp) 这里就不再赘述了
 
 ### 三) 回顾
-![Layer 获取 GraphicBuffer](AE7FCEE7E9BA4804A37B2C040FB7A98B)
+![Layer 获取 GraphicBuffer](https://i.loli.net/2019/10/23/EcntGaTeF36JsxZ.png)
 
 当 handleMessageInvalidate 调用时, 会遍历所有的 Layer, 并且调用 Layer 的 latchBuffer, 尝试从缓冲区中获取 GraphicBuffer, 若取到了新的 GraphicBuffer, 则说明需要重新绘制
 
@@ -571,7 +571,7 @@ status_t FramebufferSurface::nextBuffer(uint32_t& outSlot,
 到这里, 显示器就可以输出我们合成后的数据帧了
 
 ## 总结
-![SurfaceFlinger 渲染流程](ED189A9E26164603A325CC76B0B455D6)
+![SurfaceFlinger 渲染流程](https://i.loli.net/2019/10/23/e1kBUtsMXKR7JbW.png)
 
 通过本片的分析, 我们得知 SurfaceFlinger 的渲染操作主要有如下几步
 - INVALIDATE 消息类型

@@ -737,7 +737,7 @@ void SurfaceFlinger::waitForEvent() {
 好的, 可以看到 SurfaceFlinger 的 run 函数非常简单, 即不断等待主线程 MessageQueue 中消息的死循环
 
 ## 总结
-![SurfaceFlinger 初始化相关类](https://i.loli.net/2019/10/23/J7eSPCO3ndb9TYf.png)
+![SurfaceFlinger 初始化相关类](https://i.loli.net/2019/10/23/ODuxcyfPS36snCQ.png)
 
 这篇文章主要是从广义上了解 SurfaceFlinger 的启动流程, 这里做个简单的总结, Surface 的启动主要有如下几个步骤
 - **SurfaceFlinger 的创建**

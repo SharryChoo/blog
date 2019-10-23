@@ -491,7 +491,7 @@ private:
 从这里可以看出 **DisplayDevice 其实可以理解为显示屏幕的上下文**, 它内部维护了这块显示设备与外界交互的数据
 
 ### 回顾
-![SurfaceFlinger 相关结构依赖图](3F8EE7704D5C45D78B5C7480488E9E65)
+![SurfaceFlinger 相关结构依赖图](https://i.loli.net/2019/10/23/givOdDpkmfeHIh8.png)
 
 ## 总结
 当硬件驱动出现热插拔时, 会触发 SurfaceFinger 的 onHotplugReceived 函数, 由它进行分发处理, 当有显示器连接时, 其操作如下

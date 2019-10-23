@@ -359,7 +359,7 @@ void SurfaceFlinger::onMessageReceived(int32_t what) {
 自此之后这便是 SurfaceFlinger 重要的视图合成操作了, 到下一篇文章中再继续分析
 
 ## 总结
-![Vsync 处理流程](2BF94E36D28F49B5AD9F87898C9B094D)
+![Vsync 处理流程](https://i.loli.net/2019/10/23/3zNfX5i2ExRu9cM.png)
 
 - DispSync: 负责处理 Vsync 信号周期相关的操作
 - DispSyncThread: 负责 Vsync 事件的分发
