@@ -8,10 +8,6 @@ aside:
 ---
 
 ## 前言
-通过对 OpenCV 和 OpenGL 的学习, 笔者对图像图形学有了一定的了解, 因此这里再回过头来看看 Android 的图形架构的后半部分
-
-<!--more-->
-
 通过之前的分析可知, view 的绘制流程发生在 ViewRootImpl 的 performTraversals 中, 我们这次主要分析 View 的渲染
 ```
 public final class ViewRootImpl implements ViewParent,
@@ -500,6 +496,8 @@ Android 端软件渲染的引擎为 Skia, 其**软件渲染的工作机制即使
 - **//////////////////////// Step3 /////////////////////////**
 - Surface 释放 GraphicBuffer 缓冲区, 并将其推入 SurfaceFlinger 的渲染队列
 - SurfaceFlinger 获取渲染数据输出到屏幕
+
+到这里软件渲染就分析完毕了, 关于硬件渲染, 则需要 OpenGL 的基础, 因此后面笔者打算学习一下图像图像学的知识, 来夯实自己的内功基础
 
 ## 参考资料
 - [Fence 的妙用](https://www.cnblogs.com/brucemengbm/p/6881925.html)

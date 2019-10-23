@@ -213,6 +213,4 @@ public class FrameLayout extends ViewGroup {
 ## 总结
 layout 的过程比起 measure 是简单很多的, 它主要是根据当前容器的特性, 来确定子 View 在其中的位置, 然后将其向下分发
 
-好的, 到这里 View 绘制的三大流程已经走了两步了, 后面要分析的就是最困难的 View 的渲染了, 因为 Android 的图形引擎为 Skia 和 OpenGL, 若是没有了解这部分知识, 很难看到图形架构的精髓
-
-因此后面笔者打算学习图像图像学, 来夯实自己的内功基础
+好的, 到这里 View 绘制的三大流程已经走了两步了, 后面要分析的就是比较困难的 View 的渲染了, 因为 Android 的图形引擎为 Skia 和 OpenGL, 下一篇文章我们看看 Skia 图形引擎

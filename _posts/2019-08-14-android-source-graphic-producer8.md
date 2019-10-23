@@ -7,11 +7,11 @@ aside:
   toc: true
 ---
 # 前言
-上一篇文章中我们学习了软件绘制的过程, 知晓了它是如何通过 Canvas 将 View 绘制到 Surface 的 GraphicBuffer 中的
+通过对 OpenCV 和 OpenGL 的学习, 让我们对图像图形学有了一定的了解, 这里再回过头来看看 Android 的图形架构的硬件绘制部分
 
 <!--more-->
-
-这里我们聚焦于硬件绘制, 看看它的工作流程, 先回顾一下硬件加速绘制的时机
+ 
+先回顾一下硬件加速绘制的时机
 ```
 public final class ViewRootImpl implements ViewParent,
         View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
