@@ -7,11 +7,11 @@ aside:
   toc: true
 ---
 # 前言
-通过对 OpenCV 和 OpenGL 的学习, 让我们对图像图形学有了一定的了解, 这里再回过头来看看 Android 的图形架构的硬件绘制部分
+通过对 OpenCV 和 OpenGL 的学习, 让我们对图像图形学有了一定的了解, 这里再回过头来看看 Android 的图形架构的硬件绘制部分就比较轻松了
 
 <!--more-->
  
-先回顾一下硬件加速绘制的时机
+关于[软件渲染的相关知识请点击查阅](https://sharrychoo.github.io/blog/2018/10/10/android-source-graphic-producer7.html), 这里我们先回顾一下硬件加速绘制的时机
 ```
 public final class ViewRootImpl implements ViewParent,
         View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
