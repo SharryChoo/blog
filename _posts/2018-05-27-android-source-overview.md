@@ -63,17 +63,19 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 ## 学习思路
 笔者学习的思路主要是流程分析法, 先走通一条 Line, 然后抽丝剥茧的学习重要的功能实现
 - 系统启动篇
-  - Init 进程的启动
-  - Zygote 进程的启动
-    - 系统服务进程的启动
-    - 应用进程的启动
-  - 服务管理进程的启动
+  - [Init 进程的启动](https://sharrychoo.github.io/blog/2018/05/30/android-source-systemstart-init-start.html)
+  - [Zygote 进程的启动](https://sharrychoo.github.io/blog/2018/06/03/android-source-systemstart-zygote-start.html)
+    - [系统服务进程的启动](https://sharrychoo.github.io/blog/2018/06/04/android-source-systemstart-systemserver-start.html)
+    - [应用进程的启动](https://sharrychoo.github.io/blog/2018/06/05/android-source-systemstart-appthread-start.html)
+  - [服务管理进程的启动](https://sharrychoo.github.io/blog/2018/07/15/android-source-dc-binder5.html)
     - 服务管理进程为 Binder 驱动的上下文管理者, 因此需要和 Binder 驱动的知识串联
-- 数据交互篇
+  - [ServiceFlinger 的启动](https://sharrychoo.github.io/blog/2019/10/11/android-source-graphic-consumer1.html)
+     - 数据图形渲染的章节, 需要与 OpenGL 的知识串联
+- [数据通信篇](https://sharrychoo.github.io/blog/2018/06/11/android-source-dc-overview.html)
   - Handler 线程间通信
   - Binder 进程间通信
   - Asheme 进程间通信
-- 图形架构篇
+- [图形架构篇](https://sharrychoo.github.io/blog/2018/08/10/android-source-graphic-overview.html)
   - 生产者
   - 消费者
 - 输入系统篇
