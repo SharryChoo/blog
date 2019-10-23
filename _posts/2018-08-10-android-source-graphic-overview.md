@@ -86,7 +86,6 @@ Android 7.0 之后除了添加 OpenGL ES3.2 的支持, 同时添加了 Vulkan �
 
 ## 三. 学习思路
 ### 生产进程
-Android 图形渲染架构, 可以从生产者和消费者两个方面去理解, 我们作为上层开发者, 自然就是生产的一方
  - [Window 和 WindowManager 的关系](https://sharrychoo.github.io/blog/2018/08/11/android-source-graphic-producer1.html)
  - [Window 与 View 的关系](https://sharrychoo.github.io/blog/2018/08/12/android-source-graphic-producer2.html)
  - [ViewRootImpl 与 WMS](https://sharrychoo.github.io/blog/2018/08/20/android-source-graphic-producer3.html)
@@ -97,7 +96,6 @@ Android 图形渲染架构, 可以从生产者和消费者两个方面去理解,
  - [View 的硬件渲染](https://sharrychoo.github.io/blog/2019/08/14/android-source-graphic-producer8.html)
 
 ### 消费进程
-消费进程是指 SurfaceFlinger, 其相关文章如下
  - [SurfaceFlinger 的启动](https://sharrychoo.github.io/blog/2019/10/11/android-source-graphic-consumer1.html)
  - [SurfaceFlinger Hotplug 的处理](https://sharrychoo.github.io/blog/2019/10/15/android-source-graphic-consumer2.html)
  - [SurfaceFlinger 对 Vsync 信号护理](https://sharrychoo.github.io/blog/2019/10/16/android-source-graphic-consumer3.html)
