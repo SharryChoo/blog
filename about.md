@@ -12,9 +12,9 @@ article_header:
 ---
 
 ## About Me
-- 姓名: 朱晓宇(SharryChoo)
+- 姓名: Sharry Choo
 - 爱好: 技术、音乐、书籍、硬笔书法、篮球
-- 关注领域：音视频、AI
+- 关注领域：音视频、计算机视觉
 - 最喜欢的句子： 每个人生命中都有无比艰苦的那一年，将人生变得美好而辽阔。 —— 《岛上书店》 
 - [书单](https://sharrychoo.github.io/blog/2018/05/01/book-list.html)
 
