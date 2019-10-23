@@ -11,6 +11,8 @@ aside:
 
 通过 SystemService 与 ServiceManager 进程的交互, 学习一下整个 Binder 通信的流程
 
+<!--more-->
+
 ## 一. Client 发送到 Server 端
 在非 ServiceManager 进程中获取 ServiceManager 代理对象的方式为 defaultServiceManager(), 这个方法返回的是 ServiceManager 的代理对象 BpServiceManager
 ```
