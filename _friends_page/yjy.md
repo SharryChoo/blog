@@ -5,7 +5,7 @@ permalink: /articles/brief.html
 key: articles-brief
 cover: /docs/assets/images/axure/articles-brief.jpg
 articles:
-  data_source: site.sample_page
+  data_source: site.friends_page
   type: brief
 ---
 
