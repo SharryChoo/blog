@@ -3,7 +3,7 @@ layout: articles
 title: Friends
 permalink: /friends.html
 ---
-
+---
 <div class="item">
     <div class="item__image">
         <a href="https://yjy239.github.io/">
@@ -24,8 +24,8 @@ permalink: /friends.html
     </div>
 </div>
 
----
 
+---
 <div class="item">
     <div class="item__image">
         <a href="http://www.whdreamblog.cn/">
