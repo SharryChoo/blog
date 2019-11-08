@@ -11,7 +11,7 @@ article_header:
     src: https://i.loli.net/2019/05/29/5cee26f63d21637162.jpg
 ---
 
-## Info
+## About me
 - Name: Sharry Choo
 - Habits: Smart device、Music、Book、Calligraphy、Basketball
 - Focus：Audio&Video、Computer Vision
