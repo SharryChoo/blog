@@ -12,21 +12,21 @@ article_header:
 ---
 
 ## Info
-- 姓名: Sharry Choo
-- 爱好: 技术、音乐、书籍、硬笔书法、篮球
-- 关注领域：音视频、计算机视觉
-- 最喜欢的句子： 每个人生命中都有无比艰苦的那一年，将人生变得美好而辽阔。 —— 《岛上书店》 
-- [书单](https://sharrychoo.github.io/blog/2018/05/01/book-list.html)
+- Name: Sharry Choo
+- Habits: Mobile Phone、Music、Book、硬笔书法、Basketball
+- Focus：Audio&Video、Computer Vision
+- Favorite Proverbs： 每个人生命中都有无比艰苦的那一年，将人生变得美好而辽阔。 —— 《岛上书店》 
+- [Book List](https://sharrychoo.github.io/blog/2018/05/01/book-list.html)
 
 ---
 
 ## Contact
+- Email: SharryChooCHN@Gmail.com
 - GitHub: [https://github.com/SharryChoo](https://github.com/SharryChoo)
-- 简书: [https://www.jianshu.com/u/c3c6db35f3d2](https://www.jianshu.com/u/c3c6db35f3d2)
 - Twitter: [https://twitter.com/SharryChoo](https://twitter.com/SharryChoo)
 - Instagram: [https://www.instagram.com/sharrychoochn/?hl=zh-cn](https://www.instagram.com/sharrychoochn/?hl=zh-cn)
+- 简书: [https://www.jianshu.com/u/c3c6db35f3d2](https://www.jianshu.com/u/c3c6db35f3d2)
 - 网易云音乐电台: [同一条 Line](https://music.163.com/#/djradio?id=794045364)
-- Email: SharryChooCHN@Gmail.com
 
 ---
 
