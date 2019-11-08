@@ -202,6 +202,7 @@ exclude:
   - /vendor
 
 defaults:
+  # posts
   - scope:
       path: ""
       type: posts
@@ -214,7 +215,13 @@ defaults:
       show_edit_on_github: true
       show_subscribe: true
       pageview: true
-
+  ## friends
+  - scope:
+      path: ""
+      type: friends_page
+    values:
+      nav_key: friends
+      show_date: false
 
 ## => Plugins
 ##############################

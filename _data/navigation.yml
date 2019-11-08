@@ -5,5 +5,8 @@ header:
     url:   /archive.html
   - title: About
     url:   /about.html
+  - title: Friends
+    url:   /friends.html
+    key:   friends
   - title: GitHub
     url: https://github.com/SharryChoo
