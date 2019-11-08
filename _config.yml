@@ -201,11 +201,6 @@ exclude:
   - /test
   - /vendor
 
-# 搜集自定义的文章路径
-collections:
-  friends:
-    output: true
-
 defaults:
   # 声明 Post 的文章路径
   - scope:
@@ -220,13 +215,6 @@ defaults:
       show_edit_on_github: true
       show_subscribe: true
       pageview: true
-  ## 声明 Friends 的文章路径
-  - scope:
-      path: ""
-      type: friends
-    values:
-      nav_key: friends
-      show_date: false
 
 ## => Plugins
 ##############################
