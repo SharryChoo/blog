@@ -18,9 +18,9 @@
 ##############################
 text_skin: default # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
 highlight_theme: default # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
-url     : https://sharrychoo.github.io/blog/ # the base hostname & protocol for your site e.g. https://www.someone.com
-baseurl : /blog # does not include hostname
-title   : Sharry's blog
+url: https://sharrychoo.github.io/blog/ # the base hostname & protocol for your site e.g. https://www.someone.com
+baseurl: /blog # does not include hostname
+title: Sharry's blog
 description: > # this means to ignore newlines until "Language & timezone"
   An Android Developer
 
@@ -34,23 +34,23 @@ timezone: # see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for
 ## => Author and Social
 ##############################
 author:
-  type      : # "person" (default), "organization"
-  name      : Sharry
-  url       : https://sharrychoo.github.io/blog/
-  avatar    : # path or url of avatar image (square)
-  bio       : I am an Android developer.
-  email     : SharryChooCHN@Gmail.com
-  facebook  : # "user_name" the last part of your profile url, e.g. https://www.facebook.com/user_name
-  twitter   : # "user_name" the last part of your profile url, e.g. https://twitter.com/user_name
-  weibo     : # "user_id"   the last part of your profile url, e.g. https://www.weibo.com/user_id/profile?...
+  type: # "person" (default), "organization"
+  name: Sharry
+  url: https://sharrychoo.github.io/blog/
+  avatar: # path or url of avatar image (square)
+  bio: I am an Android developer.
+  email: SharryChooCHN@Gmail.com
+  facebook: # "user_name" the last part of your profile url, e.g. https://www.facebook.com/user_name
+  twitter: # "user_name" the last part of your profile url, e.g. https://twitter.com/user_name
+  weibo: # "user_id"   the last part of your profile url, e.g. https://www.weibo.com/user_id/profile?...
   googleplus: # "user_id"   the last part of your profile url, e.g. https://plus.google.com/u/0/user_id
-  telegram  : # "user_name" the last part of your profile url, e.g. https://t.me/user_name
-  medium    : # "user_name" the last part of your profile url, e.g. https://medium.com/user_name
-  zhihu     : # "user_name" the last part of your profile url, e.g. https://www.zhihu.com/people/user_name
-  douban    : # "user_name" the last part of your profile url, e.g. https://www.douban.com/people/user_name
-  linkedin  : # "user_name" the last part of your profile url, e.g. https://www.linkedin.com/in/user_name
-  github    : SharryChoo
-  npm       : # "user_name" the last part of your profile url, e.g. https://www.npmjs.com/~user_name
+  telegram: # "user_name" the last part of your profile url, e.g. https://t.me/user_name
+  medium: # "user_name" the last part of your profile url, e.g. https://medium.com/user_name
+  zhihu: # "user_name" the last part of your profile url, e.g. https://www.zhihu.com/people/user_name
+  douban: # "user_name" the last part of your profile url, e.g. https://www.douban.com/people/user_name
+  linkedin: # "user_name" the last part of your profile url, e.g. https://www.linkedin.com/in/user_name
+  github: SharryChoo
+  npm: # "user_name" the last part of your profile url, e.g. https://www.npmjs.com/~user_name
 
 
 ## => GitHub Repository (if the site is hosted by GitHub)
@@ -62,10 +62,10 @@ repository_tree: master
 ## => Paths
 ##############################
 paths:
-  root    : # title link url, "/" (default)
-  home    : # home layout url, "/" (default)
-  archive : # "/archive.html" (default)
-  rss     : # "/feed.xml" (default)
+  root: # title link url, "/" (default)
+  home: # home layout url, "/" (default)
+  archive: # "/archive.html" (default)
+  rss: # "/feed.xml" (default)
 
 
 ## => Post
@@ -127,21 +127,21 @@ comments:
   ## Gitalk
   # please refer to https://github.com/gitalk/gitalk for more info.
   gitalk:
-    clientID    : "78378cc0cd600beeaea3"                     # GitHub Application Client ID
+    clientID: "78378cc0cd600beeaea3"                     # GitHub Application Client ID
     clientSecret: "bc527010d7f7a43949abae9014965440c7cfdd14" # GitHub Application Client Secret
-    repository  : "blog"                                     # GitHub repo
-    owner       : "SharryChoo"                               # GitHub repo owner
+    repository: "blog"                                     # GitHub repo
+    owner: "SharryChoo"                               # GitHub repo owner
     admin: # GitHub repo owner and collaborators, only these guys can initialize GitHub issues, IT IS A LIST.
-       - "SharryChoo" # your GitHub Id
+      - "SharryChoo" # your GitHub Id
 
   ## Valine
   # please refer to https://valine.js.org/en/ for more info.
   valine:
-    app_id      : # LeanCloud App id
-    app_key     : # LeanCloud App key
-    placeholder : # Prompt information
-    visitor     : # false (default)
-    meta        : # "[nick, mail, link]" (default) nickname, E-mail, Personal-site
+    app_id: # LeanCloud App id
+    app_key: # LeanCloud App key
+    placeholder: # Prompt information
+    visitor: # false (default)
+    meta: # "[nick, mail, link]" (default) nickname, E-mail, Personal-site
 
 
 ## => Pageview
@@ -151,9 +151,9 @@ pageview:
 
   ## Leancloud
   leancloud:
-    app_id    : # LeanCloud App id
-    app_key   : # LeanCloud App key
-    app_class : # LeanCloud App class
+    app_id: # LeanCloud App id
+    app_key: # LeanCloud App key
+    app_class: # LeanCloud App class
 
 
 ## => Search
@@ -173,15 +173,15 @@ analytics:
 
   ## Google Analytics
   google:
-    tracking_id : # Google Analytics id for the site
+    tracking_id: # Google Analytics id for the site
     anonymize_ip: false # Anonymize IP tracking for Analytics
 
 
 ## => Build
 ##############################
-markdown    : kramdown
-highlighter : rouge
-permalink   : date
+markdown: kramdown
+highlighter: rouge
+permalink: date
 
 exclude:
   - CHANGELOG.md
@@ -201,8 +201,13 @@ exclude:
   - /test
   - /vendor
 
+# 搜集自定义的文章路径
+collections:
+  friends:
+    output: true
+
 defaults:
-  # posts
+  # 声明 Post 的文章路径
   - scope:
       path: ""
       type: posts
@@ -215,10 +220,10 @@ defaults:
       show_edit_on_github: true
       show_subscribe: true
       pageview: true
-  ## friends
+  ## 声明 Friends 的文章路径
   - scope:
       path: ""
-      type: friends_page
+      type: friends
     values:
       nav_key: friends
       show_date: false
