@@ -15,7 +15,7 @@ article_header:
 - Name: Sharry Choo
 - Habits: Smart device、Music、Book、Calligraphy、Basketball
 - Focus：Audio&Video、Computer Vision
-- Favorite Proverbs： 每个人生命中都有无比艰苦的那一年，将人生变得美好而辽阔。 —— 《岛上书店》 
+- Favorite Proverbs： 每个人生命中都有无比艰苦的那一年，将人生变得美好而辽阔。 —— 《岛上书店》
 - [Book List](https://sharrychoo.github.io/blog/2018/05/01/book-list.html)
 
 ---
