@@ -64,13 +64,15 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 笔者学习的思路主要是流程分析法, 先走通一条 Line, 然后抽丝剥茧的学习重要的功能实现
 - 系统启动篇
   - [Init 进程的启动](https://sharrychoo.github.io/blog/2018/05/30/android-source-systemstart-init-start.html)
-  - [Zygote 进程的启动](https://sharrychoo.github.io/blog/2018/06/03/android-source-systemstart-zygote-start.html)
-  - [系统服务进程的启动](https://sharrychoo.github.io/blog/2018/06/04/android-source-systemstart-systemserver-start.html)
-  - [服务管理进程的启动](https://sharrychoo.github.io/blog/2018/07/15/android-source-dc-binder5.html)
-    - 服务管理进程为 Binder 驱动的上下文管理者, 因此需要和 Binder 驱动的知识串联
-  - [ServiceFlinger 的启动](https://sharrychoo.github.io/blog/2019/10/11/android-source-graphic-consumer1.html)
-     - 数据图形渲染的章节, 需要与 OpenGL 的知识串联
-  - [应用进程的启动](https://sharrychoo.github.io/blog/2018/06/05/android-source-systemstart-appthread-start.html)
+    - [ServiceFlinger 的启动](https://sharrychoo.github.io/blog/2019/10/11/android-source-graphic-consumer1.html)
+       - 数据图形渲染的章节, 需要与 OpenGL 的知识串联
+    - [ServiceManager 进程的启动](https://sharrychoo.github.io/blog/2018/07/15/android-source-dc-binder5.html)
+       - 服务管理进程为 Binder 驱动的上下文管理者, 因此需要和 Binder 驱动的知识串联
+    - [Zygote 进程的启动](https://sharrychoo.github.io/blog/2018/06/03/android-source-systemstart-zygote-start.html)
+      - [系统服务进程的启动](https://sharrychoo.github.io/blog/2018/06/04/android-source-systemstart-systemserver-start.html)
+      - [应用进程的启动](https://sharrychoo.github.io/blog/2018/06/05/android-source-systemstart-appthread-start.html)
+          - Activity 启动
+          - Service 启动/绑定
 - [数据通信篇](https://sharrychoo.github.io/blog/2018/06/11/android-source-dc-overview.html)
   - Handler 线程间通信
   - Binder 进程间通信
@@ -84,11 +86,6 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 - 资源管理篇
   - 应用资源的管理
   - 应用的安装
-- 流程分析篇
-  - Activity 启动
-  - Service 启动/绑定
-  - 应用的安装
-  - 资源管理
 - 虚拟机
   - Dalvik
   - ART
@@ -102,6 +99,4 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 在个人学习的过程中, 以下的资料对我产生了极大的帮助, 尤其是罗老师<<Android 系统源码情景分析>>, 它几乎陪我度过了 2017 年到 2018 年上半年所有的闲暇时光, 在这里对作者表示衷心的感谢
 
 ## 结语
-**独学而无友，则孤陋而寡闻"**
-
-关于上述的文章, 笔者会花时间花心思去完善, 虽然不是高深的知识, 但也是自己积累的点滴, 能够分享给大家还是还开心的, 也希望大家多多批评帮助笔者一起进步
+**独学而无友，则孤陋而寡闻"**, 关于上述的文章, 笔者会花时间花心思去完善, 虽然不是高深的知识, 但也是自己积累的点滴, 能够分享给大家还是还开心的, 也希望大家多多批评帮助笔者一起进步
