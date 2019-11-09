@@ -26,12 +26,12 @@ aside:
 
 下面从广义上了解一下 Android 系统的组成
 
-## Android 系统架构
+## 一. Android 系统架构
 ![Android 层级图](https://i.loli.net/2019/10/19/BuXSCfDb3hsMd65.png)
 
 Android 是基于 Linux 内核的, 从广义的角度说, 它可以分为 **Linux 内核层**和**用户空间层**
 
-### Linux 内核层
+### 一) Linux 内核层
 Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互, 除了 Linux 内核的进程、内存管理等, 还包含 Android 添加的特色驱动程序如
 - Binder: IPC 通信驱动
 - Logger: 日志打印驱动
@@ -39,7 +39,7 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 
 ![Linux 内核层](https://i.loli.net/2019/10/19/9vVfYIx8bu7g5Xo.jpg)
 
-### 用户空间层
+### 二) 用户空间层
 用户空间从由底部至上包括
 - 硬件抽象层(HAL)
   - 是 Linux 内核与用户空间交互的纽带
@@ -60,35 +60,59 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 
 ![用户空间层](https://i.loli.net/2019/10/19/bDvXL4MBZwTnzHC.jpg)
 
-## 学习思路
+## 二. 学习思路
 笔者学习的思路主要是流程分析法, 先走通一条 Line, 然后抽丝剥茧的学习重要的功能实现
-- 系统启动篇
-  - [Init 进程的启动](https://sharrychoo.github.io/blog/2018/05/30/android-source-systemstart-init-start.html)
-    - [ServiceFlinger 的启动](https://sharrychoo.github.io/blog/2019/10/11/android-source-graphic-consumer1.html)
-       - 数据图形渲染的章节, 需要与 OpenGL 的知识串联
-    - [ServiceManager 进程的启动](https://sharrychoo.github.io/blog/2018/07/15/android-source-dc-binder5.html)
-       - 服务管理进程为 Binder 驱动的上下文管理者, 因此需要和 Binder 驱动的知识串联
-    - [Zygote 进程的启动](https://sharrychoo.github.io/blog/2018/06/03/android-source-systemstart-zygote-start.html)
-      - [系统服务进程的启动](https://sharrychoo.github.io/blog/2018/06/04/android-source-systemstart-systemserver-start.html)
-      - [应用进程的启动](https://sharrychoo.github.io/blog/2018/06/05/android-source-systemstart-appthread-start.html)
-          - Activity 启动
-          - Service 启动/绑定
-- [数据通信篇](https://sharrychoo.github.io/blog/2018/06/11/android-source-dc-overview.html)
-  - Handler 线程间通信
-  - Binder 进程间通信
-  - Asheme 进程间通信
-- [图形架构篇](https://sharrychoo.github.io/blog/2018/08/10/android-source-graphic-overview.html)
-  - 生产者
-  - 消费者
-- 输入系统篇
-  - 窗体的事件分发
-  - View 的事件分发
-- 资源管理篇
-  - 应用资源的管理
-  - 应用的安装
-- 虚拟机
-  - Dalvik
-  - ART
+### 一) 系统启动
+- [Init 进程的启动](https://sharrychoo.github.io/blog/2018/05/30/android-source-systemstart-init-start.html)
+- [Zygote 进程的启动](https://sharrychoo.github.io/blog/2018/06/03/android-source-systemstart-zygote-start.html)
+- [系统服务进程的启动](https://sharrychoo.github.io/blog/2018/06/04/android-source-systemstart-systemserver-start.html)
+- [应用进程的启动](https://sharrychoo.github.io/blog/2018/06/05/android-source-systemstart-appthread-start.html)
+
+### 二) [数据通信篇](https://sharrychoo.github.io/blog/2018/06/11/android-source-dc-overview.html)
+#### 1. Handler 线程间通信
+- [Looper 的创建与启动](https://sharrychoo.github.io/blog/2018/06/12/android-source-dc-handler1.html)
+- [消息的发送与处理](https://sharrychoo.github.io/blog/2018/06/13/android-source-dc-handler2.html)
+- [MessageQueue 同步屏障技术](https://sharrychoo.github.io/blog/2018/06/14/android-source-dc-handler3.html)
+
+#### 2. Binder 驱动
+- 应用层
+  - [通信实例](https://sharrychoo.github.io/blog/2018/07/01/android-source-dc-binder1.html)
+  - [AIDL 与 Binder](https://sharrychoo.github.io/blog/2018/07/05/android-source-dc-binder2.html)
+- 运行时库层
+  - [IBinder 对象的实例化](https://sharrychoo.github.io/blog/2018/07/07/android-source-dc-binder3.html) 
+- Linux 内核层
+  - [Binder 驱动](https://sharrychoo.github.io/blog/2018/07/10/android-source-dc-binder4.html)
+  - [ServiceManager 启动](https://sharrychoo.github.io/blog/2018/07/15/android-source-dc-binder5.html)
+  - [Binder 通信完整流程](https://sharrychoo.github.io/blog/2018/07/25/android-source-dc-binder6.html)
+
+#### 3. Asheme 共享内存驱动
+- [Ashmem 驱动共享内存驱动](https://sharrychoo.github.io/blog/2018/08/05/android-source-dc-ashmem.html)
+
+### 三) [图形架构篇](https://sharrychoo.github.io/blog/2018/08/10/android-source-graphic-overview.html)
+#### 1. 生产进程
+ - [Window 和 WindowManager 的关系](https://sharrychoo.github.io/blog/2018/08/11/android-source-graphic-producer1.html)
+ - [Window 与 View 的关系](https://sharrychoo.github.io/blog/2018/08/12/android-source-graphic-producer2.html)
+ - [ViewRootImpl 与 WMS](https://sharrychoo.github.io/blog/2018/08/20/android-source-graphic-producer3.html)
+ - [View 的测量](https://sharrychoo.github.io/blog/2018/09/01/android-source-graphic-producer4.html)
+ - [窗体的重置](https://sharrychoo.github.io/blog/2018/09/20/android-source-graphic-producer5.html)
+ - [View 的布局](https://sharrychoo.github.io/blog/2018/09/25/android-source-graphic-producer6.html)
+ - [View 的软件渲染](https://sharrychoo.github.io/blog/2018/10/10/android-source-graphic-producer7.html)
+ - [View 的硬件渲染](https://sharrychoo.github.io/blog/2019/08/14/android-source-graphic-producer8.html)
+
+#### 2. 消费进程
+ - [SurfaceFlinger 的启动](https://sharrychoo.github.io/blog/2019/10/11/android-source-graphic-consumer1.html)
+ - [SurfaceFlinger Hotplug 的处理](https://sharrychoo.github.io/blog/2019/10/15/android-source-graphic-consumer2.html)
+ - [SurfaceFlinger 对 Vsync 信号护理](https://sharrychoo.github.io/blog/2019/10/16/android-source-graphic-consumer3.html)
+ - [SurfaceFlinger 渲染图层](https://sharrychoo.github.io/blog/2019/10/17/android-source-graphic-consumer4.html)
+ 
+### 四) 输入系统
+待补充
+
+### 五) 资源管理篇
+待补充
+
+### 虚拟机
+待补充
 
 ## 学习资料
 - <<Android 系统源代码情景分析(第三版)>>
