@@ -68,7 +68,7 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 - [系统服务进程的启动](https://sharrychoo.github.io/blog/2018/06/04/android-source-systemstart-systemserver-start.html)
 - [应用进程的启动](https://sharrychoo.github.io/blog/2018/06/05/android-source-systemstart-appthread-start.html)
 
-### 二) [数据通信篇](https://sharrychoo.github.io/blog/2018/06/11/android-source-dc-overview.html)
+### [二) 数据通信篇](https://sharrychoo.github.io/blog/2018/06/11/android-source-dc-overview.html)
 #### 1. Handler 线程间通信
 - [Looper 的创建与启动](https://sharrychoo.github.io/blog/2018/06/12/android-source-dc-handler1.html)
 - [消息的发送与处理](https://sharrychoo.github.io/blog/2018/06/13/android-source-dc-handler2.html)
@@ -88,7 +88,7 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 #### 3. Asheme 共享内存驱动
 - [Ashmem 驱动共享内存驱动](https://sharrychoo.github.io/blog/2018/08/05/android-source-dc-ashmem.html)
 
-### 三) [图形架构篇](https://sharrychoo.github.io/blog/2018/08/10/android-source-graphic-overview.html)
+### [三) 图形架构篇](https://sharrychoo.github.io/blog/2018/08/10/android-source-graphic-overview.html)
 #### 1. 生产进程
  - [Window 和 WindowManager 的关系](https://sharrychoo.github.io/blog/2018/08/11/android-source-graphic-producer1.html)
  - [Window 与 View 的关系](https://sharrychoo.github.io/blog/2018/08/12/android-source-graphic-producer2.html)
