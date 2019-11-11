@@ -6,6 +6,7 @@ tags: AndroidFramework
 aside:
   toc: true
 ---
+
 ## 前言
 前面学习了 Binder 对象的实例化流程, 了解了 Android 运行时库中对 Binder 的封装, 为了更好的了解 Binder 驱动的工作机制, 这里我们再学习一下 Linux 内核中 Binder 驱动相关知识
 ```
@@ -18,7 +19,7 @@ aside:
 
 <!--more-->
 
-Linux 万物皆文件, 驱动程序也是通过文件接口对上层提供服务的, Binder 驱动文件别于基于 ext4 文件系统的文件操作, 它有自己的文件操作实现, 其定义如下
+Linux 万物皆文件, 驱动程序也是通过文件接口对上层提供服务的, Binder 驱动文件有别于基于 ext4 文件系统的文件操作, 它有自己的文件操作实现, 其定义如下
 ```
 // /drivers/staging/android/binder.c
 static const struct file_operations binder_fops = {
@@ -36,6 +37,7 @@ static const struct file_operations binder_fops = {
 - 驱动的初始化
 - open 系统调用
 - mmap 系统调用
+- ioctl 系统调用
 
 ## 一. 驱动的初始化
 Linux 设备驱动程序是一个内核模块, 以 ko 的文件形式存在, 通过 insmod 系统调用加载到内核中, Binder 驱动程序的初始化是在 init 进程中进行的, 由 binder_init 函数实现, 接下来看看这个函数做了哪些操作
@@ -140,16 +142,17 @@ static int binder_open(struct inode *nodp, struct file *filp)
 
 	binder_debug(BINDER_DEBUG_OPEN_CLOSE, "binder_open: %d:%d\n",
 		     current->group_leader->pid, current->pid);
-    // 1. 初始化 binder_proc 结构体对象
+    // 1. 创建 binder_proc 结构体对象
 	proc = kzalloc(sizeof(*proc), GFP_KERNEL);
 	......
+	// 为 binder_proc 注入数据
 	proc->default_priority = task_nice(current);   // 进程的优先级
 	binder_dev = container_of(filp->private_data, struct binder_device,  miscdev);
 	proc->context = &binder_dev->context;
-	
 	binder_lock(proc->context, __func__);
 	binder_stats_created(BINDER_STAT_PROC);
-	// 2. 将这个 binder_proc 结构体添加内核驱动的缓存队列 binder_procs 中
+	
+	// 2. 将这个 binder_proc 结构体添加内核驱动的 binder_procs 中缓存
 	hlist_add_head(&proc->proc_node, &proc->context->binder_procs);
 	proc->pid = current->group_leader->pid;
 	INIT_LIST_HEAD(&proc->delivered_death);
@@ -170,14 +173,215 @@ static int binder_open(struct inode *nodp, struct file *filp)
 	return 0;
 }
 ```
-- 为当前进程创建 binder_proc 对象 proc
+binder_open 的主要流程如下
+- 为当前进程创建 **binder_proc** 对象 proc
 - 初始化 binder_proc 对象 proc
-- 将 proc 加入全局维护的 hash 队列 binder_procs 中, 因此遍历这个队列, 就可以知道当前有多少个进程在使用 binder 进程间的通信了
+- **将 proc 加入全局维护的 hash 队列 binder_procs 中**
+  - 因此遍历这个队列, 就可以知道当前有多少个进程在使用 binder 进程间的通信了
 - 将这个 proc 写入打开的 binder 设备文件的结构体中
    - filp->private_data = proc;
 - 在 /proc/binder/proc 中创建一个以进程 ID 为名的只读文件
 
-Linux 内核打开了 Binder 设备文件 /dev/binder 便完成了, 接下来看看 mmap 的实现
+从流程中我们可以了解到这些信息 binder_proc 与进程是一一对应的, Linux 内核只需要根据从 binder_procs 中找到当前进程对应的 binder_proc, 就可以进行 Binder 驱动的相关操作了
+
+**因此 binder_proc 可以理解为进程 Binder 驱动的上下文对象**, 下面我们看看 binder_proc 的相关定义
+
+### 一) binder_proc 定义
+```
+// kernel/goldfish/drivers/staging/android/binder.c
+struct binder_proc {
+    // 打开设备文件时, Binder 驱动会创建一个Binder_proc 保存在 hash 表中 
+    // proc_node 描述 binder_proc 为其中的一个节点
+    struct hlist_node proc_node;
+    
+    // Binder 对象缓存
+    struct rb_root nodes;             // 保存 binder_proc 进程内的 Binder 实体对象
+    struct rb_root refs_by_desc;      // 保存其他进程 Binder 引用对象, 以句柄作 key 值来组织
+    struct rb_root refs_by_node;      // 保存其他进程 Binder 引用对象, 以地址作 key 值来组织
+    
+    // 描述线程池
+    struct rb_root threads;           // 以线程的 id 作为关键字来组织一个进程的 Binder 线程池
+    struct max_threads;               // 进程本身可以注册的最大线程数
+    int ready_threads;                // 空闲的线程数
+    
+    // 内核缓冲区首地址
+    struct vm_area_struct *vma;       // 用户空间地址
+    void *buffer;                     // 内核空间地址
+    ptrdiff_t user_buffer_offset;     // 用户空间地址与内核空间地址的差值
+    
+    // 内核缓冲区
+	struct list_head buffers;         // 内核缓冲区链表
+	struct rb_root free_buffers;      // 空闲缓冲区红黑树
+	struct rb_root allocated_buffers; // 被使用的缓冲区红黑树
+    
+    // binder 请求待处理工作项
+    struct list_head todo;
+}
+```
+binder_proc 中相关变量我们可以大致的看出 Binder 驱动的几个核心模块
+- Binder 对象缓存
+  - **binder_node 实体对象**
+  - **binder_ref 引用对象**
+- 用于处理任务的 **binder 线程**池
+- binder 缓冲区的首地址
+- 用于数据交互的 **binder 内核缓冲区**链表
+- 待处理的任务队列
+
+好的, binder_proc 中定义了当前进程下 Binder 驱动所有重要的结构体对象和缓存, 下面
+
+### 二) binder 对象
+#### 1. binder_node
+描述一个 Binder 的实体对象, 在 Server 端使用
+```
+ // kernel/goldfish/drivers/staging/android/binder.c
+ struct binder_node {
+     int debug_id;
+     // 这个 binder 实体对象待处理的工作项
+     struct binder_work work;
+     union {
+         // 描述 binder_proc 中保存该实体对象的红黑树结点
+         struct rb_node rb_node;
+         // 宿主进程死亡后, 将这个 binder 对象保存到 dead_node 中
+         struct hlist_node dead_node;
+     }
+     struct binder_proc *proc; // 当前进程的 binder 上下文
+     // 保存引用了当前 binder 实体对象的 Client 组件的引用对象
+     struct hlist_head refs;
+     // 强引用/弱引用计数
+     int internal_strong_refs;
+     int local_strong_refs;
+     int local_weak_refs;
+     ......
+     // 指向这个 binder 对象对应的 Service 的地址
+     void __user *ptr;
+     // 指向这个 binder 对象对应的 Service 的引用计数 weakref_impl 的地址
+     void __user *cookie;
+     // 是否正在处理异步事务
+     unsigned has_async_transaction : 1;
+     // 是否可以接受包含文件描述的进程间通信数据
+     unsigned accept_fds : 1;
+     // 处理 Client 请求时, 处理线程的优先级
+     int min_priority : 8;
+     // 若需要处理异步事务, 将 binder 保存在这个队列中
+     struct list_head async_todo;
+ }
+```
+binder_node 中的信息量还是很大的, 其中通过 **binder_work** 来描述待处理的工作项, 它的定义如下
+```
+// kernel/goldfish/drivers/staging/android/binder.c
+struct binder_work {
+    // 将该结构体嵌入到宿主的结构体中
+    struct list_head entry;
+    enum {
+        BINDER_WORK_TRANSACTION = 1,
+        BINDER_WORK_TRANSACTION_COMPLETE,
+        BINDER_WORK_NODE,
+        BINDER_WORK_DEAD_BINDER,
+        BINDER_WORK_DEAD_BINDER_AND_CLEAR,
+        BINDER_WORK_CLEAR_DEATH_NOTIFICATION,
+    } type;
+}
+```
+可以看到 binder_work 中有一个枚举, 定义了 Binder 处理的工作项的描述 在跨进程通信的实例中可以看到他们的妙用, 这里就先不展开讨论了
+
+下面我们看看 binder_ref 的定义
+
+#### 2. binder_ref
+描述一个 Binder 对象的引用实例, 在 Client 端使用
+```
+// kernel/goldfish/drivers/staging/android/binder.c
+struct binder_ref {
+    int debug_id;
+    // 当前 binder_ref 在 binder_proc 红黑树中的结点
+    struct rb_node rb_node_desc;
+    struct rb_node rb_node_node;
+    
+    // 当前 binder 引用对象, 对应的 binder_node 对象的结点
+    struct hlist_node node_entry;
+    
+    // 指向这个 binder 引用对象的宿主进程
+    struct binder_proc *proc;
+    
+    // 这个 binder 引用对象所引用的实体对象
+    struct binder_node *node;
+    
+    // 用于描述这个 binder 引用对象的句柄值
+    unit32_t desc;
+    ......
+}
+```
+可以看到 binder_ref 中保存了指向 binder_node 对象的指针, 因此通过 binder_ref 找到其对应的 binder_node 就可以进行跨进程数据的传输了
+
+了解了 binder_node 和 binder_ref 的定义, 下面我们看看 binder 线程
+
+### 三) binder 线程
+```
+// kernel/goldfish/drivers/staging/android/binder.c
+struct binder_thread {
+    struct binder_proc *proc;  // 宿主进程
+    struct rb_node rb_node;    // 当前线程在宿主进程线程池中的结点
+    int pid;                   // 线程的 id
+    // 描述要处理的事务
+    struct binder_transaction * transaction_stack;
+    strcut list_head todo;     // 要处理的 client 请求
+    wait_queue_head_t wait;    // 当前线程依赖于其他线程处理后才能继续, 则将它添加到 wait 中
+    struct binder_stats stats; // 当前线程接收到进程间通信的次数
+}
+```
+可以看到 binder_thread 中通过 binder_transaction 来描述一个待处理的事务, 它的定义如下
+
+```
+// kernel/goldfish/drivers/staging/android/binder.c
+struct binder_transaction {
+    struct binder_thread from;// 发起这个事务的线程
+    struct binder_thread *to_thread;// 事务负责处理的线程
+    struct binder_proc *to_proc;// 事务负责处理的进程
+    
+    // 当前事务所依赖的另一个事务
+    struct binder_transaction *from_parent;
+    struct binder_transaction *to_parent;
+}
+```
+了解了描述 binder 驱动的事务之后, 下面我们看看 binder 用于和用户空间交互的缓冲区的定义
+
+### 四) binder 缓冲区
+每一个使用 Binder 进程间通信机制的进程在 Binder 驱动程序中都有一个内核缓冲区列表, 用来保存 Binder 驱动程序为它分配的内核缓冲区
+```
+// kernel/goldfish/drivers/staging/android/binder.c
+struct binder_buffer {
+    // 当前缓冲区在 binder_proc->buffers 中的结点
+    struct list_head entry;
+    
+    // 若内核缓冲区是空闲的, rb_node 就是 binder_proc 空闲的内核缓冲区红黑树的结点
+    // 若内核缓冲区正在使用的, rb_node 就是 binder_proc 使用的内核缓冲区红黑树的结点
+    struct rb_node rb_node;
+    
+    ......
+    
+    // 保存使用缓冲区的事务
+    struct binder_transaction *transaction;
+    
+    // 保存使用缓冲区的 binder 实体对象
+    struct binder_node* target_node;
+    
+    // 记录数据缓冲大小
+    size_t data_size;
+    
+    // 偏移数组的大小, 这个偏移数组在数据缓冲区之后, 用来记录数据缓冲中 binder 对象的位置
+    siez_t offset_size;
+    
+    // 描述真正的数据缓冲区
+    uint8_t data[0];       
+}
+```
+
+
+### 回顾
+Binder 驱动层的对象引用关系如下
+
+![Binder 驱动结构体依赖](https://i.loli.net/2019/10/23/pzIn2tfBis3yGTu.png)
+
+了解了 Binder 驱动核心结构体之后, 下面我们看看 mmap 系统调用
 
 ## 三. mmap 系统调用
 binder 设备文件的 mmap 系统调用, 由 binder_mmap 实现
@@ -190,9 +394,11 @@ static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
 	int ret;
 	// 1. 声明一个 vm_struct 结构体 area, 它描述的是一个进程的内核态虚拟内存
 	struct vm_struct *area;
-	// 2. 从 binder 设备文件中获取进程描述, 它在上面的 open 操作时添加
+	
+	// 2. 从 binder 设备文件中获取 binder_proc, 当进程调用了 open 函数时, 便会创建一个 binder_proc
 	struct binder_proc *proc = filp->private_data;
 	struct binder_buffer *buffer;
+	
     // 3. 判断要映射的用户虚拟地址空间范围是否超过了 4M
 	if ((vma->vm_end - vma->vm_start) > SZ_4M)
 		vma->vm_end = vma->vm_start + SZ_4M;// 若超过 4M, 则截断为 4M
@@ -210,24 +416,29 @@ static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
 		failure_string = "already mapped";
 		goto err_already_mapped;// 若已存在内存区域, 则映射失败
 	}
+	
     // 4. 分配一块内核态的虚拟内存, 保存在 binder_proc 中
 	area = get_vm_area(vma->vm_end - vma->vm_start, VM_IOREMAP);// 空间大小为用户地址空间的大小, 最大为 4M
 	proc->buffer = area->addr;
 	// 计算 binder 用户地址与内核地址的偏移量
 	proc->user_buffer_offset = vma->vm_start - (uintptr_t)proc->buffer;
     ......
+    
     // 5. 创建物理页面结构体指针数组, PAGE_SIZE 一般定义为 4k
 	proc->pages = kzalloc(sizeof(proc->pages[0]) * ((vma->vm_end - vma->vm_start) / PAGE_SIZE), GFP_KERNEL);
     ......
+    
     // 6. 调用 binder_update_page_range 给进程的(用户/内核)虚拟地址空间分配物理页面
 	if (binder_update_page_range(proc, 1, proc->buffer, proc->buffer + PAGE_SIZE, vma)) {
 		.......
 	}
+	
 	// 7. 物理页面分配成功之后, 将这个内核缓冲区添加到进程结构体 proc 的内核缓冲区列表总
 	buffer = proc->buffer;
 	INIT_LIST_HEAD(&proc->buffers);// 初始化链表头
 	list_add(&buffer->entry, &proc->buffers);// 添加到 proc 的内核缓冲区列表中
 	......
+	
 	// 8. 将这个内核缓冲区添加到 proc 空闲内核缓冲区的红黑树 free_buffer 中
 	binder_insert_free_buffer(proc, buffer);
 	// 将该进程最大可用于执行异步事务的内核缓冲区大小设置为总大小的一半
@@ -238,20 +449,19 @@ static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
     ......
 }
 ```
-可以看到 binder_mmap 分配内核缓冲区的操作主要有如下几步
-- 分配当前**进程的用户虚拟地址空间**
-  - 实参 vm_area_struct *vma 指针, 它用来描述当前进程的用户虚拟地址空间
-    - 它由 Linux 操作系统传入
-  - **最大为 4M, 只可读不可写, 不可复制**
-- 分配当前**进程的 Linux 内核虚拟地址空间**
-  - 声明的变量 vm_struct *area, 它用来描述当前进程的Linux 内核虚拟地址空间
-- 给用户虚拟地址空间和 Linux 内核虚拟地址空间分配物理内存
-  - 通过 **binder_update_page_range 给两个虚拟地址空间分配物理内存**
-- 将这个内核缓冲区添加到 proc 空闲内核缓冲区的红黑树 free_buffer 中
+可以看到 binder_mmap 主要的任务是为当前进程的 binder_proc 初始化内核缓冲区, 相关步骤如下
+- 验证是否满足创建条件
+  - 需要注意的是 binder_mmap 只有第一次调用是有意义的, 否则会直接返回失败
+  - 初始化的缓冲区最大为 4M
+- 创建内核虚拟地址空间
+- **物理页面的创建与映射**
+  - 将页面映射到用户虚拟地址空间和内核虚拟地址空间
+- **缓存缓冲区**
+  - 将初始化好的内核缓冲区 binder_buffer 保存到 binder_proc 中
 
-可以看到, 整个操作类似于 ext4 文件系统的 mmap 匿名映射, 通过这个缓冲区用户空间和内核空间就可以实现数据互通了, 同一个进程内无需进行数据拷贝操作
+下面我们看看物理页面的映射过程
 
-### 一) 映射物理页面
+### 一) 物理页面的创建与映射
 从 binder_mmap 分析可知, 其调用了 binder_update_page_range 分配内核缓冲区
 ```
 // drivers/staging/android/binder.c
@@ -304,9 +514,7 @@ free_range:
     // allocate 为 0 的情况, 释放物理内存的操作
 }
 ```
-至此 Binder 驱动为这个进程分配的一个 binder 缓冲区就完成了, 他们的映射关系如下
-
-![用户空间与内核空间物理页的映射](4D69DF9649904D34BBDABD68A838E1F4)
+至此 Binder 驱动为这个进程分配的一个 binder 缓冲区就完成了
 
 使用这种方式, 我们将数据从用户空间发至内核空间时, 就不用在用户态和内核态之间相互拷贝了, **只需要拷贝到虚拟地址指向的物理内存, 即可快捷的进行数据的读取**
 
@@ -354,221 +562,90 @@ static void binder_insert_free_buffer(struct binder_proc *proc,
 ```
 可看到缓存内核缓冲区的操作, 即将这个 binder_buffer 添加到 binder_proc 的红黑树中, 以便后续取出使用
 
-关于 mmap 操作, 我们就了解到这里, 为了后续更好的分析 Binder 驱动, 下面我们再了解一下 Binder 驱动中比较重要的结构体
-
-## 四. Binder 驱动相关结构体
-### binder_work
-**描述待处理的工作项**
- ```
- // kernel/goldfish/drivers/staging/android/binder.c
- struct binder_work {
-     struct list_head entry;// 将该结构体嵌入到宿主的结构体中
-     enum {
-         BINDER_WORK_TRANSACTION = 1,
-         BINDER_WORK_TRANSACTION_COMPLETE,
-         BINDER_WORK_NODE,
-         BINDER_WORK_DEAD_BINDER,
-         BINDER_WORK_DEAD_BINDER_AND_CLEAR,
-         BINDER_WORK_CLEAR_DEATH_NOTIFICATION,
-     } type;
- }
- ```
-### binder_node
-**描述一个 Binder 的实体对象, 与 Service 一一对应**
-```
- // kernel/goldfish/drivers/staging/android/binder.c
- struct binder_node {
-     int debug_id;
-     struct binder_work work;// 这个 binder 实体对象待处理的工作项
-     union {
-         struct rb_node rb_node;// 宿主进程通过红黑二叉树保存这个 binder 实体对象
-         struct hlist_node dead_node;// 宿主进程死亡后, 将这个 binder 对象保存到 dead_node 中
-     }
-     struct binder_proc *proc; // 宿主进程
-     struct hlist_head refs;// 保存引用了当前 binder 实体对象的 Client 组件的引用对象
-     // 强引用/弱引用计数
-     int internal_strong_refs;
-     int local_strong_refs;
-     int local_weak_refs;
-     unsigned has_strong_ref : 1;
-     unsigned pending_strong_ref : 1;
-     unsigned has_weak_ref : 1;
-     unsigned pending_weak_ref : 1;
-     
-     void __user *ptr;// 指向这个 binder 对象对应的 Service 的地址
-     void __user *cookie;// 指向这个 binder 对象对应的 Service 的引用计数 weakref_impl 的地址
-     
-     unsigned has_async_transaction : 1;// 是否正在处理异步事务
-     unsigned accept_fds : 1;// 是否可以接受包含文件描述的进程间通信数据
-     int min_priority : 8;// 处理 Client 请求时, 处理线程的优先级
-     struct list_head async_todo;// 若需要处理异步事务, 将 binder 保存在这个队列中
- }
-```
-### binder_death
-- **描述一个 Binder 对象的死亡通知的实例**
-```
- // kernel/goldfish/drivers/staging/android/binder.c
- struct binder_ref_death {
-     struct binder_work work;
-     void __user *cookie;// 保存接收死亡通知对象的地址
- }
-```
-### binder_ref
-- **描述一个 Binder 对象的引用实例**
-```
-// kernel/goldfish/drivers/staging/android/binder.c
-struct binder_ref {
-    int debug_id;
-    // 宿主进程使用两个红黑树保存所有的 binder 引用对象
-    struct rb_node rb_node_desc;
-    struct rb_node rb_node_node;
-    struct hlist_node node_entry;// 这个 binder 引用对象, 在其所对应的 binder 实体对象的引用列表中的结点
-    
-    struct binder_proc *proc;// 指向这个 binder 引用对象的宿主进程
-    struct binder_node *node;// 这个 binder 引用对象所引用的实体对象
-    unit32_t desc;// 用于描述这个 binder 引用对象的句柄值
-    // 描述一个 binder 引用对象的生命周期
-    int strong;
-    int weak;
-    // 用于接收 Service 端发来的死亡通知
-    struct binder_ref_death *death;
-}
-```
-### binder_buffer
-- **描述一个内核缓冲区, 它是用来在进程间传输数据的**
-- 每一个使用 Binder 进程间通信机制的进程在 Binder 驱动程序中都有一个内核缓冲区列表, 用来保存 Binder 驱动程序为它分配的内核缓冲区
-```
-// kernel/goldfish/drivers/staging/android/binder.c
-struct binder_buffer {
-    struct list_head entry;// 内核缓冲区列表的结点
-    struct rb_node rb_node;// 若内核缓冲区是空闲的, rb_node 就是空闲的内核缓冲区红黑树的节点, 否则是真正使用内核缓冲区树的结点
-    
-    unsigned free : 1;// 判断内核缓冲区是否空闲
-    unsigned allow_user_free : 1;// 为 1 则请求 Binder 驱动程序释放这个缓冲区
-    unsigned async_transaction : 1;// 是否为异步事务
-    unsigned debug_id : 29;
-    
-    struct binder_transaction *transaction;// 内核缓冲区正在交给哪一个事务使用
-    
-    struct binder_node* target_node;// 内核缓冲区交给哪一个 binder 实体使用
-    size_t data_size;      // 记录数据缓冲大小
-    siez_t offset_size;    // 偏移数组的大小, 这个偏移数组在数据缓冲区之后, 用来记录数据缓冲中 binder 对象的位置
-    uint8_t data[0];       // 描述真正的数据缓冲区
-}
-```
-
-### binder_proc
-- **描述一个正在使用 Binder 进程间通信机制的进程**
-- 当一个进程调用函数 open 打开设备文件 /dev/binder 时, Binder 驱动就会为它创建一个 binder_proc 结构体
-```
-// kernel/goldfish/drivers/staging/android/binder.c
-struct binder_proc {
-    struct hlist_node proc_node;// 打开设备文件时, Binder 驱动会创建一个Binder_proc 保存在 hash 表中, proc_node 为其中的一个节点
-    struct rb_root nodes;// 保存该进程中 Binder 的实体对象
-    
-    // 描述线城池
-    struct rb_root threads;// 以线程的 id 作为关键字来组织一个进程的 Binder 线城池
-    struct max_threads;// 进程本身可以注册的最大线程数
-    int ready_threads;// 空闲的线程数
-    
-    // 内核缓冲区
-	struct list_head buffers;         // 内核缓冲区链表
-	struct rb_root free_buffers;      // 空闲缓冲区红黑树
-	struct rb_root allocated_buffers; // 被使用的缓冲区红黑树
-    
-    // 相关地址
-    struct vm_area_struct *vma;// 用户空间地址
-    void *buffer; // 内核空间地址
-    ptrdiff_t user_buffer_offset; // 用户空间地址与内核空间地址的差值
-    
-
-    struct list_head todo;// binder 请求待处理工作项
-}
-```
-### binder_thread
-- **描述 binder 线程池中的一个线程**
-```
-// kernel/goldfish/drivers/staging/android/binder.c
-struct binder_thread {
-    struct binder_proc *proc;// 宿主进程
-    struct rb_node rb_node;// 当前线程在宿主进程线城池中的结点
-    int pid;// 线程的 id
-    struct binder_transaction * transaction_stack;// 保存要处理的事务
-    strcut list_head todo;// 要处理的 client 请求
-    wait_queue_head_t wait;// 当前线程依赖于其他线程处理后才能继续, 则将它添加到 wait 中
-    struct binder_stats stats;// 当前线程接收到进程间通信的次数
-}
-```
-### binder_transaction
-- **描述进程间的通信过程, 又称为一个事务**
-```
-// kernel/goldfish/drivers/staging/android/binder.c
-struct binder_transaction {
-    struct binder_thread from;// 发起这个事务的线程
-    struct binder_thread *to_thread;// 事务负责处理的线程
-    struct binder_proc *to_proc;// 事务负责处理的进程
-    
-    // 当前事务所依赖的另一个事务
-    struct binder_transaction *from_parent;
-    struct binder_transaction *to_parent;
-}
-```
-### binder_transaction_data
-**描述进程间通信传递的数据**
-```
-// kernel/goldfish/drivers/staging/android/binder.c
-struct binder_transaction_data {
-    union {
-        size_t handle;// binder 引用对象的句柄值
-        void *ptr;// biner 实体对象的指针
-    } target;// 描述目标 binder 实体对象/引用对象
-    
-    union {
-        struct {
-            const void *buffer;
-            const void *offsets;
-        } ptr;
-        unit8_t buf[8];
-    } data;// 指向通信数据的缓冲区
-    size_t data_size;// 描述数据缓冲区大小
-    size_t offset_size;// 描述数据缓存区一个偏移数组的大小
-}
-```
-### flat_binder_object
-- **描述 binder_transaction_data 中的数据缓冲区 binder 对象**
-- 不仅可以描述从用户空间传递过来的 binder 实体对象, 也可以描述 binder 引用对象, 同时也可以描述句柄
-```
-// kernel/goldfish/drivers/staging/android/binder.c
-struct flat_binder_object {
-
-    unsigned long type;// 用于区分该结构体描述的对象类型(binder 实体对象/ binder 引用对象/文件)
-    unsigned long flags;// 只有在 type 为 binder 实体对象时才有意义
-    
-    union {
-        void *binder;// 当前 type 为 binder 实体对象时, 指向 service 组件内部的一个弱引用计数对象
-        signed long handle;// 当 type 为 binder 引用对象时, 指向引用对象的句柄值
-    }
-    
-    void *cookie;// 当 type 为 binder 实体对象时, 指向 service 组件的地址
-}
-```
-
 ### 回顾
-Binder 驱动层的对象引用关系如下
+这里我们可能会有如下的疑问
 
-![Binder 驱动结构体依赖](https://i.loli.net/2019/10/23/pzIn2tfBis3yGTu.png)
+为什么 binder_mmap 只有当前进程首次调用时才有效? 后面调用发现 binder_proc 中 buffer 存在时直接就返回了?
+- 这是因为 binder_mmap 的作用是初始化缓冲区, 并非创建内核缓冲区
+- 后续的 binder 请求可以先通过初始化的缓冲区向内核发起请求, 若发现不足会进行动态的创建 
+
+为什么缓冲区最大为 4MB, 跨进程通讯频繁时 4MB 是否够用?
+- 这个问题与上面其实是一致的, **4MB 不够用时会动态的进行缓冲区的分配, 否则 binder_proc 中也不用费力去维护缓冲区的红黑树缓存了**
+
+为什么要这样设计? 每次想创建缓冲区重新调用 mmap 不好吗?
+- 耗时: mmap 是系统调用, 进入内核时会触发软中断, 这会是一个相对耗时的操作
+- 不利他: 若是每次都调用 mmap 去申请缓冲区, 上层需要关心的较多, 需要自己计算申请数据的大小, 这样不利于缓冲区的管理, 动态的分配能够减少上层的关心
+
+## 三. ioctl 系统调用
+binder 设备文件的 ioctl 系统调用, 由 binder_ioctl 实现
+```
+static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+{
+	int ret;
+	struct binder_proc *proc = filp->private_data;
+	struct binder_thread *thread;
+	unsigned int size = _IOC_SIZE(cmd);
+	void __user *ubuf = (void __user *)arg;
+	
+	......
+    // 1. 进入休眠状态，直到中断唤醒
+	ret = wait_event_interruptible(binder_user_error_wait, binder_stop_on_user_error < 2);
+	if (ret)
+		goto err_unlocked;
+
+	binder_lock(__func__);
+	
+	// 2. 获取空闲的 binder_thread 处理这次 ioctl 请求
+	thread = binder_get_thread(proc);
+	......
+	// IOCTL 请求码
+	switch (cmd) {
+	// 2.1 数据读写请求
+	case BINDER_WRITE_READ:
+		ret = binder_ioctl_write_read(filp, cmd, arg, thread);
+		if (ret)
+			goto err;
+		break;
+	......
+	// 2.2 注册上下文的请求
+	case BINDER_SET_CONTEXT_MGR:
+		ret = binder_ioctl_set_ctx_mgr(filp);
+		if (ret)
+			goto err;
+		ret = security_binder_set_context_mgr(proc->tsk);
+		if (ret < 0)
+			goto err;
+		break;
+	......
+err:
+	if (thread)
+		thread->looper &= ~BINDER_LOOPER_STATE_NEED_RETURN;
+	binder_unlock(__func__);
+	wait_event_interruptible(binder_user_error_wait, binder_stop_on_user_error < 2);
+	......
+}
+```
+从这里可以看到 binder_ioctl 主要负责处理用户空间传递的 IOCTL 指令, 常用的指令如下
+- BINDER_WRITE_READ: 数据的读写
+- BINDER_SET_CONTEXT_MGR: 注册 Binder 上下文的管理者
+
+关于这个两个 ioctl 指令的具体操作, 我们在实际场景下再进行分析, 这里先作为了解
 
 ## 总结
 Binder 驱动程序设备文件的几个基本操作如下
-- init
-  - 创建 Binder 驱动相关的文件
-- open
-  - 打开 binder 设备文件
-  - 为当前进程创建 binder_proc
-- mmap: 与 ext4 文件系统类似, 它负责为 Binder 驱动分配内核缓冲区
-  - 创建缓冲区 binder_buffer, 最大值为 4MB
-    - 因此 Binder 驱动无法传递大数据
-  - 为缓冲区分配物理页面
-  - 将缓冲区添加到 binder_proc 的链表中缓存
+- **init**: 创建 Binder 驱动相关的文件
+- **open**: 打开 binder 设备文件, 为当前进程创建 **binder_proc**, 可以理解为 binder 驱动上下文
+  - binder 对象
+    - **binder_node**: 实体对象
+    - **binder_ref**: 引用对象
+  - **binder_thread**: binder 线程
+  - **binder_buffer**: binder 缓冲区  
+- **mmap**: 初始化当前进程第一个 binder 缓冲区 binder_buffer, 最大值为 4MB
+  - 只有首次调用有效 
+  - 为缓冲区分配物理页面, 将物理页映射到用户虚拟地址和内核虚拟地址
+  - 将缓冲区添加到 binder_proc 中缓存
+- **ioctl**: 找寻空闲的线程, 处理 ioctl 请求 
+  - BINDER_WRITE_READ: 数据的读写
+  - BINDER_SET_CONTEXT_MGR: 注册 Binder 上下文的管理者
 
 好的, 这篇文章我们了解了 Binder 驱动文件对常见系统调用 api 的实现, 这有助于我们更好的了解 Binder 通信的流程, 为后面文章提供技术支持
