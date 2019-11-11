@@ -451,8 +451,8 @@ static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
 ```
 可以看到 binder_mmap 主要的任务是为当前进程的 binder_proc 初始化内核缓冲区, 相关步骤如下
 - 验证是否满足创建条件
-  - 需要注意的是 binder_mmap 只有第一次调用是有意义的, 否则会直接返回失败
-  - 初始化的缓冲区最大为 4M
+  - 需要注意的是 binder_mmap 只有第一次调用是有意义的, 若已经初始化过了, 则会直接返回失败
+  - **一个进程的内核缓冲区最大为 4M**
 - 创建内核虚拟地址空间
 - **物理页面的创建与映射**
   - 将页面映射到用户虚拟地址空间和内核虚拟地址空间
@@ -514,9 +514,7 @@ free_range:
     // allocate 为 0 的情况, 释放物理内存的操作
 }
 ```
-至此 Binder 驱动为这个进程分配的一个 binder 缓冲区就完成了
-
-使用这种方式, 我们将数据从用户空间发至内核空间时, 就不用在用户态和内核态之间相互拷贝了, **只需要拷贝到虚拟地址指向的物理内存, 即可快捷的进行数据的读取**
+至此 Binder 驱动就为这块内核缓冲区, 分配了一个物理页面(一般为 4kb)了, 使用这种方式, 我们将数据从用户空间发至内核空间时, 就不用在用户态和内核态之间相互拷贝了, **只需要拷贝到虚拟地址指向的物理内存, 即可快捷的进行数据的读取**
 
 接下来, 我们就看看它是如何添加到空闲缓冲区中的
 
@@ -560,21 +558,20 @@ static void binder_insert_free_buffer(struct binder_proc *proc,
 	rb_insert_color(&new_buffer->rb_node, &proc->free_buffers);
 }
 ```
-可看到缓存内核缓冲区的操作, 即将这个 binder_buffer 添加到 binder_proc 的红黑树中, 以便后续取出使用
+可看到缓存内核缓冲区的操作, 即将这个 binder_buffer 添加到 binder_proc 的红黑树中, 以便后续取出使用, 此时的空闲缓冲区是刚分配的, 也是它最大的状态
 
 ### 回顾
 这里我们可能会有如下的疑问
+**最大的缓冲区为 4MB, 为什么只进行了一个物理页面的分配?**
+- 这是因为 Binder 驱动采用了按需分配的策略, 当需要进行数据拷贝时, 会从空闲的缓冲区中找寻缓冲区, 进行物理页面的映射
+- 采用按需分配的策略, 可以降低 Binder 驱动闲置时对物理内存的消耗, 也是内存优化的一种方式
 
-为什么 binder_mmap 只有当前进程首次调用时才有效? 后面调用发现 binder_proc 中 buffer 存在时直接就返回了?
-- 这是因为 binder_mmap 的作用是初始化缓冲区, 并非创建内核缓冲区
-- 后续的 binder 请求可以先通过初始化的缓冲区向内核发起请求, 若发现不足会进行动态的创建 
+**跨进程通讯频繁时 4MB 是否够用?**
+- 4 MB 对于大数据跨进程通信是不够的, 这时就需要使用共享内存的方式进行跨进程通讯了, Binder 驱动是为了解决小规模跨进程通讯而生的
 
-为什么缓冲区最大为 4MB, 跨进程通讯频繁时 4MB 是否够用?
-- 这个问题与上面其实是一致的, **4MB 不够用时会动态的进行缓冲区的分配, 否则 binder_proc 中也不用费力去维护缓冲区的红黑树缓存了**
-
-为什么要这样设计? 每次想创建缓冲区重新调用 mmap 不好吗?
-- 耗时: mmap 是系统调用, 进入内核时会触发软中断, 这会是一个相对耗时的操作
-- 不利他: 若是每次都调用 mmap 去申请缓冲区, 上层需要关心的较多, 需要自己计算申请数据的大小, 这样不利于缓冲区的管理, 动态的分配能够减少上层的关心
+**跨进程共享内存支持的这么全全面, 为什么不代替 Binder 驱动?**
+- 跨进共享内存虽然可以进行大数据传输, 不过我们需要手动的进行数据读写的同步, 即使是使用 Android 封装好的  Asheme 共享内存, 其使用成本也是比较高的
+- 通过 Binder 驱动, 我们可以使用常规开发接口的方式进行跨进程代码的编写, 这也是 Google 工程师设计时一种利他的表现
 
 ## 三. ioctl 系统调用
 binder 设备文件的 ioctl 系统调用, 由 binder_ioctl 实现
@@ -588,14 +585,14 @@ static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	void __user *ubuf = (void __user *)arg;
 	
 	......
-    // 1. 进入休眠状态，直到中断唤醒
+	
 	ret = wait_event_interruptible(binder_user_error_wait, binder_stop_on_user_error < 2);
 	if (ret)
 		goto err_unlocked;
 
 	binder_lock(__func__);
 	
-	// 2. 获取空闲的 binder_thread 处理这次 ioctl 请求
+	// 2. 获取描述当前线程的 binder_thread 结构体
 	thread = binder_get_thread(proc);
 	......
 	// IOCTL 请求码

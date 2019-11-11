@@ -115,7 +115,7 @@ status_t IPCThreadState::writeTransactionData(int32_t cmd, uint32_t binderFlags,
     // 错误检查
     const status_t err = data.errorCheck();
     if (err == NO_ERROR) {
-        // 将 data 中的数据拷贝到 tr 中
+        // 将 Parcel 中的数据保存到 binder_transaction_data 中
         tr.data_size = data.ipcDataSize();
         tr.data.ptr.buffer = data.ipcData();
         tr.offsets_size = data.ipcObjectsCount()*sizeof(binder_size_t);
@@ -126,10 +126,10 @@ status_t IPCThreadState::writeTransactionData(int32_t cmd, uint32_t binderFlags,
         ......
     }
     // 2. 将 指令码 和 binder_transaction_data 写入到内核缓冲区
-    // mOut 描述一个命令缓冲协议区
-    mOut.writeInt32(cmd);// 将 BC_TRANSACTION 这个命令写入
-    mOut.write(&tr, sizeof(tr));// 将 tr  这个结构体写入, 用于后续与 Binder 驱动交互
-
+    // 将 BC_TRANSACTION 这个命令写入 mOut 缓冲区
+    mOut.writeInt32(cmd);
+    // 将 tr  这个结构体写入 mOut 缓冲区, 用于后续与 Binder 驱动交互
+    mOut.write(&tr, sizeof(tr));
     return NO_ERROR;
 }
 ```
@@ -137,7 +137,7 @@ writeTransactionData 主要操作如下
 - 构建 **binder_transaction_data** 结构体, 并将 data 写入
 - 将 binder_transaction_data 和 指令码 BC_TRANSACTION 写入到 mOut 中
 
-**这个 mOut 通过 mmap 映射的一块 Binder 驱动内核缓冲区**, 我们在 ServiceManager 启动时已经分析过了, 这里就不再赘述了, 其写入的数据结构如下
+**这个 mOut 是通过 mmap 映射的一块 Binder 驱动内核缓冲区**, 我们在 ServiceManager 启动时已经分析过了, 这里就不再赘述了, 其写入的数据结构如下
 
 ![客户端写入到 Binder 驱动缓冲区的数据结构](https://i.loli.net/2019/10/23/nZqITQ3skRiK7Bx.png)
 
@@ -159,7 +159,8 @@ status_t IPCThreadState::waitForResponse(Parcel *reply, status_t *acquireResult)
         if (mIn.dataAvail() == 0) continue;
         cmd = (uint32_t)mIn.readInt32();
         switch (cmd) {
-        ......
+        ......// 处理 Binder 驱动的回复码
+        }
     }
 
 finish:
@@ -208,11 +209,10 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
     bwr.write_consumed = 0;
     bwr.read_consumed = 0;
     
-    // 4. 通过 ioctl 系统调用, 让 Binder 处理这次通信请求
     status_t err;
     do {
         ......
-       
+        // 4. 通过 ioctl 系统调用, 让 Binder 处理这次通信请求
         if (ioctl(mProcess->mDriverFD, BINDER_WRITE_READ, &bwr) >= 0)
             err = NO_ERROR;
         else
@@ -307,22 +307,15 @@ out:
     
 }
 ```
-可以看到 binder_ioctl 的函数中, 对 BINDER_WRITE_READ 指令码的处理是通过 binder_ioctl_write_read 函数完成的, 其所处理的事情如下
-- 通过 copy_from_user, 拷贝用户空间传递的 binder_write_read 结构体
-- 通过 binder_thread_write 处理写操作
-- 通过 binder_thread_read 处理读操作
-- 通过 copy_to_user 将 binder_write_read 结构体拷贝到用户空间中
+关于 binder_ioctl_write_read 函数我们在 ServiceManager 进程启动篇中已经分析过了, 当时我们通过 binder_thread_read 了解了当没有通讯请求时 ServiceManager 是阻塞在这个函数中的
 
-**思考**<br>
-这里我们可能会有疑问了, 网上不都说 Binder 驱动是一次拷贝吗? 为什么但是这里就已经出现两次拷贝了呢?
-- 因为用户空间使用系统调用时, 会陷入内核态, 系统调用的中的参数必须通过拷贝传递
-- 但是通过第一部分的分析我们得知, **binder_write_read 结构体只是简单的记录了客户端写入缓冲区的数据大小和首地址**, 内存消耗是极小的
+这里我们就详细看看数据是怎么通过 binder_thread_write 发送到 ServiceManager 进程, 如何唤醒 ServiceManager 阻塞的线程的处理通讯请求的
 
-网上所述的一次拷贝指的是跨进程数据的拷贝, 并非系统调用时形参的拷贝, 关于那一次拷贝, 我们到后面的流程去寻找
+从上面的分析可知, 我们在用户空间时, 是往内核缓冲区中写入了 **BC_TRANSACTION** 指令和 **binder_transaction_data** 的结构体数据
 
-从上面的分析可知, 我们在用户空间时, 是往内核缓冲区中写入了 BC_TRANSACTION 指令, 因此这里主要看看 binder_thread_write 函数对 BC_TRANSACTION 的处理
+因此我们先看看 binder_thread_write 是如何将数据写入到目标进程的
 
-### 四) 驱动处理 BC_TRANSACTION 工作项
+### 四) 驱动处理 BC_TRANSACTION 指令
 ```
 // kernel/goldfish/drivers/staging/android/binder.c
 static int binder_thread_write(struct binder_proc *proc,
@@ -366,8 +359,9 @@ static int binder_thread_write(struct binder_proc *proc,
 - 通过 copy_from_user_preempt_disabled 获取用户空间写入到缓冲区的值, 使用 transaction_data 描述
 - 调用 binder_transaction 处理后续操作
 
-从上面的代码中可知, BC_TRANSACTION/BC_REPLY 都是由 binder_transaction 函数处理, 我们先看看 BC_TRANSACTION 的处理
+从上面的代码中可知, BC_TRANSACTION/BC_REPLY 都是由 binder_transaction 函数处理, **binder_transaction 函数是跨进程数据传输的重中之重**, 下面我们着重分析它对 BC_TRANSACTION 的处理
 
+#### binder_transaction 处理 BC_TRANSACTION
 ```
 // kernel/goldfish/drivers/staging/android/binder.c
 static void binder_transaction(struct binder_proc *proc,
@@ -438,7 +432,7 @@ static void binder_transaction(struct binder_proc *proc,
 	tcomplete = kzalloc_preempt_disabled(sizeof(*tcomplete));
 				 
 	// 6. 将 Client 端数据拷贝到 Server 端的内核缓冲区
-	// 6.1 找寻服务端的一块缓冲区
+	// 6.1 在找寻服务端的一块缓冲区
 	t->buffer = binder_alloc_buf(target_proc, tr->data_size, tr->offsets_size, extra_buffers_size, !reply && (t->flags & TF_ONE_WAY));
 	......
 	// 服务端内核缓冲区偏移位置
@@ -499,29 +493,201 @@ static void binder_transaction(struct binder_proc *proc,
 - 创建 Binder 通信事务结构体 binder_transaction
   - 服务端使用 t 描述
   - 客户端使用 t_complete 描述 
-- **将 Client 端数据拷贝到 Server 端的内核缓冲区**
-  - 这里即为 Binder 驱动通信中描述的一次拷贝
+- **将客户端的数据拷贝到服务端的缓冲区**
+  - **调用 binder_alloc_buf 函数, 分配一块内核缓冲区**
+  - **将 Client 端数据拷贝到 Server 端的内核缓冲区, 这里即为 Binder 驱动通信中描述的一次拷贝**
 - **处理缓冲区数据中存在 Binder 本地对象的情况**
   - 若存在 Binder 本地对象
     - 创建一个内核态的 Binder 实体对象 binder_node, 保存在 Client 端的缓存中
     - 创建这个 binder_node 的 Binder 引用对象, 保存在 Server 端的缓存中
 - 将 Server 端的事务类型置为 BINDER_WORK_TRANSACTION, 添加 Server 的工作队列中
+  - Server 端有了任务, 那么阻塞在 binder_thread_read 上的线程就可被唤醒了 
 - 将 Client 端的事务类型置为 BINDER_WORK_TRANSACTION_COMPLETE, 添加到 Client 的工作队里中
 - 唤醒 Server 端的 target_thread 去执行 BINDER_WORK_TRANSACTION
 
 好的, binder_transaction 的 BC_TRANSACTION 可以说是非常复杂的, 从这里我们可以得知, **Binder 本地对象只有在通过 Binder 驱动传输时, 才会在当前进程创建其内核态的描述 binder_node, 没有 binder_node 的 Binder 对象是没有意义的**
 
+好的, 从这里我们就可以看到 binder 驱动动态分配缓冲区的操作了, 当我们将数据用客户端拷贝到服务端的时候, 调用了  binder_alloc_buf 函数, 这便是一个动态分配缓冲区的过程, 下面我们看看他的具体操作
+
+#### binder_alloc_buf 分配内核缓冲区
+```
+// kernel/goldfish/drivers/staging/android/binder.c
+static struct binder_buffer *binder_alloc_buf(struct binder_proc *proc,
+					      size_t data_size,
+					      size_t offsets_size, int is_async)
+{
+	struct rb_node *n = proc->free_buffers.rb_node;
+	struct binder_buffer *buffer;
+	size_t buffer_size;
+	struct rb_node *best_fit = NULL;
+	void *has_page_addr;
+	void *end_page_addr;
+	size_t size;
+
+	if (proc->vma == NULL) {
+		pr_err("%d: binder_alloc_buf, no vma\n",
+		       proc->pid);
+		return NULL;
+	}
+	// 1. 计算请求分配内核缓冲区的大小
+	size = ALIGN(data_size, sizeof(void *)) +
+		ALIGN(offsets_size, sizeof(void *));
+		
+    ......
+    
+    // 2. 使用最佳匹配算法在目标进程的空闲缓冲区红黑树中, 找到最合适的
+	while (n) {
+		buffer = rb_entry(n, struct binder_buffer, rb_node);
+		......
+		// 2.1 获取当前空闲缓冲区的大小
+		buffer_size = binder_buffer_size(proc, buffer);
+		// 2.2 若要拷贝数据的大小 < 当前空闲缓冲区
+		if (size < buffer_size) {
+			best_fit = n;
+			n = n->rb_left;
+		} 
+		// 2.3 要拷贝的数据大小 > 空闲缓冲区
+		else if (size > buffer_size)
+			n = n->rb_right;
+		// 找到了最合适的
+		else {
+			best_fit = n;
+			break;
+		}
+	}
+	
+	// 3. 传输的数据过大, Binder 驱动无法进行数据传输
+	// 最大的空闲缓冲区, 即我们调用 mmap 时初始化的
+	// 客户端为 1M - 8k
+	// 服务端为 128 kb
+	if (best_fit == NULL) {
+		......
+		return NULL;
+	}
+	
+	// 4. 找到了比要拷贝数据大的空闲缓冲区
+	if (n == NULL) {
+		buffer = rb_entry(best_fit, struct binder_buffer, rb_node);
+		buffer_size = binder_buffer_size(proc, buffer);
+	}
+	
+	......
+
+    // 5. 执行裁剪操作
+    // 5.1 记录原空闲缓冲区的结束地址所在的内存页面的起始地址
+	has_page_addr =	(void *)(((uintptr_t)buffer->data + buffer_size) & PAGE_MASK);
+	// 5.2 计算裁剪后的缓冲区大小, 保存在 buffer_size 中
+	if (n == NULL) {
+	    // 若要拷贝的大小 + 用于描述缓冲区的结构体大小  > 找到的空闲缓冲区 - 4 byte, 则不需要裁剪
+		if (size + sizeof(struct binder_buffer) + 4 >= buffer_size) {
+			buffer_size = size;
+		}
+		// 反之则裁剪为 size + sizeof(struct binder_buffer); 的大小
+		else {
+			buffer_size = size + sizeof(struct binder_buffer);
+		}
+	}
+	// 5.3 获取裁剪后的目标结束地址, 并且对其到当前内存页面边界
+	end_page_addr =	(void *)PAGE_ALIGN((uintptr_t)buffer->data + buffer_size);
+	// 5.4 裁剪后对其到边界的地址  > 未裁剪前的页面存在数据的起始地址
+	// 则重置 end_page_addr 为 has_page_addr 防止边界越界
+	if (end_page_addr > has_page_addr)
+		end_page_addr = has_page_addr;
+	
+	// 6. 为缓冲区分配物理页面
+	if (binder_update_page_range(proc, 1,
+	    (void *)PAGE_ALIGN((uintptr_t)buffer->data), end_page_addr, NULL))
+		return NULL;
+	
+	// 7. 将这块缓冲区从空闲红黑树中移除, 插入到已分配的红黑树中
+	rb_erase(best_fit, &proc->free_buffers);
+	buffer->free = 0;
+	// 插入到正在使用的红黑树中
+	binder_insert_allocated_buffer(proc, buffer);
+	
+	// 8. 将裁剪后剩余的一块再次插入空闲红黑树
+	if (buffer_size != size) {
+		struct binder_buffer *new_buffer = (void *)buffer->data + size;
+
+		list_add(&new_buffer->entry, &buffer->entry);
+		new_buffer->free = 1;
+		binder_insert_free_buffer(proc, new_buffer);
+	}
+	
+	......
+	
+	// 返回这块缓冲区
+	return buffer;
+}
+```
+分配内核缓冲区的代码可以说是非常有趣的, 其中的难点主要在于对内核缓冲的裁剪部分
+- 不需要裁剪: 要拷贝的大小 + sizeof(binder_buffer)  >= 空闲缓冲区大小 - 4 byte
+- 需要裁剪: 要拷贝的大小 + sizeof(binder_buffer)  < 空闲缓冲区大小 - 4 byte
+  - 裁剪为: 要拷贝的大小 + sizeof(binder_buffer)
+
+**有了分配了物理内存的内核缓冲区之后, binder 驱动就可以将客户端的数据拷贝到服务端的这个缓冲区中了**
+
 接下来我们需要关注的流程如下
 - Server 端 target_thread 处理 BINDER_WORK_TRANSACTION
 - Client 端处理 BINDER_WORK_TRANSACTION_COMPLETE
 
-我们看看看 Client 对 BINDER_WORK_TRANSACTION_COMPLETE 的处理
+我们先看看 Client 对 **BINDER_WORK_TRANSACTION_COMPLETE** 的处理
 
 ### 五) 驱动处理 BINDER_WORK_TRANSACTION_COMPLETE 工作项
 ```
 // kernel/goldfish/drivers/staging/android/binder.c
+static int binder_ioctl_write_read(struct file *filp,
+				unsigned int cmd, unsigned long arg,
+				struct binder_thread *thread)
+{
+    
+    int ret = 0;
+    // 获取当前使用 Binder 驱动进程的描述
+	struct binder_proc *proc = filp->private_data;
+	unsigned int size = _IOC_SIZE(cmd);
+	// 1. 通过 copy_from_user, 拷贝用户空间传递过来的 binder_write_read 结构体
+	void __user *ubuf = (void __user *)arg;
+	struct binder_write_read bwr;
+	......
+	if (copy_from_user(&bwr, ubuf, sizeof(bwr))) {
+		ret = -EFAULT;
+		goto out;
+	}
+	// 2. 处理写操作
+	if (bwr.write_size > 0) {
+		ret = binder_thread_write(proc, thread,
+					  bwr.write_buffer,
+					  bwr.write_size,
+					  &bwr.write_consumed);
+		......
+	}
+	// 3. 处理读操作
+	if (bwr.read_size > 0) {
+		ret = binder_thread_read(proc, thread, bwr.read_buffer,
+					 bwr.read_size,
+					 &bwr.read_consumed,
+					 filp->f_flags & O_NONBLOCK);
+		......
+	}
+	......
+	// 4. 通过 copy_to_user, 将内核处理好的 binder_write_read 拷贝到用户空间
+	if (copy_to_user(ubuf, &bwr, sizeof(bwr))) {
+		ret = -EFAULT;
+		goto out;
+	}
+out:
+	return ret;
+    
+}
+```
+通过上面的分析我们知道, binder_thread_write 执行完毕之后, 客户端的写操作已经执行完毕了
+
+下面我们看看 binder_thread_read 如何处理, binder_thread_write 中写入的 **BINDER_WORK_TRANSACTION_COMPLETE** 工作项
+```
+// kernel/goldfish/drivers/staging/android/binder.c
 static int binder_thread_read(.......) {
 	......
+	// 此时当前线程的工作队列有 BINDER_WORK_TRANSACTION_COMPLETE 工作项, 故不会阻塞
 	while(1) {
 	    switch(w->type) {
 	    ......
@@ -538,9 +704,9 @@ static int binder_thread_read(.......) {
 	
 }
 ```
-可见 binder_thread_read 对 BINDER_WORK_TRANSACTION_COMPLETE 处理也非常简单, 它将 BR_TRANSACTION_COMPLETE 写入到 Client 端的内核缓冲区中
+binder_thread_read 对 BINDER_WORK_TRANSACTION_COMPLETE 处理也非常简单, 它将 BR_TRANSACTION_COMPLETE 写入到 Client 端的内核缓冲区中
 
-下面我们看看 Client 用户空间对 BR_TRANSACTION_COMPLETE 的操作
+下面我们看看 Client 用户空间对 **BR_TRANSACTION_COMPLETE** 的操作
 
 ### 六) 用户态处理 BR_TRANSACTION_COMPLETE 工作项
 我们上面有分析过, 用户空间的 waitForResponse 中可以通过 mIn 输入缓冲区读取到 binder 内核驱动传递过来的 BR_TRANSACTION_COMPLETE 指令
@@ -556,11 +722,14 @@ status_t IPCThreadState::waitForResponse(Parcel *reply, status_t *acquireResult)
         err = mIn.errorCheck();
         if (err < NO_ERROR) break;
         if (mIn.dataAvail() == 0) continue;
+        
         // 从输入缓冲区中读取, 是否有 Binder 驱动写入的数据
         cmd = (uint32_t)mIn.readInt32();
+        
         // 主要查看 BR_TRANSACTION_COMPLETE 工作项
         switch (cmd) {
         case BR_TRANSACTION_COMPLETE:
+            // 若是没有返回值, 则会直接 finish, 若存在返回值, 会继续调用 talkWithDriver 等待返回值的到来
             if (!reply && !acquireResult) goto finish;
             break;
         ......
@@ -576,24 +745,32 @@ finish:
     return err;
 }
 ```
-可以看到 BR_TRANSACTION_COMPLETE 操作很简单
-- 跳出了 waitForResponse 的方法
-- 该操作会回到其上一级方法 talkWithDriver 中, 继续循环等待目标进程将上次发出的进程间通信请求返回回来
+可以看到 waitForResponse 的 BR_TRANSACTION_COMPLETE 操作很简单
+- 若无返回值, 则直接结束 binder 通信
+- 若存在返回值, 则继续循环等待目标进程将上次发出的进程间通信请求返回回来
 
 **所以, 接下来的重头戏便是 Server 端目标线程对 Binder 驱动发出的 BINDER_WORK_TRANSACTION 工作项的处理了**
 
 ## 二. Server 端响应 Client 请求
-由前面可知, BINDER_WORK_TRANSACTION 会将工作项添加到目标进程的 todo 队列中, 那么目标进程就会被唤醒, 进而执行器 binder_thread_read 处理 todo 队列中的工作项,
-下面我们看看它对 BINDER_WORK_TRANSACTION 的处理
+由前面可知, BINDER_WORK_TRANSACTION 会将工作项添加到目标进程的 todo 队列中
+
+通过 ServiceManager 进程启动的章节可知, 当线程的有任务时 ServiceManager 阻塞在 binder_thread_read 的线程将会被唤醒, 下面我们看看它对 BINDER_WORK_TRANSACTION 的处理
 
 ### 一) 驱动处理 BINDER_WORK_TRANSACTION 工作项
 ```
 // kernel/goldfish/drivers/staging/android/binder.c
-static int binder_thread_write(struct binder_proc *proc,
-			struct binder_thread *thread,binder_uintptr_t binder_buffer, size_t size,
-			binder_size_t *consumed)
-{ 
-    ......
+static int binder_thread_read(struct binder_proc *proc,
+			      struct binder_thread *thread,
+			      binder_uintptr_t binder_buffer, size_t size,
+			      binder_size_t *consumed, int non_block)
+{
+
+    void __user *buffer = (void __user *)(uintptr_t)binder_buffer;
+	void __user *ptr = buffer + *consumed;
+	void __user *end = buffer + size;
+	
+    ......// 有任务, 阻塞唤醒
+    
     // 循环从其读取器工作项数据
     while (1) {
 		uint32_t cmd;
@@ -620,8 +797,9 @@ static int binder_thread_write(struct binder_proc *proc,
 		......
 		// 3. 将 binder_transaction 中的数据写入 binder_transaction_data 中
 		if (t->buffer->target_node) {// target_node 指 Server 端的 Binder 实体对象
-			// 3.1 将目标线程 binder 本地对象的信息复制到 tr 中
+			// 3.1 将 binder 本地对象的信息复制到 tr 中
 			struct binder_node *target_node = t->buffer->target_node;
+			// 通过这个 tr.target.ptr 就可以找到用户空间的 BBinder 了
 			tr.target.ptr = target_node->ptr;
 		    ......
 			// 指令码为 BR_TRANSACTION
@@ -630,18 +808,18 @@ static int binder_thread_write(struct binder_proc *proc,
 			......
 		}
 	    .......
-		// 4. 记录 Client 端拷贝到 Server 缓冲区的首地址到
+		// 4. 记录 Client 端拷贝到 Server 缓冲区的首地址
 		tr.data.ptr.buffer = (binder_uintptr_t)(
 					(uintptr_t)t->buffer->data +
 					proc->user_buffer_offset);
 		tr.data.ptr.offsets = tr.data.ptr.buffer +
 					ALIGN(t->buffer->data_size,
 					    sizeof(void *));
-        // 5. 将指令码 BR_TRANSACTION 拷贝到缓冲区
+        // 5. 将指令码 BR_TRANSACTION 拷贝到 read 缓冲区
 		if (put_user(cmd, (uint32_t __user *)ptr))
 			return -EFAULT;
 		ptr += sizeof(uint32_t);
-		// 6. 将 binder_transaction_data 拷贝到缓冲区
+		// 6. 将 binder_transaction_data 拷贝到read 缓冲区
 		if (copy_to_user(ptr, &tr, sizeof(tr)))
 			return -EFAULT;
 		ptr += sizeof(tr);
@@ -660,15 +838,15 @@ static int binder_thread_write(struct binder_proc *proc,
 - 将 binder_work 转为事务描述结构体 binder_transaction
 - 将 binder_transaction 中的数据写入 binder_transaction_data 中
 - **记录 Client 拷贝到 Server 的内核缓冲区的数据对应在用户空间的首地址**
-- 将指令码 BR_TRANSACTION 拷贝到缓冲区
-- 将 binder_transaction_data 拷贝到缓冲区
+- 将指令码 BR_TRANSACTION 拷贝到 read 缓冲区中
+- 将 binder_transaction_data 拷贝到 read 缓冲区中
 
 好的, binder_transaction_data 记录了 Client 端拷贝到 Server 端的数据在用户空间的首地址之后, Server 的用户空间就可以很方便访问物理内存中的数据了
 
 下面我们看看用户态对 BR_TRANSACTION 指令的处理
 
 ### 二) 用户态处理 BR_TRANSACTION 指令
-ServiceManager 被 Binder 驱动唤醒后, 会调用 binder_parse 方法来处理从 Binder 驱动程序中接收到的返回协议
+通过 ServiceManager 进程启动篇的分析, 我们知道从内核读取数据成功后, 会调用 binder_parse 方法来处理从 Binder 驱动程序中接收到的返回协议, 下面我们就看看 binder_parse 对 **BR_TRANSACTION** 的处理
 ```
 // frameworks/base/cmds/servicemanager/binder.c
 int binder_parse(struct binder_state *bs, struct binder_io *bio,
@@ -988,8 +1166,9 @@ static void binder_transaction(struct binder_proc *proc,
 
 接下来看看 Client 端如何处理 BINDER_WORK_TRANSACTION 工作项
 
-## 三. Client 接收 Server 数据
+## 三. Client 读取 Server 返回值
 ### 一) 驱动处理 BINDER_WORK_TRANSACTION 工作项
+上面我们提到当 Client 将数据发送成功之后, 便会在 waitForResponse 的 while 循环中等待返回值的到来, 也就是说它同样会阻塞在 binder_thread_read 中
 ```
 // kernel/goldfish/drivers/staging/android/binder.c
 static int binder_thread_write(struct binder_proc *proc,
@@ -1040,7 +1219,7 @@ static int binder_thread_write(struct binder_proc *proc,
 	return 0;
 }
 ```
-可以看到 BINDER_WORK_TRANSACTION 工作项的 t->buffer->target_node 为 NULL 时, 会将协议码置为 BR_REPLY, 然后将数据写入用户空间, 接下来我们看看用户空间对 BR_REPLY 的处理
+其代码与 ServiceManager 阻塞在 binder_thread_read 是一致的, 这里就不再赘述了, 我们主要看看用户态对 BR_REPLY 的处理
 
 ### 二) 用户态处理 BR_REPLY
 ```
@@ -1051,11 +1230,12 @@ status_t IPCThreadState::waitForResponse(Parcel *reply, status_t *acquireResult)
 
     while (1) {
         if ((err=talkWithDriver()) < NO_ERROR) break;
-        err = mIn.errorCheck();
-        if (err < NO_ERROR) break;
-        if (mIn.dataAvail() == 0) continue;
+        
+        ......
+        
         // 从输入缓冲区中读取, 是否有 Binder 驱动写入的数据
         cmd = (uint32_t)mIn.readInt32();
+        
         // 主要查看 BR_TRANSACTION_COMPLETE 指令码
         switch (cmd) {
         case BR_REPLY:
@@ -1115,7 +1295,7 @@ Binder 驱动跨进程通信, 是十分复杂的, 其指令交互如下
     - 返回工作项 BR_TRANSACTION_COMPLETE 到 Client 端
       - 用户态执行 BR_TRANSACTION_COMPLETE 工作项
     - 返回工作项 BINDER_WORK_TRANSACTION 到 Server 端
-      - 唤醒其 Binder 线程执行任务
+      - 唤醒阻塞在 binder_thread_read 上的线程执行任务
 - **Server 端执行请求返回给 Client 端**
   - Binder 驱动处理 BINDER_WORK_TRANSACTION 工作项
     - 将 Client 拷贝到 Server 缓冲区的数据地址 记录在 binder_transaction_data 中
@@ -1132,14 +1312,16 @@ Binder 驱动跨进程通信, 是十分复杂的, 其指令交互如下
     - 返回工作项 BR_TRANSACTION_COMPLETE 到 Server 端
       - 用户态处理 BR_TRANSACTION_COMPLETE 指令
     - 返回工作项 BR_REPLY 到 Client 端
-      - 唤醒其 Binder 线程执行任务
+      - 唤醒阻塞在 binder_thread_read 上线程执行任务
 - **Client 端接收 Server 端数据**
   - Binder 驱动处理 BINDER_WORK_TRANSACTION
     - 将 BR_REPLY 和回执数据写入到内核缓冲区
   - 用户态处理 BR_REPLY 指令, 从内核缓冲区中读取参数
 
 至此一次完整的 Binder 通信就结束了, 这里我们便了解到几点非常重要的知识
-- Binder 本地对象创建完成之后, 需要通过 Parcel 发送给 Binder 驱动, 才有机会创建 binder_node 对象, 挂载 binder_proc 中, 也就是说**我们仅仅 new 一个 Binder 是不具有跨进程通信功能的**
+- **binder 驱动的缓冲区的动态分配是在跨进程数据拷贝时, 通过 binder_alloc_buf 实现的**
+  - 使用完成之后, 会通过 BC_FREE_BUFFER 释放这款缓冲区
+- Binder 本地对象创建完成之后, 需要通过 Parcel 发送给 Binder 驱动, 才有机会创建 binder_node 对象, 缓存在 binder_proc 中, 也就是说**我们仅仅 new 一个 Binder 是不具有跨进程通信功能的**
 - ServiceManager 虽然是上下文管理者, 主要管理的是系统服务提供的 Binder 代理对象, **我们自己创建的 Service 通过 onBind 发布的 Binder 对象, ServiceManager 是不负责的管理的**
 - 网上常说的 Binder 驱动一次拷贝, 是指两个进程之间的拷贝, 并不是用户空间到内核空间的拷贝, **因此 Binder 驱动跨进程通信并非是跨进程共享内存**
 

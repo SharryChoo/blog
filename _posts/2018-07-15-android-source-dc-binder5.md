@@ -6,7 +6,6 @@ tags: AndroidFramework
 aside:
   toc: true
 ---
-
 ## 前言
 我们之前在学习系统进程启动的过程中, 知道 **ServiceManager 服务管理进程是通过 init 进程 fork 出来的**, 但是并没有立即分析
 
@@ -85,8 +84,8 @@ struct binder_state *binder_open(size_t mapsize)
 可见 ServiceManager 的打开设备文件的操作非常简单
 - 通过 open 系统调用打开 Binder 设备文件
 - 通过 ioctl 系统调用, 获取 binder 版本号, 验证是否打开成功
-- 调用 mmap 系统调用, 初始化当前进程的第一块内核缓冲区
-  - 由传参可知, 其大小为 128 * 1024, 即 128 kb 
+- 调用 mmap 系统调用, 初始化当前进程的 binder 内核缓冲区
+  - 由传参可知, 其大小为 128 * 1024, 即 128 kb, 也就是说 ServiceManager 进程最高支持传输 128 kb 的数据
 - 将给进程分配的内核缓冲区大小记录到 binder_state 结构体对象中
 
 关于 Binder 驱动设备文件的系统调用的实现, 我们在上一篇文章中已经仔细分析过了, 这里我们就不赘述了
@@ -474,7 +473,11 @@ binder_ioctl_write_read 中主要操作入下
 
 binder_ioctl_write_read 中的信息量非常丰富了, 内核中同样定义了 binder_write_read 结构体, 通过这个结构体就可以和用户空间进行相互拷贝了, 返回的数据也通过这个结构体拷贝回用户空间
 
-这里的 **binder_thread_write** 和 **binder_thread_read** 函数非常的重要, 是 binder 驱动进程间通信的核心函数
+**思考**<br>
+这里我们可能会有疑问了, 网上不都说 Binder 驱动是一次拷贝吗? 为什么但是这里就已经出现两次拷贝了呢?
+- 因为用户空间使用系统调用时, 会陷入内核态, 系统调用的中的参数必须通过拷贝传递
+
+网上所述的一次拷贝指的是跨进程数据的拷贝, 在后面的章节在会着重分析
 
 在 ServiceManager 的 binder_looper 中可知, bwr 的 read_size 为 32, 因此这里调用 binder_thread_read 进行读操作, 下面我们看看它是如何读取数据的
 ```

@@ -7,12 +7,12 @@ aside:
   toc: true
 ---
 
-<!--more-->
-
 ## 前言
 在 Binder 通信实例中我们了解到, Binder 驱动通过 IBinder 提供服务, 服务端为 Binder, 客户端未 BinderProxy
 
 这里我们分别了解一下他们的实例化过程
+
+<!--more-->
 
 ## 一. Binder 本地对象的实例化
 使用过 Service 的都知道, 在 onBind 中会 new 一个我们实现好的 Binder 对象
@@ -351,6 +351,19 @@ ProcessState::ProcessState(const char *driver)
     // 1. 打开 Binder 驱动, 获取驱动设备的文件描述符
     , mDriverFD(open_driver(driver))
     , mVMStart(MAP_FAILED)
+    , mThreadCountLock(PTHREAD_MUTEX_INITIALIZER)
+    , mThreadCountDecrement(PTHREAD_COND_INITIALIZER)
+    , mExecutingThreadsCount(0)
+    // binder 线程池最大线程数
+    , mMaxThreads(DEFAULT_MAX_BINDER_THREADS)
+    , mStarvationStartTimeMs(0)
+    , mManagesContexts(false)
+    , mBinderContextCheckFunc(NULL)
+    , mBinderContextUserData(NULL)
+    , mThreadPoolStarted(false)
+    , mSpawnThreadOnStart(true)
+    , mThreadPoolSeq(1)
+    , mMmapSize(mmap_size)
     ......
 {
     if (mDriverFD >= 0) {
@@ -363,8 +376,9 @@ ProcessState::ProcessState(const char *driver)
 ProcessState 是负责连接 Android 运行时库和 Linux 内核中的 Binder 驱动的桥梁, 通过其 self 函数可知, 其实进程间单例的, ProcessState 实例化时做了两件事
 - **打开 Binder 设备文件保存在 mDriverFD 中**
 - **获取内核缓冲区的首地址 mVMStart**
-
-也就是说只要 ProcessState 的 self 被调用了, Binder 驱动便会被初始化, 关于其相关实现, 我们到后面的章节分析
+  - **mmap 最的值为 1M - 8k**
+  
+也就是说只要 ProcessState 的 self 被调用了, Binder 驱动便会被初始化, 关于其相关实现, 我们到后面的 Binder 驱动中具体分析
 
 下面我们看看 ProcessState 是如何获取 IBinder 对象的
 
@@ -489,7 +503,7 @@ jobject javaObjectForIBinder(JNIEnv* env, const sp<IBinder>& val)
 **至此 Java 中的 BinderProxy 就在 通过 JNI 创建出来了**
 
 ## 总结
-这篇文章主要分析了 Binder 对象在应用层和 Android 运行时库层的实例化过程, 他们最终都是通过 ProcessState 与 Binder 驱动进行交互的
+这篇文章主要分析了 Binder 对象在应用层和 Android 运行时库层的实例化过程, 他们最终都是通过 ProcessState 与 Binder 驱动进行交互
 - Server 端
   - 应用层: 提供了 Binder 对象, 需要根据接口自行实现
   - Android 运行时库层:
