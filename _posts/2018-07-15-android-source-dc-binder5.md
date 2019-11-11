@@ -101,7 +101,7 @@ int binder_become_context_manager(struct binder_state *bs)
     return ioctl(bs->fd, BINDER_SET_CONTEXT_MGR, 0);
 }
 ```
-可以看到注册上下文管理者的函数中, 调用了 ioctl 系统调用, 其 IO 指令码为 BINDER_SET_CONTEXT_MGR
+可以看到注册上下文管理者的函数中, 调用了 ioctl 系统调用, 其 IO 指令码为 **BINDER_SET_CONTEXT_MGR**
 
 关于 BINDER_SET_CONTEXT_MGR 我们在上一篇文章分析 ioctl 的时候就已经提到过, 这里我们就具体的分析一下
 ```
@@ -118,9 +118,6 @@ static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	unsigned int size = _IOC_SIZE(cmd);
 	void __user *ubuf = (void __user *)arg;
 	
-	......
-	
-	ret = wait_event_interruptible(binder_user_error_wait, binder_stop_on_user_error < 2);
 	......
 	
 	// 1. 获取当前线程的 binder_thread 描述
@@ -153,7 +150,7 @@ static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 接下来我们分别看看 binder_get_thread 和 binder_new_node 的具体实现
 
-### 一) 获取 binder_thread 结构体
+#### 一) 获取 binder_thread 结构体
 ```
 // kernel/goldfish/drivers/staging/android/binder.c
 static struct binder_thread *binder_get_thread(struct binder_proc *proc)
@@ -404,14 +401,14 @@ static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	struct binder_thread *thread;
 	unsigned int size = _IOC_SIZE(cmd);
 	void __user *ubuf = (void __user *)arg;
-	// 1. 等待当前线程有任务, 进行唤醒操作
-	ret = wait_event_interruptible(binder_user_error_wait, binder_stop_on_user_error < 2);
+	
 	......
-    // 2. 获取一个线程去处理这次任务
+	
+    // 获取一个当前线程的 binder_thread 结构体描述
 	thread = binder_get_thread(proc);
 	......
 	case BINDER_WRITE_READ:
-	    // 3. 调用 binder_ioctl_write_read 处理 BINDER_WRITE_READ 指令
+	    // 调用 binder_ioctl_write_read 处理 BINDER_WRITE_READ 指令
 		ret = binder_ioctl_write_read(filp, cmd, arg, thread);
 		if (ret)
 			goto err;
@@ -419,7 +416,7 @@ static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	......
 }
 ```
-好的, 可以看到对于 BINDER_WRITE_READ 指令, ioctl 系统调用分发给了 **binder_ioctl_write_read** 函数去处理, 下面我们看看它的实现
+对于 BINDER_WRITE_READ 指令, ioctl 系统调用分发给了 **binder_ioctl_write_read** 函数去处理, 下面我们看看它的实现
 ```
 // kernel/goldfish/drivers/staging/android/binder.c
 static int binder_ioctl_write_read(struct file *filp,
@@ -600,6 +597,5 @@ ServiceManager 为服务管理进程, 它是 Binder 驱动的上下文管理者,
 
 ServiceManager 进程的启动到这里就结束了, 通过 binder_loop 中的死循环, 就可以监听其他进程的 Binder 通信请求了
 - 如此一来 Service Manager 就在 Android 系统的进程间通信机制 Binder 担负起守护进程的职责了
-
 
 后面的文章我们会通过一次 Binder 跨进程通信, 来将之前学习的知识点串联起来
