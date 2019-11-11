@@ -150,7 +150,7 @@ static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 接下来我们分别看看 binder_get_thread 和 binder_new_node 的具体实现
 
-#### 一) 获取 binder_thread 结构体
+### 一) binder_get_thread 获取 binder_thread 结构体
 ```
 // kernel/goldfish/drivers/staging/android/binder.c
 static struct binder_thread *binder_get_thread(struct binder_proc *proc)
