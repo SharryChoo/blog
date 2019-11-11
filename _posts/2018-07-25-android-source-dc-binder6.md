@@ -1320,7 +1320,7 @@ Binder 驱动跨进程通信, 是十分复杂的, 其指令交互如下
 
 至此一次完整的 Binder 通信就结束了, 这里我们便了解到几点非常重要的知识
 - **binder 驱动的缓冲区的动态分配是在跨进程数据拷贝时, 通过 binder_alloc_buf 实现的**
-  - 使用完成之后, 会通过 BC_FREE_BUFFER 释放这款缓冲区
+  - 使用完成之后, 会通过 BC_FREE_BUFFER 释放这块缓冲区
 - Binder 本地对象创建完成之后, 需要通过 Parcel 发送给 Binder 驱动, 才有机会创建 binder_node 对象, 缓存在 binder_proc 中, 也就是说**我们仅仅 new 一个 Binder 是不具有跨进程通信功能的**
 - ServiceManager 虽然是上下文管理者, 主要管理的是系统服务提供的 Binder 代理对象, **我们自己创建的 Service 通过 onBind 发布的 Binder 对象, ServiceManager 是不负责的管理的**
 - 网上常说的 Binder 驱动一次拷贝, 是指两个进程之间的拷贝, 并不是用户空间到内核空间的拷贝, **因此 Binder 驱动跨进程通信并非是跨进程共享内存**
