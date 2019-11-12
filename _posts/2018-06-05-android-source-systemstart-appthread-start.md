@@ -14,7 +14,7 @@ aside:
 
 <!--more-->
 
-## 向 Zygote 发送请求
+## 一. 请求的发起
 ```
 public class ActivityManagerService extends IActivityManager.Stub
         implements Watchdog.Monitor, BatteryStatsImpl.BatteryCallback {
@@ -192,7 +192,7 @@ public class ZygoteProcess {
     
 }
 ```
-好的, 可见 AMS 所在的系统服务进程与 Zygote 进程建立起连接的方式, 如下
+AMS 所在的系统服务进程与 Zygote 进程建立起连接的方式如下
 - 通过 ZygoteState.connect(mSocket) 将 Zygote 进程的 Socket 地址传入(端口号)
   - mSocket 指向的设备文件地址为 **"dev/socket/zygoet"**
 - 在当前进程中创建一个 LocalSocket 对象 zygoteSocket
@@ -242,7 +242,7 @@ public class ZygoteProcess {
 
 接下来看看 Zygote 进程是如何处理的子进程创建的
 
-## 请求的处理
+## 二. 应用进程的创建
 在 Zygote 进程启动的过程中我们知道, 它会有一个死循环, 来读取其他进程发送的进程孵化请求, 这里我们继续分析
 ```
 // frameworks/base/core/java/com/android/internal/os/ZygoteServer.java
@@ -352,15 +352,17 @@ class ZygoteConnection {
     
 }
 ```
-可以看到创建子进程主要做了如下的操作
+ZygoteConnection.processOneCommand 的操作如下
 - 从 Zygote 的 Socket 输入流中读取参数列表
 - 将参数解析到 Argument 中
 - 调用 Zygote.forkAndSpecialize 来创建子进程
   - 它最终会调用 fork() 来完成子进程的创建
 - 子进程的创建会复制 Zygote 的地址空间, 因此会它也会接着 ZygoteConnection.processOneCommand 往下执行, 当 pid 为 0 时说明是子进程在调用
-  - 调用 handleChildProc 来完善后续操作
+- 调用 handleChildProc 来处理应用进程的初始化操作
 
-### 子进程的启动
+下面我们着重分析一下应用进程的初始化流程
+
+## 三. 应用进程的初始化
 接下来我们分析一下 handleChildProc 方法的操作
 ```
 public class ZygoteConnection {
@@ -372,120 +374,168 @@ public class ZygoteConnection {
             ......
         } else {
             if (!isZygote) {
-                // 初始化 Zygote 本身
+                // 初始化子进程
                 return ZygoteInit.zygoteInit(parsedArgs.targetSdkVersion, parsedArgs.remainingArgs,
                         null /* classLoader */);
             } else {
-                // 初始化子进程
-                return ZygoteInit.childZygoteInit(parsedArgs.targetSdkVersion,
-                        parsedArgs.remainingArgs, null /* classLoader */);
+                ......
             }
         }
     }
 
 }
 ```
-可以看到这里直接调用了一个 ZygoteInit.childZygoteInit 去执行子进程的初始化操作, 接着往后分析
+可以看到这里直接调用了一个 ZygoteInit.zygoteInit 去执行子进程的初始化操作, 这个方式与 SystemServer 初始化时的流程操作是完全一致的
 
+不同的是这个 ZygoteInit.zygoteInit 返回的 Runnable 中的 run 方法执行的是 ActivityThread 中的 main 函数
+
+下面我们就看看应用进程的启动做了哪些操作
+
+## 四. 应用进程的启动
 ```
-class ZygoteInit {
+class ActivityThread {
 
-    static final Runnable childZygoteInit(
-            int targetSdkVersion, String[] argv, ClassLoader classLoader) {
-        RuntimeInit.Arguments args = new RuntimeInit.Arguments(argv);
-        // 调用了 RuntimeInit 的 static 方法
-        return RuntimeInit.findStaticMain(args.startClass, args.startArgs, classLoader);
-    }
+    static volatile Handler sMainThreadHandler;  // set once in main()
     
-}
-
-class RuntimeInit {
-
-    protected static Runnable findStaticMain(String className, String[] argv,
-            ClassLoader classLoader) {
-        // 获取应用进程入口的 .class 即("ActivityThread")
-        Class<?> cl;
-        try {
-            cl = Class.forName(className, true, classLoader);
-        } catch (ClassNotFoundException ex) {
-            ......
-        }
-        // 获取应用进程入口的 main 方法
-        Method m;
-        try {
-            m = cl.getMethod("main", new Class[] { String[].class });
-        } catch (NoSuchMethodException ex) {
-            ......
-        } catch (SecurityException ex) {
-            ......
-        }
-        ......
-        // 反回了一个 Runnable 对象
-        return new MethodAndArgsCaller(m, argv);
-    }
-    
-    static class MethodAndArgsCaller implements Runnable {
+    public static void main(String[] args) {
+        // 1. 为这个线程准备 Looper
+        Looper.prepareMainLooper();
         
-        private final Method mMethod;
-        private final String[] mArgs;
-
-        public MethodAndArgsCaller(Method method, String[] args) {
-            mMethod = method;
-            mArgs = args;
+        // 2. 创建了一个 ActivityThread 实体对象
+        ActivityThread thread = new ActivityThread();
+        
+        // 3. 调用它的 attach 方法, 初始化绑定一些参数
+        thread.attach(false, startSeq);
+        
+        // 4. 创建了 sMainThreadHandler, 即主线程的 Handler
+        if (sMainThreadHandler == null) {
+            sMainThreadHandler = thread.getHandler();
         }
+        
+        // 5. 开启 Looper 循环
+        Looper.loop();
+    }
+    
+    
+}
+```
+main 函数中的操作比较简单的
+- 首先是创建并且初始化 ActivityThread
+- 然后开启一个主线程的 Looper, 用于处理其他线程的发送过来的消息
+  - Looper 退出, 也就意味着应用程序退出了
 
-        public void run() {
+关于 Looper 的相关操作, 属于线程间通信的内容, 我们到后面的章节再进行分析
+
+下面我们关注一下 ActivityThread 的创建和初始化
+
+### ActivityThread.attach
+```
+class ActivityThread { 
+
+    private final ResourcesManager mResourcesManager;
+    
+    ActivityThread() {
+        // 创建资源管理对象
+        mResourcesManager = ResourcesManager.getInstance();
+    }
+
+    final ApplicationThread mAppThread = new ApplicationThread();
+    private static volatile ActivityThread sCurrentActivityThread;
+    
+    private void attach(boolean system, long startSeq) {
+        sCurrentActivityThread = this;
+        mSystemThread = system;
+        if (!system) {
+            ......
+            RuntimeInit.setApplicationObject(mAppThread.asBinder());
+            // 1. 通知 AMS, 应用进程创建完毕
+            final IActivityManager mgr = ActivityManager.getService();
             try {
-                // 调用了 main 方法
-                mMethod.invoke(null, new Object[] { mArgs });
-            } catch (IllegalAccessException ex) {
+                mgr.attachApplication(mAppThread, startSeq);
+            } catch (RemoteException ex) {
                 ......
-            } catch (InvocationTargetException ex) {
+            }
+            // 2. 创建 GC 监听器
+            BinderInternal.addGcWatcher(new Runnable() {
+                @Override public void run() {
+                    if (!mSomeActivitiesChanged) {
+                        return;
+                    }
+                    Runtime runtime = Runtime.getRuntime();
+                    long dalvikMax = runtime.maxMemory();
+                    long dalvikUsed = runtime.totalMemory() - runtime.freeMemory();
+                    if (dalvikUsed > ((3*dalvikMax)/4)) {
+                        if (DEBUG_MEMORY_TRIM) Slog.d(TAG, "Dalvik max=" + (dalvikMax/1024)
+                                + " total=" + (runtime.totalMemory()/1024)
+                                + " used=" + (dalvikUsed/1024));
+                        mSomeActivitiesChanged = false;
+                        try {
+                            mgr.releaseSomeActivities(mAppThread);
+                        } catch (RemoteException e) {
+                            throw e.rethrowFromSystemServer();
+                        }
+                    }
+                }
+            });
+        } else {
+            ......
+            // 3. 创建 Application
+            try {
+                mInstrumentation = new Instrumentation();
+                mInstrumentation.basicInit(this);
+                ContextImpl context = ContextImpl.createAppContext(
+                        this, getSystemContext().mPackageInfo);
+                mInitialApplication = context.mPackageInfo.makeApplication(true, null);
+                mInitialApplication.onCreate();
+            } catch (Exception e) {
                 ......
             }
         }
-    }
-}
-```
-可以看到 ZygoteInit.childZygoteInit 最终会返回一个 MethodAndArgsCaller 的 Runnable 对象, 那这个 run 方法什么时候执行呢?<br>
-
-因为应用进程复制了 Zygote 的地址空间, 所以它的函数函数调用栈与 Zygote 是一致的, 我们慢慢往上回溯, 最终到了 ZygoteInit.main 方法中
-
-```
-class ZygoteInit {
-
-    public static void main(String argv[]) {
-        ......
-        final Runnable caller;
-        try {
-            // runSelectLoop 对于 Zygote 来说是一个死循环, 但对于子进程来说, 它会返回一个 Runnable
-            caller = zygoteServer.runSelectLoop(abiList);
-        } catch (Throwable ex) {
-            ......
-        } finally {
-            zygoteServer.closeServerSocket();
-        }
-        // 调用 run 方法, 启动子进程的  run 方法
-        if (caller != null) {
-            caller.run();
-        }
+        // 4. 为 ViewRootImpl 注入配置变更监听器
+        ViewRootImpl.ConfigChangedCallback configChangedCallback
+                = (Configuration globalConfig) -> {
+            synchronized (mResourcesManager) {
+                if (mResourcesManager.applyConfigurationToResourcesLocked(globalConfig,
+                        null /* compat */)) {
+                    updateLocaleListFromAppContext(mInitialApplication.getApplicationContext(),
+                            mResourcesManager.getConfiguration().getLocales());
+                    // This actually changed the resources! Tell everyone about it.
+                    if (mPendingConfiguration == null
+                            || mPendingConfiguration.isOtherSeqNewer(globalConfig)) {
+                        mPendingConfiguration = globalConfig;
+                        sendMessage(H.CONFIGURATION_CHANGED, globalConfig);
+                    }
+                }
+            }
+        };
+        ViewRootImpl.addConfigCallback(configChangedCallback);
     }
     
 }
 ```
-可以看到这里调用了 MethodAndArgsCaller.run 方法, 至此便会执行 ActivityThread 中的 main 方法, 来进行我们常规认知中的进程启动了
+ActivityThread 的创建非常的简单, 即创建了一个 ResourceManager 对象保存在成员变量中, 其 attach 方法中处理的事务如下
+- 通知 AMS 应用进程启动完毕, 可以继续执行后续操作了
+- 创建 GC 监听器
+- 创建 Application 实例对象
+- 为 ViewRootImpl 注入配置变更监听器
 
-### 回顾
-![回顾](https://i.loli.net/2019/10/19/w3mcxWv75OHStZG.png)
+至此一次应用进程的创建就完成了
 
 ## 总结
 通过 Zygote 创建应用进程还是非常清晰的, 其主要步骤如下
-- Client 进程
+- 请求发起
   - 与 Zygote 进程建立 Socket 连接
   - 向 Zygote 进程发送创建子进程的请求
-- Server 进程
+- 子进程的创建
   - Zygote 从 Socket 中获取进程创建请求数据
   - fork 子进程
-  - 处理子进程的启动
+- 处理子进程的初始化(与 SystemServer 一致)
+  - Native 层的初始化
+    - 通过 AppRuntime.onZygoteInit 函数, 启动 Binder 驱动线程池的主线程, 监听 Binder 驱动的跨进程通信请求
+  - Java 层的初始化
+    - 创建 SystemServer 的 main 方法的 Runnable 对象
+- 应用进程的启动
+  - 创建并初始化 ActivityThread
+  - 创建主线程消息循环
 
 ![整体流程图](https://i.loli.net/2019/10/19/1yw3DrKZTkOdV6h.png)
