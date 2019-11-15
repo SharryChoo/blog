@@ -63,6 +63,21 @@ Binder 驱动用于在 Android 中提供**高效**、**便捷**和**轻量级**�
   - [ServiceManager 启动](https://sharrychoo.github.io/blog/2018/07/15/android-source-dc-binder5.html)
   - [Binder 通信完整流程](https://sharrychoo.github.io/blog/2018/07/25/android-source-dc-binder6.html)
 
+### 需要解决的疑问
+- Binder 驱动, 服务进程如何进入等待?
+  - ServiceManager 通过 binder_loop, 睡眠在 binder_thread_read 函数上
+  - Zygote 进程, 通过 join_thread, 睡眠在 binder_thread_read 函数上
+- Client 如何发起调用?
+  - 将数据封装成 parcel, 通过 binder 驱动发送到目标进程
+    - 通过 binder_ref 找到 binder_node, 再找到目标进程
+  - 阻塞在 binder_thread_read 上等待目标进程的返回值
+- 服务进程如何被被唤醒?
+  - binder 驱动将数据拷贝到目标进程的缓冲区之后, 向目标进程中发送一个工作项
+  - 阻塞在 binder_thread_read 上的目标进程被唤醒执行这次任务
+- Binder 驱动能够传输的最大数据是多少
+  - ServiceManager: 128 kb
+  - Zygote fork 出来的进程: 1M - 8k
+
 ## 三. Asheme 匿名共享内存
 **Ashmem(Anonymous Shared Memory) 匿名共享内存是 Android 的 Linux 内核实现的一个驱动**, 它以驱动程序的形式实现在内核空间, 用于在进程间进行数据共享
 
