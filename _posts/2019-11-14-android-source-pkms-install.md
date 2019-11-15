@@ -590,7 +590,7 @@ HandlerParams 中的 startCopy
 这便是应用安装的终点操作了, HandlerParams 的实现类为 InstallParams, 我们分别看看它的实现
 
 #### 1. 安装包的拷贝
-```
+```java
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
 
@@ -622,7 +622,7 @@ public class PackageManagerService extends IPackageManager.Stub
 ```
 InstallParams 中的 handleStartCopy 它会调用 InstallArgs 的 copyApk 执行 apk 的拷贝操作, 我们看看它的实现
 
-```
+```java
     class FileInstallArgs extends InstallArgs {
         
         int copyApk(IMediaContainerService imcs, boolean temp) throws RemoteException {
@@ -676,7 +676,7 @@ InstallParams 中的 handleStartCopy 非常的关键, 它是应用安装的核�
 
 IMediaContainerService 即我们连接 DefaultContainerService 之后, 返回的 Binder 代理对象, 下面看看它的实现
 
-```
+```java
 public class DefaultContainerService extends IntentService {
     private static final String TAG = "DefContainer";
 
@@ -716,7 +716,7 @@ public class DefaultContainerService extends IntentService {
 关于安装包的拷贝我们就简要的看到这里, 下面看看 handleReturnCode 如何安装应用
 
 ### 二) 应用的安装
-```
+```java
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
            
@@ -768,7 +768,7 @@ public class PackageManagerService extends IPackageManager.Stub
 ```
 这里我们主要看看 installPackageTracedLI 是如何安装应用程序的
 
-```
+```java
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
     
