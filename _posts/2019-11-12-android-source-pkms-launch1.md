@@ -500,7 +500,7 @@ public final class Settings {
 到这里 package.xml 中解析并缓存 <package/> 标签信息就结束了, 下面我们看看 <shared-user> 标签的解析过程
 
 ## 三. 解析 <shared-user> 标签
-<shared-user> 标签定义如下
+先回顾一下 <shared-user> 标签的定义
 
 ```
 ......
