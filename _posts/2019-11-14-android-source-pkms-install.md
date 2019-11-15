@@ -18,7 +18,7 @@ aside:
 ## 一. 安装前准备
 当我们下载了一个 apk, 点击进行安装时, 会跳转到 [PackageInstallerActivity](http://androidxref.com/9.0.0_r3/xref/packages/apps/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java) 这个 Activity, 厂商可以为这个 Activity 进行定制和修改, 不过万变不离其宗, 我们看看它是如何安装一个 apk 的
 
-```
+```java
 public class PackageInstallerActivity extends OverlayTouchActivity implements OnClickListener {
     
     private Uri mPackageURI;
@@ -96,7 +96,7 @@ public class PackageInstallerActivity extends OverlayTouchActivity implements On
 可以看到 PackageInstallerActivity 在 onCreate 的方法中获取了应用安装包的 URI, 当我们点击确定的时候, 调用了 startInstall 这个方法, 它将安装包 URI 作为参数注入 intent 跳转到了 InstallInstalling 页面
 
 接下来我们看看 InstallInstalling 又是如何执行安装操作的
-```
+```java
 public class InstallInstalling extends Activity {
     
     /** URI of package to install */
@@ -168,7 +168,7 @@ public class InstallInstalling extends Activity {
 首先我们看看获取 SessionId 的动作, **PackageInstaller 是 PackageInstallerService 在客户端的 Binder 代理对象**, PackageInstallerService 用于维护整个系统的应用安装的任务, 我们直接看看它的实现类 PackageInstallerService 的实现逻辑
 
 ### 一) 获取 SessionId
-```
+```java
 public class PackageInstallerService extends IPackageInstaller.Stub {
     
      @Override
@@ -260,7 +260,7 @@ public class PackageInstallerService extends IPackageInstaller.Stub {
 上面我们看到, 在创建 PackageInstallerSession 的过程中, 创建一个了一个 stageDir, 这个文件路径就是用来接收要安装的 apk 文件的, 接下来我们看看 InstallingAsyncTask 发送安装文件的过程
 
 ### 二) 发送安装文件
-```
+```java
 public class InstallInstalling extends Activity {
     
     private final class InstallingAsyncTask extends AsyncTask<Void, Void,
@@ -325,7 +325,7 @@ InstallingAsyncTask 中做了如下的事务
 **InstallingAsyncTask 执行完毕之后, 我们的文件就拷贝到 stageDir 中了, 接下来我们去系统服务进程中看看 PackageInstallerSession 如何提交一个应用安装请求**
 
 ### 三) 提交应用安装请求
-```
+```java
 public class PackageInstallerSession extends IPackageInstallerSession.Stub {
     
     @Override
@@ -390,7 +390,7 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
   - 调用 PKMS.installStage 执行安装操作
 
 ## 二. 应用的安装
-```
+```java
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
             
@@ -455,7 +455,7 @@ public class PackageManagerService extends IPackageManager.Stub
 接下来我们看看如何绑定应用安装服务
 
 ### 一) 绑定应用安装服务
-```
+```java
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
     
@@ -505,7 +505,7 @@ PKMS 绑定的应用安装服务为 DefaultContainerService, 绑定完成之后�
 接下来看看 MCS_BOUND 消息如何执行安装任务
 
 ### 二) 执行安装任务
-```
+```java
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
     
@@ -693,7 +693,7 @@ InstallParams 中的 handleStartCopy 非常的关键, 它是应用安装的核�
 
 IMediaContainerService 即我们连接 DefaultContainerService 之后, 返回的 Binder 代理对象, 下面看看它的实现
 
-```
+```java
 public class DefaultContainerService extends IntentService {
     private static final String TAG = "DefContainer";
 
@@ -733,7 +733,7 @@ public class DefaultContainerService extends IntentService {
 关于安装包的拷贝我们就看到这里, 接下来回到 PKMS 中看看执行应用的安装操作
 
 ### 二) 应用的安装
-```
+```java
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
            
@@ -785,7 +785,7 @@ public class PackageManagerService extends IPackageManager.Stub
 ```
 这里我们主要看看 installPackageTracedLI 是如何安装应用程序的
 
-```
+```java
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
     
