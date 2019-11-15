@@ -379,7 +379,7 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
 
 ### 回顾
 应用安装前的准备工作如下
-- 获取 SessionId 描述一个安全任务
+- 获取 SessionId 描述一个安装任务
   - 分配 SessionId
   - 创建临时目录 stageDir
     - "data/app/vmdl{sessionId}.tmp"
@@ -846,7 +846,7 @@ installPackageLI 非常复杂, 这里进行了大量的删减, 其主要流程�
 整个应用程序的安装主要有两个方面的操作
 
 **客户端应用安装前准备**
-- 获取 SessionId 描述一个安全任务
+- 获取 SessionId 描述一个安装任务
   - 分配 SessionId
   - 创建临时目录 stageDir
     - **"data/app/vmdl{sessionId}.tmp"**
