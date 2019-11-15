@@ -109,7 +109,9 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 待补充
 
 ### 五) 资源管理篇
-待补充
+- [PackageManagerService 启动-解析备份文件](https://sharrychoo.github.io/blog/2019/11/12/android-source-pkms-launch1.html)
+- [PackageManagerService 启动-扫描安装目录](https://sharrychoo.github.io/blog/2019/11/13/android-source-pkms-launch2.html)
+- [应用程序安装](https://sharrychoo.github.io/blog/2019/11/14/android-source-pkms-install.html)
 
 ### 六) 虚拟机
 待补充

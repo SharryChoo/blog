@@ -8,8 +8,8 @@ aside:
 ---
 ## 前言
 通过前面两篇文章的学习, 我们知晓了 PKMS 的启动过程
-- 解析备份文件
-- 扫描已安装的应用程序
+- [解析备份文件](https://sharrychoo.github.io/blog/2019/11/12/android-source-pkms-launch1.html)
+- [扫描已安装的应用程序](https://sharrychoo.github.io/blog/2019/11/13/android-source-pkms-launch2.html)
 
 趁热打铁, 这里我们学习一下应用程序的安装流程, 看看我们的 app 是如何安装到 data/app 目录下的
 
