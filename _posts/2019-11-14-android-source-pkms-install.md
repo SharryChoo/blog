@@ -862,14 +862,14 @@ installPackageLI 非常复杂, 这里进行了大量的删减, 其主要流程�
 - 安装应用
   - 拷贝应用程序 
     - 拷贝安装包: 调用了 IMediaContainerService 的 copyPackage, 将 apk 拷贝到安装目录下的 base.apk 中
-      - 拷贝前: "data/app/vmdl${sessionId}.tmp/PackageInstaller" 
-      - 拷贝后: "data/app/vmdl${sessionId}.tmp/base.apk" 
+      - 拷贝前: **"data/app/vmdl${sessionId}.tmp/PackageInstaller"** 
+      - 拷贝后: **"data/app/vmdl${sessionId}.tmp/base.apk"**
   - 安装应用程序
     - 调用了 PackageParser.Package 解析 base.apk 安装包文件
     - 解析 apk 的 dex 文件
     - 调用 InstallArgs.doRename 更换目录名称
-      - 更名前: "data/app/vmdl${sessionId}.tmp/"
-      - 更名后: "data/app/${PackageName}${Base64 随机码}/"
+      - 更名前: **"data/app/vmdl${sessionId}.tmp/"**
+      - 更名后: **"data/app/${PackageName}${Base64 随机码}/"**
     - 优化 dex 文件
 
 ## 残留疑问点
