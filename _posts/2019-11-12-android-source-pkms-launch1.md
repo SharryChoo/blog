@@ -501,6 +501,7 @@ public final class Settings {
 
 ## 三. 解析 <shared-user> 标签
 <shared-user> 标签定义如下
+
 ```
 ......
     <shared-user 
