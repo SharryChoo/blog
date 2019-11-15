@@ -382,8 +382,6 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
 - 将安装包拷贝到 stageDir
 - 提交安装任务
 
-为什么需要拷贝一次?
-
 ## 二. 应用的安装
 ```java
 public class PackageManagerService extends IPackageManager.Stub
