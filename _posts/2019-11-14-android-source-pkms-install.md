@@ -8,8 +8,8 @@ aside:
 ---
 ## 前言
 通过前面两篇文章的学习, 我们知晓了 PKMS 的启动过程
-- [解析备份文件](https://sharrychoo.github.io/blog/2019/11/12/android-source-pkms-launch1.html)
-- [扫描已安装的应用程序](https://sharrychoo.github.io/blog/2019/11/13/android-source-pkms-launch2.html)
+- 解析备份文件
+- 扫描已安装的应用程序
 
 趁热打铁, 这里我们学习一下应用程序的安装流程, 看看我们的 app 是如何安装到 data/app 目录下的
 
@@ -18,7 +18,7 @@ aside:
 ## 一. 安装前准备
 当我们下载了一个 apk, 点击进行安装时, 会跳转到 [PackageInstallerActivity](http://androidxref.com/9.0.0_r3/xref/packages/apps/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java) 这个 Activity, 厂商可以为这个 Activity 进行定制和修改, 不过万变不离其宗, 我们看看它是如何安装一个 apk 的
 
-```java
+```
 public class PackageInstallerActivity extends OverlayTouchActivity implements OnClickListener {
     
     private Uri mPackageURI;
@@ -96,8 +96,7 @@ public class PackageInstallerActivity extends OverlayTouchActivity implements On
 可以看到 PackageInstallerActivity 在 onCreate 的方法中获取了应用安装包的 URI, 当我们点击确定的时候, 调用了 startInstall 这个方法, 它将安装包 URI 作为参数注入 intent 跳转到了 InstallInstalling 页面
 
 接下来我们看看 InstallInstalling 又是如何执行安装操作的
-
-```java
+```
 public class InstallInstalling extends Activity {
     
     /** URI of package to install */
@@ -169,7 +168,7 @@ public class InstallInstalling extends Activity {
 首先我们看看获取 SessionId 的动作, **PackageInstaller 是 PackageInstallerService 在客户端的 Binder 代理对象**, PackageInstallerService 用于维护整个系统的应用安装的任务, 我们直接看看它的实现类 PackageInstallerService 的实现逻辑
 
 ### 一) 获取 SessionId
-```java
+```
 public class PackageInstallerService extends IPackageInstaller.Stub {
     
      @Override
@@ -220,6 +219,7 @@ public class PackageInstallerService extends IPackageInstaller.Stub {
         if ((params.installFlags & PackageManager.INSTALL_INTERNAL) != 0) {
             // 安装到内部存储区, 创建一个路径, 用于存储客户端的 apk
             final boolean isInstant = (params.installFlags & PackageManager.INSTALL_INSTANT_APP) != 0;
+            // 构建一个路径
             stageDir = buildStageDir(params.volumeUuid, sessionId, isInstant);
         } else {
             ......
@@ -251,7 +251,7 @@ public class PackageInstallerService extends IPackageInstaller.Stub {
 从 PackageInstallerService 的 openSession 实现中还是能够看到很多有意思的信息, 比如一个客户端能够发起安装的最大数量为 1024, 它的历史安装任务不能超过 1048576 等, 不过其中我们需要重点关注的事情如下
 - 分配 SessionId
 - 创建 stageDir 用于后续接收客户端要安装的 apk
-  - "data/app/xxx/vmdlxxx.tmp"
+  - "data/app/vmdl${sessionId}.tmp/"
 - 创建一个 PackageInstallerSession 对象, 描述一个安装任务
   - 它也是一个 Binder 代理对象
 
@@ -260,7 +260,7 @@ public class PackageInstallerService extends IPackageInstaller.Stub {
 上面我们看到, 在创建 PackageInstallerSession 的过程中, 创建一个了一个 stageDir, 这个文件路径就是用来接收要安装的 apk 文件的, 接下来我们看看 InstallingAsyncTask 发送安装文件的过程
 
 ### 二) 发送安装文件
-```java
+```
 public class InstallInstalling extends Activity {
     
     private final class InstallingAsyncTask extends AsyncTask<Void, Void,
@@ -284,7 +284,7 @@ public class InstallInstalling extends Activity {
                 // 打开待安装文件的输入流
                 try (InputStream in = new FileInputStream(file)) {
                     long sizeBytes = file.length();
-                    // 打开 stageDir 的输出流
+                    // 打开 暂存位置 的输出流
                     try (OutputStream out = session
                             .openWrite("PackageInstaller", 0, sizeBytes)) {
                         byte[] buffer = new byte[1024 * 1024];
@@ -318,13 +318,14 @@ public class InstallInstalling extends Activity {
 ```
 InstallingAsyncTask 中做了如下的事务
 - 首选根据上面打开的 mSessionId 获取一个 PackageInstallerSession 在客户端的 Binder 代理对象
-- 然后通过这个 Binder 代理对象获取 stageDir 输出流, 并将安装包拷贝到其中
+- 然后通过这个 Binder 代理对象获取 暂存位置的 输出流, 并将安装包拷贝到其中
+  - 暂存位置为 "data/app/vmdl${sessionId}.tmp/PackageInstaller"
 - 文件发送成功之后, 通过 Session 提交一个应用安装的请求
 
 **InstallingAsyncTask 执行完毕之后, 我们的文件就拷贝到 stageDir 中了, 接下来我们去系统服务进程中看看 PackageInstallerSession 如何提交一个应用安装请求**
 
 ### 三) 提交应用安装请求
-```java
+```
 public class PackageInstallerSession extends IPackageInstallerSession.Stub {
     
     @Override
@@ -362,7 +363,11 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
     @GuardedBy("mLock")
     private void commitLocked()
             throws PackageManagerException {
+            
+        // 解压 Native 库到 "data/app/vmdl${sessionId}.tmp/lib/" 目录下暂存
+        extractNativeLibraries(mResolvedStageDir, params.abiOverride, mayInheritNativeLibs());
         ......
+        // 请求 PKMS.installStage 执行安装操作
         mPm.installStage(mPackageName, stageDir, localObserver, params,
                 mInstallerPackageName, mInstallerUid, user, mSigningDetails);
     }
@@ -374,16 +379,18 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
 
 ### 回顾
 应用安装前的准备工作如下
-- 获取 SessionId
+- 获取 SessionId 描述一个安全任务
   - 分配 SessionId
-  - 创建 stageDir
-    - "data/app/xxx/vmdlxxx.tmp"
-  - 创建 PackageInstallerSession 对象
-- 将安装包拷贝到 stageDir
+  - 创建临时目录 stageDir
+    - "data/app/vmdl{sessionId}.tmp"
+  - 创建服务进程的 PackageInstallerSession 对象
+- 将安装包拷贝到 "data/app/vmdl${sessionId}.tmp/PackageInstaller" 位置下暂存
 - 提交安装任务
+  - 解压 Native 库到 "data/app/vmdl${sessionId}.tmp/lib/" 目录下暂存 
+  - 调用 PKMS.installStage 执行安装操作
 
 ## 二. 应用的安装
-```java
+```
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
             
@@ -448,7 +455,7 @@ public class PackageManagerService extends IPackageManager.Stub
 接下来我们看看如何绑定应用安装服务
 
 ### 一) 绑定应用安装服务
-```java
+```
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
     
@@ -498,7 +505,7 @@ PKMS 绑定的应用安装服务为 DefaultContainerService, 绑定完成之后�
 接下来看看 MCS_BOUND 消息如何执行安装任务
 
 ### 二) 执行安装任务
-```java
+```
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
     
@@ -621,6 +628,9 @@ public class PackageManagerService extends IPackageManager.Stub
 InstallParams 中的 handleStartCopy 它会调用 InstallArgs 的 copyApk 执行 apk 的拷贝操作, 我们看看它的实现
 
 ```java
+public class PackageManagerService extends IPackageManager.Stub
+        implements PackageSender {
+        
     class FileInstallArgs extends InstallArgs {
         
         int copyApk(IMediaContainerService imcs, boolean temp) throws RemoteException {
@@ -637,29 +647,38 @@ InstallParams 中的 handleStartCopy 它会调用 InstallArgs 的 copyApk 执行
             int ret = PackageManager.INSTALL_SUCCEEDED;
              try {
                 final boolean isEphemeral = (installFlags & PackageManager.INSTALL_INSTANT_APP) != 0;
-                // 1. 创建安装路径 "data/app/xxxx/"
+                // 1. 获取临时目录 "data/app/vmdl${sessionId}.tmp/"
                 final File tempDir = mInstallerService.allocateStageDirLegacy(volumeUuid, isEphemeral);
                 codeFile = tempDir;
             } catch (IOException e) {
-                Slog.w(TAG, "Failed to create copy file: " + e);
-                return PackageManager.INSTALL_FAILED_INSUFFICIENT_STORAGE;
+                .....
             }
+            // 2. 实现一个获取文件描述符的工厂方法, 也是一个 Binder 对象
+            final IParcelFileDescriptorFactory target = new IParcelFileDescriptorFactory.Stub() {
+            
+                @Override
+                public ParcelFileDescriptor open(String name, int mode) throws RemoteException {
+                    if (!FileUtils.isValidExtFilename(name)) {
+                        throw new IllegalArgumentException("Invalid filename: " + name);
+                    }
+                    try {
+                        // 用于打开文件描述符
+                        final File file = new File(codeFile, name);
+                        final FileDescriptor fd = Os.open(file.getAbsolutePath(),
+                                O_RDWR | O_CREAT, 0644);
+                        Os.chmod(file.getAbsolutePath(), 0644);
+                        return new ParcelFileDescriptor(fd);
+                    } catch (ErrnoException e) {
+                        throw new RemoteException("Failed to open: " + e.getMessage());
+                    }
+                }
+                
+            };
+            
             ......
-            // 2. 调用了 IMediaContainerService 的 copyPackage, 将 apk 拷贝到安装目录
+            // 3. 调用了 IMediaContainerService 代理对象的 copyPackage, 将 apk 拷贝到安装目录
             ret = imcs.copyPackage(origin.file.getAbsolutePath(), target);
             ......
-            // 3. 调用了 copyNativeBinariesWithOverride 拷贝依赖库到安装目录
-            final File libraryRoot = new File(codeFile, LIB_DIR_NAME);
-            NativeLibraryHelper.Handle handle = null;
-            try {
-                handle = NativeLibraryHelper.Handle.create(codeFile);
-                ret = NativeLibraryHelper.copyNativeBinariesWithOverride(handle, libraryRoot,
-                        abiOverride);
-            } catch (IOException e) {
-                ......
-            } finally {
-                ......
-            }
             return ret;
         }
         
@@ -668,13 +687,13 @@ InstallParams 中的 handleStartCopy 它会调用 InstallArgs 的 copyApk 执行
 }
 ```
 InstallParams 中的 handleStartCopy 非常的关键, 它是应用安装的核心所在了, 当我们的 apk 没有执行拷贝操作时, 它会调用 InstallArgs 的 copyApk 执行 apk 的拷贝操作, 其主要步骤如下
-- 创建安装路径: "data/app/xxxx/"
-- 拷贝安装包: 调用了 IMediaContainerService 的 copyPackage, 将 apk 拷贝到安装目录
-- 拷贝依赖库: 调用了 copyNativeBinariesWithOverride 拷贝 Library 依赖库到安装目录
+- 要拷贝的临时目录 "data/app/vmdl${sessionId}.tmp/"
+- 实现一个获取文件描述符的工厂方法, 也是一个 Binder 对象
+- 调用了 IMediaContainerService 的 copyPackage, 将 apk 拷贝到安装目录
 
 IMediaContainerService 即我们连接 DefaultContainerService 之后, 返回的 Binder 代理对象, 下面看看它的实现
 
-```java
+```
 public class DefaultContainerService extends IntentService {
     private static final String TAG = "DefContainer";
 
@@ -709,12 +728,12 @@ public class DefaultContainerService extends IntentService {
     
 }
 ```
-**经过了 IMediaContainerService 的 copyPackage 任务, 我们的 apk 就从 "data/app/xxx/vmdlxxx.tmp" 拷贝到 "data/app/xxx/base.apk" 了**
+**经过了 IMediaContainerService 的 copyPackage 任务, 我们的 apk 就从 "data/app/vmdl${sessionId}.tmp/PackageInstaller" 拷贝到 "data/app/vmdl${sessionId}.tmp/base.apk" 了**
 
-关于安装包的拷贝我们就简要的看到这里, 下面看看 handleReturnCode 如何安装应用
+关于安装包的拷贝我们就看到这里, 接下来回到 PKMS 中看看执行应用的安装操作
 
 ### 二) 应用的安装
-```java
+```
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
            
@@ -766,7 +785,7 @@ public class PackageManagerService extends IPackageManager.Stub
 ```
 这里我们主要看看 installPackageTracedLI 是如何安装应用程序的
 
-```java
+```
 public class PackageManagerService extends IPackageManager.Stub
         implements PackageSender {
     
@@ -793,7 +812,12 @@ public class PackageManagerService extends IPackageManager.Stub
            .......
         }
         
-        // 3. 优化 dex 文件
+        // 3. 调用 InstallArgs 将 "data/app/vmdl${sessionId}.tmp/" 更换成正式名称
+        if (!args.doRename(res.returnCode, pkg, oldCodePath)) {
+            ......
+        }
+        
+        // 4. 优化 dex 文件
         BackgroundDexOptService.notifyPackageChanged(pkg.packageName);
         ......
     }
@@ -803,9 +827,14 @@ public class PackageManagerService extends IPackageManager.Stub
 installPackageLI 非常复杂, 这里进行了大量的删减, 其主要流程如下
 - 调用了 PackageParser.Package 解析 base.apk 安装包文件
 - 解析 apk 的 dex 文件
+- 调用 InstallArgs.doRename 更换目录名称
+  - 更名前: "data/app/vmdl${sessionId}.tmp/"
+  - 更名后: "data/app/${PackageName}${Base64 随机码}/"
 - 优化 dex 文件
 
 重点的流程在于 PackageParser.Package,  这个方法我们在上一篇文章中已经分析过了, 不同的是上一篇文章扫描的是安装好的文件夹, 这里扫描的是 base.apk 中的信息, 最终都会将 apk 内部的 AndroidManifest.xml 中的信息发布到 PKMS 中, 这里就不再赘述了
+
+我们之前一直使用的是 **vmdl${sessionId}.tmp** 这个目录, 发布成功之后, 将它更名为 **${PackageName}${Base64 随机码}**
 
 这里我们旨在分析应用安装的流程, 关于 dex 文件解析和优化后面有机会单独找一篇文章来分析, 这里就不展开讨论了
 
@@ -817,28 +846,40 @@ installPackageLI 非常复杂, 这里进行了大量的删减, 其主要流程�
 整个应用程序的安装主要有两个方面的操作
 
 **客户端应用安装前准备**
-- 获取 SessionId
+- 获取 SessionId 描述一个安全任务
   - 分配 SessionId
-  - 创建 stageDir
-    - "data/app/xxx/vmdlxxx.tmp"
-  - 创建 PackageInstallerSession 对象
-- 将安装包拷贝到 stageDir
+  - 创建临时目录 stageDir
+    - **"data/app/vmdl{sessionId}.tmp"**
+  - 创建服务进程的 PackageInstallerSession 对象
+- 将安装包拷贝到 **"data/app/vmdl${sessionId}.tmp/PackageInstaller"** 位置下暂存
 - 提交安装任务
+  - 解压 Native 库到 **"data/app/vmdl${sessionId}.tmp/lib/"** 目录下暂存 
+  - 调用 **PKMS.installStage** 执行安装操作
 
 **服务端安装应用**
 - 连接应用安装服务
-  - 获取 IMediaContainerService Binder 代理对象
+  - 获取 IMediaContainerService 的 Binder 代理对象
 - 安装应用
   - 拷贝应用程序 
-    - 创建安装路径: "data/app/xxxx/"
     - 拷贝安装包: 调用了 IMediaContainerService 的 copyPackage, 将 apk 拷贝到安装目录下的 base.apk 中
-    - 拷贝依赖库: 调用了 copyNativeBinariesWithOverride 拷贝 Library 依赖库到安装目录
+      - 拷贝前: "data/app/vmdl${sessionId}.tmp/PackageInstaller" 
+      - 拷贝后: "data/app/vmdl${sessionId}.tmp/base.apk" 
   - 安装应用程序
-    - 扫描 base.apk, 将 AndroidManifest.xml 信息发布到 PKMS 中
+    - 调用了 PackageParser.Package 解析 base.apk 安装包文件
     - 解析 apk 的 dex 文件
+    - 调用 InstallArgs.doRename 更换目录名称
+      - 更名前: "data/app/vmdl${sessionId}.tmp/"
+      - 更名后: "data/app/${PackageName}${Base64 随机码}/"
     - 优化 dex 文件
 
 ## 残留疑问点
-- **为什么客户端需要费劲将应用拷贝到服务端指定的 stageDir 路径? 后面还会进行一次拷贝到 base.apk 的过程, 能否合并成一次操作?**
+- **为什么客户端不一次性将 apk 拷贝为 base.apk, 而是先拷贝到 PackageInstaller 中? 能否合并成一次操作?**
 
 - **为什么没有将 apk 中的资源文件解压出来? app 运行时访问 apk 中的资源不是会比较耗时吗?**
+  - 这一块涉及资源文件管理的知识, 笔者会在后面的文章再展开讨论, 想了解更多可以常看 yjy 的博文
+    - https://www.jianshu.com/p/817a787910f2
+    - https://www.jianshu.com/p/02a2539890dc
+    - https://www.jianshu.com/p/b153d63d60b3
+
+## 参考文献
+- https://blog.csdn.net/c_z_w/article/details/79785108
