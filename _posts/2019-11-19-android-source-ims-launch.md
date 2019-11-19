@@ -749,7 +749,7 @@ bool InputDispatcher::enqueueInboundEventLocked(EventEntry* entry) {
 
 因为 InputDispatcherThread 的启动我们还没有分析, 等后面分析之后整个流程就更加清晰了, 下面做个简单的回顾
 
-#### 回顾
+#### 4. 回顾
 整个事件读取操作还是非常漫长的, 这里对其进行一个简单的梳理
 
 ![InputReaderThread 启动过程](https://i.loli.net/2019/11/19/aAsoZhDIuNMTqCi.png)
@@ -927,7 +927,7 @@ dispatchKeyLocked 函数中主要进行了如下的操作
 
 我们先看看查找响应窗体集合的过程
 
-### 一) 找寻事件响应窗体
+#### 1. 找寻事件响应窗体
 ```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 int32_t InputDispatcher::findFocusedWindowTargetsLocked(nsecs_t currentTime,
@@ -969,7 +969,7 @@ void InputDispatcher::addWindowTargetLocked(const sp<InputWindowHandle>& windowH
 
 下面我们看看找到 InputTarget 之后如何分发后续的事件
 
-### 二) 将事件发送给响应窗体
+#### 2. 将事件发送给响应窗体
 ```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 void InputDispatcher::enqueueDispatchEntriesLocked(nsecs_t currentTime,
@@ -999,7 +999,7 @@ void InputDispatcher::enqueueDispatchEntriesLocked(nsecs_t currentTime,
 - 调用 enqueueDispatchEntryLocked 将事件添加到响应者的 outboundQueue 队列
 - 调用 startDispatchCycleLocked 分发整个事件
 
-#### 1. 添加到 Connection.outboundQueue 队列
+##### 1) 添加到 Connection.outboundQueue 队列
 ```
 void InputDispatcher::enqueueDispatchEntryLocked(
         const sp<Connection>& connection, EventEntry* eventEntry, const InputTarget* inputTarget,
@@ -1018,7 +1018,7 @@ void InputDispatcher::enqueueDispatchEntryLocked(
 可以看到在添加到 Connection 的 outboundQueue 队列之前, 首先将 KeyEvent 构建成了 DispatchEntry 对象, 然后再添加到 outboundQueue 队列中
 - 这里又进行了一次事件的转换, 将 KeyEvent 转换成 DispatchEntry
 
-#### 2. 执行响应者的事件分发
+##### 2) 执行响应者的事件分发
 ```
 void InputDispatcher::startDispatchCycleLocked(nsecs_t currentTime,
         const sp<Connection>& connection) {
@@ -1093,7 +1093,7 @@ status_t InputPublisher::publishKeyEvent(
 
 **这个 mChannel 是一个 InputChannel 对象, 它是将输入事件流传递到应用进程窗体的关键所在**, 其创建的流程和 sendMessage 操作我们到后面章节再进行分析
 
-#### 回顾
+#### 3. 回顾
 
 ![InputDispatcherThread 启动过程](https://i.loli.net/2019/11/19/CLIpQHBuXSdortj.png)
 
