@@ -9,7 +9,7 @@ aside:
 
 ## 前言
 前面我们根据 SystemServer 的启动流程逐一分析了 AMS 和 PMS 的启动, 这里我们来看看 IMS 的启动流程
-```
+```java
 public final class SystemServer {
     
     private void startOtherServices() {
@@ -34,6 +34,8 @@ public final class SystemServer {
 InputManagerService 的启动比 AMS 简单明了很多, 我们这里主要从这两个方面来分析 IMS 的启动
 - IMS 的创建
 - IMS 的启动
+
+<!--more-->
 
 ## 一. IMS 的创建
 ```java
@@ -62,7 +64,7 @@ IMS 的构造函数中主要做了如下的实现
 接下来我们一一分析
 
 ### 一) DisplayThread 的创建
-```
+```java
 /**
  * Shared singleton foreground thread for the system.  This is a thread for
  * operations that affect what's on the display, which needs to have a minimum
@@ -149,7 +151,7 @@ NativeInputManager::NativeInputManager(jobject contextObj,
 这里就比较重要了 NativeInputManager 只是一个与 Java 层交互的媒介, 其具体的实现是由 EventHub 和 InputManager 完成, 接下来看看它们实例化的过程
 
 #### 1. [EventHub](http://androidxref.com/9.0.0_r3/xref/frameworks/native/services/inputflinger/EventHub.cpp) 的创建
-```
+```C++
 // frameworks/native/services/inputflinger/EventHub.cpp
 EventHub::EventHub(void) :
         mBuiltInKeyboardId(NO_BUILT_IN_KEYBOARD), mNextDeviceId(1), mControllerNumbers(),
