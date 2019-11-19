@@ -111,7 +111,7 @@ public final class DisplayThread extends ServiceThread {
 
 ### 二) native 初始化
 InputManagerService 的 Native 文件定义在 [com_android_server_input_InputManagerService.cpp](http://androidxref.com/9.0.0_r3/xref/frameworks/base/services/core/jni/com_android_server_input_InputManagerService.cpp) 中, 我们看看它的实现
-```C++
+```
 // frameworks/base/services/core/jni/com_android_server_input_InputManagerService.cpp
 static jlong nativeInit(JNIEnv* env, jclass /* clazz */,
         jobject serviceObj, jobject contextObj, jobject messageQueueObj) {
@@ -132,7 +132,7 @@ static jlong nativeInit(JNIEnv* env, jclass /* clazz */,
 ```
 这里可以看到 nativeInit 中, 首先获取了当前线程的 MessageQueue, 然后构建了一个与 Java 层对应的 **NativeInputManager** 对象, 我们看看它的构建流程
 
-```C++
+```
 // frameworks/base/services/core/jni/com_android_server_input_InputManagerService.cpp
 NativeInputManager::NativeInputManager(jobject contextObj,
         jobject serviceObj, const sp<Looper>& looper) :
@@ -151,7 +151,7 @@ NativeInputManager::NativeInputManager(jobject contextObj,
 这里就比较重要了 NativeInputManager 只是一个与 Java 层交互的媒介, 其具体的实现是由 EventHub 和 InputManager 完成, 接下来看看它们实例化的过程
 
 #### 1. [EventHub](http://androidxref.com/9.0.0_r3/xref/frameworks/native/services/inputflinger/EventHub.cpp) 的创建
-```C++
+```
 // frameworks/native/services/inputflinger/EventHub.cpp
 EventHub::EventHub(void) :
         mBuiltInKeyboardId(NO_BUILT_IN_KEYBOARD), mNextDeviceId(1), mControllerNumbers(),
@@ -200,7 +200,7 @@ EventHub 中主要做了如下的操作
 在 EventHub 的构造中我们并没有看到对数据变更后的处理和分发, 我们继续往下探索, 看看 InputManager 的创建过程
 
 #### 2. [InputManager](http://androidxref.com/9.0.0_r3/xref/frameworks/native/services/inputflinger/InputManager.cpp) 的创建
-```C++
+```
 // frameworks/native/services/inputflinger/InputManager.cpp
 InputManager::InputManager(
         const sp<EventHubInterface>& eventHub,
@@ -230,7 +230,7 @@ void InputManager::initialize() {
 InputManager 整个事件的读取和分发使用的是**生产者-消费者模型**, 接下来我们一一查看他们的创建过程
 
 ##### 1) [InputDispatcher](http://androidxref.com/9.0.0_r3/xref/frameworks/native/services/inputflinger/InputDispatcher.cpp)
-```C++
+```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 InputDispatcher::InputDispatcher(const sp<InputDispatcherPolicyInterface>& policy) :
     // 将 NativeInputMangaer 保存到成员变量
@@ -252,7 +252,7 @@ InputDispatcher::InputDispatcher(const sp<InputDispatcherPolicyInterface>& polic
 ```
 
 ##### 2) [InputReader](http://androidxref.com/9.0.0_r3/xref/frameworks/native/services/inputflinger/InputReader.cpp)
-```C++
+```
 // frameworks/native/services/inputflinger/InputReader.cpp
 InputReader::InputReader(const sp<EventHubInterface>& eventHub,
         const sp<InputReaderPolicyInterface>& policy,
@@ -277,7 +277,7 @@ InputReader::InputReader(const sp<EventHubInterface>& eventHub,
 可以看到 InputReader 持有了一个事件队列 QueuedInputListener, 它用于存储接收到的事件, 并且通知 InputDispatcher 进行后续的分发操作
 
 ##### 3) InputReaderThread
-```C++
+```
 // frameworks/native/services/inputflinger/InputReader.cpp
 InputReaderThread::InputReaderThread(const sp<InputReaderInterface>& reader) :
         // 继承自一个 Native 的 Thread 封装类
@@ -287,7 +287,7 @@ InputReaderThread::InputReaderThread(const sp<InputReaderInterface>& reader) :
 ```
 
 ##### 4) InputDispatcherThread
-```C++
+```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 InputDispatcherThread::InputDispatcherThread(const sp<InputDispatcherInterface>& dispatcher) :
         // 继承自 Native 的 Thread 封装类
@@ -351,7 +351,7 @@ public class InputManagerService extends IInputManager.Stub
 ```
 Java 的 IMS 的 start 中调用 nativeStart, 然后注册了一些事件的观察者, 更新了相关数据, 最重要的还是 native 层的 nativeStart 的实现, 下面我们就去 native 层探索一下, NativeInputManager 的启动做了哪些操作
 
-```C++
+```
 // frameworks/base/services/core/jni/com_android_server_input_InputManagerService.cpp
 static void nativeStart(JNIEnv* env, jclass /* clazz */, jlong ptr) {
     NativeInputManager* im = reinterpret_cast<NativeInputManager*>(ptr);
@@ -376,7 +376,7 @@ status_t InputManager::start() {
 接下来我们分别看看他们启动后执行了哪些操作
 
 ### 一) InputReaderThread 线程的启动
-```C++
+```
 // frameworks/native/services/inputflinger/InputReader.cpp
 bool InputReaderThread::threadLoop() {
     // 调用了 InputReader 的 loopOnce 读取输入流
@@ -389,7 +389,7 @@ InputReaderThread 启动之后, 会不断的调用 threadLoop 执行事件的读
 每次调用均会触发 InputReader 的 loopOnce 执行一次读取输入流的操作, 这是整个输入系统的核心之一
 
 下面我们看看它的具体实现
-```C++
+```
 // frameworks/native/services/inputflinger/InputReader.cpp
 void InputReader::loopOnce() {
     ......
@@ -421,7 +421,7 @@ InputReader 的 loopOnce 中的操作如下
 接下来我们一一分析
 
 #### 1. Eventhub 获取事件输入流
-```C++
+```
 // // frameworks/native/services/inputflinger/EventHub.h
 // 描述 Epoll 最多能够接收到的事件为 16 个
 static const int EPOLL_MAX_EVENTS = 16;
@@ -544,7 +544,7 @@ EventHub 的 getEvents 函数中维护了一个 looper, 内部操作如下
 **EventHub 的 getEvents 执行结束之后, 其 InputReader 的 mEventBuffer 中就填充了输入事件序列了, 我们回到 InputReader::loopOnce 中, 看看它是如何处理接收到的事件序列的**
 
 #### 2. processEventsLocked 处理事件
-```C++
+```
 // frameworks/native/services/inputflinger/InputReader.cpp
 void InputReader::processEventsLocked(const RawEvent* rawEvents, size_t count) {
     // 遍历读取到的事件集合
@@ -581,7 +581,7 @@ InputReader::processEventsLocked 中主要处理两个方面的事务
 
 这里我们看看他是如何处理一个设备的事件序列的
 
-```C++
+```
 // frameworks/native/services/inputflinger/InputReader.cpp
 void InputReader::processEventsForDeviceLocked(int32_t deviceId,
         const RawEvent* rawEvents, size_t count) {
@@ -597,7 +597,7 @@ void InputReader::processEventsForDeviceLocked(int32_t deviceId,
 接下来我们看看 InputDevice 如何处理接收到的事件序列
 
 ##### InputDevice 处理事件序列
-```C++
+```
 // frameworks/native/services/inputflinger/InputReader.cpp
 void InputDevice::process(const RawEvent* rawEvents, size_t count) {
     size_t numMappers = mMappers.size();
@@ -620,7 +620,7 @@ void InputDevice::process(const RawEvent* rawEvents, size_t count) {
 可以看到这里它调用了 InputMapper 来处理接收到的输入事件, 从 InputManager 的定义我们就知道, 它主要负责处理事件的映射, 将底层输出的事件映射成上层的具体描述
 
 我们这里以 KeyboardInputMapper 为例, 看看将 RawEvent 转化为键盘输入事件的过程
-```C++
+```
 // frameworks/native/services/inputflinger/InputReader.cpp
 void KeyboardInputMapper::process(const RawEvent* rawEvent) {
     switch (rawEvent->type) {
@@ -691,7 +691,7 @@ void QueuedInputListener::notifyKey(const NotifyKeyArgs* args) {
 好的, 如此一来一个映射好的事件便缓存到 QueuedInputListener 的 mArgsQueue 中了, 下面我们回到  InputReader::loopOnce 中, 看看它是 QueuedInputListener.flush 做了什么操作
 
 #### 3. QueuedInputListener.flush
-```C++
+```
 // frameworks/native/services/inputflinger/InputListener.cpp
 void QueuedInputListener::flush() {
     size_t count = mArgsQueue.size();
@@ -712,7 +712,7 @@ void NotifyKeyArgs::notify(const sp<InputListenerInterface>& listener) const {
 可以看到 QueuedInputListener::flush 操作, 遍历了队列中的事件, 最终会调用 InputDispatcher 来消费这个事件
 
 ##### InputDispatcher.notifyKey
-```C++
+```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 void InputDispatcher::notifyKey(const NotifyKeyArgs* args) {
     .......
@@ -777,7 +777,7 @@ epoll_event -> input_event -> RawEvent -> NotifyArgs -> KeyEntry
 事件的生产线程的工作机制我们已经理清了, 下面我们探究一下事件消费线程 InputDispatcherThread 的启动
 
 ### 二) InputDispatcherThread 线程的启动
-```C++
+```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 bool InputDispatcherThread::threadLoop() {
     mDispatcher->dispatchOnce();
@@ -787,7 +787,7 @@ bool InputDispatcherThread::threadLoop() {
 InputDispatcherThread 启动之后, 会调用 InputDispatcher 的 dispatchOnce来执行一次事件分发, 这是整个输入系统的核心之一
 
 下面我们就看看它的具体实现
-```C++
+```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 void InputDispatcher::dispatchOnce() {
     nsecs_t nextWakeupTime = LONG_LONG_MAX;
@@ -818,7 +818,7 @@ bool InputDispatcher::haveCommandsLocked() const {
 Looper.pollOnce 最终会睡眠在 epoll_wait 上, 发生超时或者有数据写入时会被唤醒, **也就是说上面我们分析的 InputDispatcher.notify 函数, 最终会唤醒阻塞的 InputDispatcherThread 继续进行事件分发**
 
 下面我们看看 dispatchOnceInnerLocked 的操作
-```C++
+```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 void InputDispatcher::dispatchOnceInnerLocked(nsecs_t* nextWakeupTime) {
     // 记录当前时间
@@ -872,7 +872,7 @@ void InputDispatcher::dispatchOnceInnerLocked(nsecs_t* nextWakeupTime) {
 - 分发完成之后调用 releasePendingEventLocked 释放已分发的事件
 
 这里我们主要看看 dispatchKeyLocked 的分发流程
-```C++
+```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 bool InputDispatcher::dispatchKeyLocked(nsecs_t currentTime, KeyEntry* entry,
         DropReason* dropReason, nsecs_t* nextWakeupTime) {
@@ -928,7 +928,7 @@ dispatchKeyLocked 函数中主要进行了如下的操作
 我们先看看查找响应窗体集合的过程
 
 ### 一) 找寻事件响应窗体
-```C++
+```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 int32_t InputDispatcher::findFocusedWindowTargetsLocked(nsecs_t currentTime,
         const EventEntry* entry, Vector<InputTarget>& inputTargets, nsecs_t* nextWakeupTime) {
@@ -948,7 +948,7 @@ int32_t InputDispatcher::findFocusedWindowTargetsLocked(nsecs_t currentTime,
 这里调用了 addWindowTargetLocked 将 mFocusedWindowHandle 焦点窗体添加到了 inputTargets 中
 
 关于焦点窗体的查找过程, 我们到后面的章节中进行分析, 这里先看看 addWindowTargetLocked 的操作
-```C++
+```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 void InputDispatcher::addWindowTargetLocked(const sp<InputWindowHandle>& windowHandle,
         int32_t targetFlags, BitSet32 pointerIds, Vector<InputTarget>& inputTargets) {
@@ -970,7 +970,7 @@ void InputDispatcher::addWindowTargetLocked(const sp<InputWindowHandle>& windowH
 下面我们看看找到 InputTarget 之后如何分发后续的事件
 
 ### 二) 将事件发送给响应窗体
-```C++
+```
 // frameworks/native/services/inputflinger/InputDispatcher.cpp
 void InputDispatcher::enqueueDispatchEntriesLocked(nsecs_t currentTime,
         const sp<Connection>& connection, EventEntry* eventEntry, const InputTarget* inputTarget) {
@@ -1000,7 +1000,7 @@ void InputDispatcher::enqueueDispatchEntriesLocked(nsecs_t currentTime,
 - 调用 startDispatchCycleLocked 分发整个事件
 
 #### 1. 添加到 Connection.outboundQueue 队列
-```C++
+```
 void InputDispatcher::enqueueDispatchEntryLocked(
         const sp<Connection>& connection, EventEntry* eventEntry, const InputTarget* inputTarget,
         int32_t dispatchMode) {
@@ -1019,7 +1019,7 @@ void InputDispatcher::enqueueDispatchEntryLocked(
 - 这里又进行了一次事件的转换, 将 KeyEvent 转换成 DispatchEntry
 
 #### 2. 执行响应者的事件分发
-```C++
+```
 void InputDispatcher::startDispatchCycleLocked(nsecs_t currentTime,
         const sp<Connection>& connection) {
     while (connection->status == Connection::STATUS_NORMAL
@@ -1056,7 +1056,7 @@ void InputDispatcher::startDispatchCycleLocked(nsecs_t currentTime,
 }
 ```
 可以看到 startDispatchCycleLocked 函数最终会调用 connection->inputPublisher.publishKeyEvent 来发布事件
-```C++
+```
 // frameworks/native/libs/input/InputTransport.cpp
 status_t InputPublisher::publishKeyEvent(
         uint32_t seq,
