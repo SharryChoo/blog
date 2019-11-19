@@ -872,7 +872,7 @@ installPackageLI 非常复杂, 这里进行了大量的删减, 其主要流程�
       - 更名后: **"data/app/${PackageName}${Base64 随机码}/"**
     - 优化 dex 文件
 
-## 残留疑问点
+## 后记
 - **为什么客户端不一次性将 apk 拷贝为 base.apk, 而是先拷贝到 PackageInstaller 中? 能否合并成一次操作?**
 
 - **为什么没有将 apk 中的资源文件解压出来? app 运行时访问 apk 中的资源不是会比较耗时吗?**
