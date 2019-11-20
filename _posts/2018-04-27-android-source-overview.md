@@ -61,14 +61,11 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 ![用户空间层](https://i.loli.net/2019/10/19/bDvXL4MBZwTnzHC.jpg)
 
 ## 二. 学习思路
-笔者学习的思路主要是流程分析法, 先走通一条 Line, 然后抽丝剥茧的学习重要的功能实现
-### 一) 系统启动
-- [Init 进程的启动](https://sharrychoo.github.io/blog/2018/05/30/android-source-systemstart-init-start.html)
-- [Zygote 进程的启动](https://sharrychoo.github.io/blog/2018/06/03/android-source-systemstart-zygote-start.html)
-- [系统服务进程的启动](https://sharrychoo.github.io/blog/2018/06/04/android-source-systemstart-systemserver-start.html)
-- [应用进程的启动](https://sharrychoo.github.io/blog/2018/06/05/android-source-systemstart-appthread-start.html)
+笔者探索过很多 Android 源码的学习思路, 后来发现由低向上的学习是最适合自己的, 原因如下
+- 底层的知识比较基础
+- 底层的知识点与比较独立, 与其他模块的耦合度较低
 
-### [二) 数据通信篇](https://sharrychoo.github.io/blog/2018/06/11/android-source-dc-overview.html)
+### [一) 数据通信篇](https://sharrychoo.github.io/blog/2018/06/11/android-source-dc-overview.html)
 #### 1. Handler 线程间通信
 - [Looper 的创建与启动](https://sharrychoo.github.io/blog/2018/06/12/android-source-dc-handler1.html)
 - [消息的发送与处理](https://sharrychoo.github.io/blog/2018/06/13/android-source-dc-handler2.html)
@@ -82,39 +79,49 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
   - [IBinder 对象的实例化](https://sharrychoo.github.io/blog/2018/07/07/android-source-dc-binder3.html) 
 - Linux 内核层
   - [Binder 驱动](https://sharrychoo.github.io/blog/2018/07/10/android-source-dc-binder4.html)
-  - [ServiceManager 启动](https://sharrychoo.github.io/blog/2018/07/15/android-source-dc-binder5.html)
+ 
   - [Binder 通信完整流程](https://sharrychoo.github.io/blog/2018/07/25/android-source-dc-binder6.html)
 
 #### 3. Asheme 共享内存驱动
 - [Ashmem 驱动共享内存驱动](https://sharrychoo.github.io/blog/2018/08/05/android-source-dc-ashmem.html)
 
+### 二) 系统启动
+- [Init 进程的启动](https://sharrychoo.github.io/blog/2018/05/30/android-source-systemstart-init-start.html)
+- [ServiceManager 启动](https://sharrychoo.github.io/blog/2018/07/15/android-source-dc-binder5.html)
+- [SurfaceFlinger 的启动](https://sharrychoo.github.io/blog/2019/10/11/android-source-graphic-consumer1.html)
+   - [SurfaceFlinger Hotplug 的处理](https://sharrychoo.github.io/blog/2019/10/15/android-source-graphic-consumer2.html)
+   - [SurfaceFlinger 对 Vsync 信号护理](https://sharrychoo.github.io/blog/2019/10/16/android-source-graphic-consumer3.html)
+   - [SurfaceFlinger 渲染图层](https://sharrychoo.github.io/blog/2019/10/17/android-source-graphic-consumer4.html)
+- [Zygote 进程的启动](https://sharrychoo.github.io/blog/2018/06/03/android-source-systemstart-zygote-start.html)
+- [系统服务进程的启动](https://sharrychoo.github.io/blog/2018/06/04/android-source-systemstart-systemserver-start.html)
+  - [AMS 的启动]()
+  - [PMS 的启动](https://sharrychoo.github.io/blog/2019/11/12/android-source-pkms-launch1.html)
+    - [解析备份文件](https://sharrychoo.github.io/blog/2019/11/12/android-source-pkms-launch1.html)
+    - [扫描安装目录](https://sharrychoo.github.io/blog/2019/11/13/android-source-pkms-launch2.html)
+    - [应用程序的安装](https://sharrychoo.github.io/blog/2019/11/14/android-source-pkms-install.html) 
+  - [IMS 的启动](https://sharrychoo.github.io/blog/2019/11/19/android-source-ims-launch.html)
+    - [IMS 的事件分发](https://sharrychoo.github.io/blog/2019/11/20/android-source-ims-dispatch.html) 
+  - [WMS 的启动]()
+- [应用进程]()
+  - [Activity 的启动]()
+    - [请求方的暂停]()
+    - [应用进程的创建]()
+    - [目标 Activity 的启动]()
+
 ### [三) 图形架构篇](https://sharrychoo.github.io/blog/2018/08/10/android-source-graphic-overview.html)
-#### 1. 生产进程
- - [Window 和 WindowManager 的关系](https://sharrychoo.github.io/blog/2018/08/11/android-source-graphic-producer1.html)
- - [Window 与 View 的关系](https://sharrychoo.github.io/blog/2018/08/12/android-source-graphic-producer2.html)
- - [ViewRootImpl 与 WMS](https://sharrychoo.github.io/blog/2018/08/20/android-source-graphic-producer3.html)
- - [View 的测量](https://sharrychoo.github.io/blog/2018/09/01/android-source-graphic-producer4.html)
- - [窗体的重置](https://sharrychoo.github.io/blog/2018/09/20/android-source-graphic-producer5.html)
- - [View 的布局](https://sharrychoo.github.io/blog/2018/09/25/android-source-graphic-producer6.html)
- - [View 的软件渲染](https://sharrychoo.github.io/blog/2018/10/10/android-source-graphic-producer7.html)
- - [View 的硬件渲染](https://sharrychoo.github.io/blog/2019/08/14/android-source-graphic-producer8.html)
+- [Window 和 WindowManager 的关系](https://sharrychoo.github.io/blog/2018/08/11/android-source-graphic-producer1.html)
+- [Window 与 View 的关系](https://sharrychoo.github.io/blog/2018/08/12/android-source-graphic-producer2.html)
+- [ViewRootImpl 与 WMS](https://sharrychoo.github.io/blog/2018/08/20/android-source-graphic-producer3.html)
+- [View 的测量](https://sharrychoo.github.io/blog/2018/09/01/android-source-graphic-producer4.html)
+- [窗体的重置](https://sharrychoo.github.io/blog/2018/09/20/android-source-graphic-producer5.html)
+- [View 的布局](https://sharrychoo.github.io/blog/2018/09/25/android-source-graphic-producer6.html)
+- [View 的软件渲染](https://sharrychoo.github.io/blog/2018/10/10/android-source-graphic-producer7.html)
+- [View 的硬件渲染](https://sharrychoo.github.io/blog/2019/08/14/android-source-graphic-producer8.html)
 
-#### 2. 消费进程
- - [SurfaceFlinger 的启动](https://sharrychoo.github.io/blog/2019/10/11/android-source-graphic-consumer1.html)
- - [SurfaceFlinger Hotplug 的处理](https://sharrychoo.github.io/blog/2019/10/15/android-source-graphic-consumer2.html)
- - [SurfaceFlinger 对 Vsync 信号护理](https://sharrychoo.github.io/blog/2019/10/16/android-source-graphic-consumer3.html)
- - [SurfaceFlinger 渲染图层](https://sharrychoo.github.io/blog/2019/10/17/android-source-graphic-consumer4.html)
- 
-### 四) 输入系统
-待补充
-
-### 五) 资源管理篇
+### 四) 资源管理篇
 - [PackageManagerService 启动-解析备份文件](https://sharrychoo.github.io/blog/2019/11/12/android-source-pkms-launch1.html)
 - [PackageManagerService 启动-扫描安装目录](https://sharrychoo.github.io/blog/2019/11/13/android-source-pkms-launch2.html)
 - [应用程序安装](https://sharrychoo.github.io/blog/2019/11/14/android-source-pkms-install.html)
-
-### 六) 虚拟机
-待补充
 
 ## 三. 学习资料
 - <<Android 系统源代码情景分析(第三版)>>
@@ -122,7 +129,7 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 - https://blog.csdn.net/Luoshengyang/article/details/8923485
 - http://gityuan.com/android/
 
-在个人学习的过程中, 以上的资料对我产生了极大的帮助, 尤其是罗老师<<Android 系统源码情景分析>>, 它几乎陪我度过了 2017 年到 2018 年上半年所有的闲暇时光, 在这里对作者表示衷心的感谢
+在个人学习的过程中, 以上的资料对我产生了极大的帮助, 尤其是罗老师 **<<Android 系统源码情景分析>>**, 它几乎陪我度过了 2017 年到 2018 年上半年所有的闲暇时光, 在这里对作者表示衷心的感谢
 
 ## 结语
 **"独学而无友，则孤陋而寡闻"**, 关于上述的文章, 笔者会花时间花心思去完善, 虽然不是高深的知识, 但也是自己积累的点滴, 能够分享给大家还是还开心的, 也希望大家多多批评帮助笔者一起进步
