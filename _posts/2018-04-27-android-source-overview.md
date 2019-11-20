@@ -77,7 +77,7 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
   - [IBinder 对象的实例化](https://sharrychoo.github.io/blog/2018/06/07/android-source-dc-binder3.html) 
 - Linux 内核层
   - [Binder 驱动](https://sharrychoo.github.io/blog/2018/06/10/android-source-dc-binder4.html)
-- [Binder 上下文管理者的启动]
+- Binder 上下文管理者的启动
   - 见系统启动中的 [ServiceManager 启动](https://sharrychoo.github.io/blog/2018/06/15/android-source-servicemanager-start.html)
 - [Binder 通信完整流程](https://sharrychoo.github.io/blog/2018/06/25/android-source-dc-binder5.html)
 
