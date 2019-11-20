@@ -7,9 +7,9 @@ aside:
   toc: true
 ---
 ## 前言
-我们之前在学习系统进程启动的过程中, 知道 **ServiceManager 服务管理进程是通过 init 进程 fork 出来的**, 但是并没有立即分析
+我们之前在学习 Binder 驱动的过程中就提及过 ServiceManager 是 Binder 驱动的上下文管理者
 
-这是因为 ServiceManager 与 Binder 驱动是强关联的, 因此在了解了 Binder 驱动之后, 再回过头来学习 ServiceManager 会更加清晰, 同时也是检验学习成果的一种
+从 init 进程启动过程中我们知道 **ServiceManager 服务管理进程是通过 init 进程 fork 出来的**, 这里我们就分析一下 ServiceManager 的启动流程
 
 ## ServiceManager 的作用
 - Service Manager 是 Binder 进程间通信的核心组件之一
