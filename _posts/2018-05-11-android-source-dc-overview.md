@@ -89,6 +89,5 @@ Binder 驱动用于在 Android 中提供**高效**、**便捷**和**轻量级**�
 
 ## 总结
 Android 数据交互中 Handler 是开发过程中最为常用的, Binder 是在 Android 系统源码中最为常用的, 进程之间的数据交互, 基本上都是使用 Binder
-- 这也是为什么我们在系统启动篇中没有分析 ServiceManager 进程启动的原因, 就是因为它与 Binder 的关联性太强
 
 后面这段时间我们就按照 Handler, Binder 和 Asheme 的顺序依次的学习, 知晓其实现细节, 帮助我们在开发过程中根据场景更好的选用合适数据交互方式
