@@ -8,11 +8,12 @@ aside:
 ---
 
 ## 前言
-上一篇文章中我们留下了很多疑问, 这篇文章我们就对此进行揭秘, 对 Andorid 窗体有所了解的开发者应该知晓, 当 ViewRootImpl 会通过 WindowManagerSession 想 WMS 发起请求创建一个窗体, 对应的实现如下
+上一篇文章中我们留下了很多疑问, 这篇文章我们就对此进行揭秘, 对 Android 窗体有所了解的开发者应该知晓, 当 ViewRootImpl 会通过 WindowManagerSession 向 WMS 发起请求创建一个窗体, 对应的实现如下
 ```java
 public class WindowManagerService extends IWindowManager.Stub {
 
-    final WindowManagerPolicy mPolicy;// 在 WMS 的构造函数中赋值, 其实例为 PhoneWindowManager
+    // 在 WMS 的构造函数中赋值, 其实例为 PhoneWindowManager
+    final WindowManagerPolicy mPolicy;
     final WindowHashMap mWindowMap = new WindowHashMap();
 
     public int addWindow(Session session, IWindow client, int seq,
