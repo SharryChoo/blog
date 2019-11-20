@@ -634,7 +634,7 @@ ActivityThread 的创建非常的简单, 即创建了一个 ResourceManager 对�
 
 ## 总结
 
-![应用进程创建的流程图](E61CC7197DA0459DB21086734B9ADA82)
+![应用进程创建的流程图](https://i.loli.net/2019/11/20/83EGwkQq6YC5uMN.png)
 
 通过 Zygote 创建应用进程还是非常清晰的, 其主要步骤如下
 - 请求发起
