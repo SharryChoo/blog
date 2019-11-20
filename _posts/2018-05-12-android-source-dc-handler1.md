@@ -433,7 +433,8 @@ int Looper::pollInner(int timeoutMillis) {
     - 无消息时会进行睡眠操作, 让出 CPU 资源
     - 有消息时, 从队列中获取可执行的消息返回给 Looper.loop 方法执行
 
-其睡眠操作是睡眠在 eventfd 的读操作中
+**需要注意的是 Native 层的 Looper 虽然名为循环, 但其实内部并没有维护死循环, 而是通过 epoll + eventfd, 实现文件的监听与唤醒**
+- Looper 的这一功能在 Android 运行时库中应用的非常广泛, 如输入事件和 SurfaceFlinger 中都用到了 Looper 实现监听与唤醒
 
 ### 思考
 **为什么 Android 6.0 之后, 将 pipe 更新为 eventfd 呢?**
