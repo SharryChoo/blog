@@ -90,7 +90,7 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 - [SurfaceFlinger 的启动](https://sharrychoo.github.io/blog/2019/10/11/android-source-surfaceflinger-launch.html)
    - [SurfaceFlinger Hotplug 的处理](https://sharrychoo.github.io/blog/2019/10/15/android-source-surfaceflinger-hotplug.html)
    - [SurfaceFlinger 对 Vsync 信号护理](https://sharrychoo.github.io/blog/2019/10/16/android-source-surfaceflinger-vsync.html)
-   - [SurfaceFlinger 渲染图层](https://sharrychoo.github.io/blog/2019/10/17/android-source--surfaceflinger-composer.html)
+   - [SurfaceFlinger 渲染图层](https://sharrychoo.github.io/blog/2019/10/17/android-source-surfaceflinger-composer.html)
 - [Zygote 进程的启动](https://sharrychoo.github.io/blog/2018/08/03/android-source-zygote-process-start.html)
 - [SystemServer 进程的启动](https://sharrychoo.github.io/blog/2018/08/04/android-source-systemserver-process-start.html)
   - [AMS 的启动](https://sharrychoo.github.io/blog/2018/08/05/android-source-ams_start.html)
