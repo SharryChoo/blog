@@ -65,63 +65,62 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 - 底层的知识比较基础
 - 底层的知识点与比较独立, 与其他模块的耦合度较低
 
-### [一) 数据通信篇](https://sharrychoo.github.io/blog/2018/06/11/android-source-dc-overview.html)
+### [一) 数据通信篇](https://sharrychoo.github.io/blog/2018/05/11/android-source-dc-overview.html)
 #### 1. Handler 线程间通信
-- [Looper 的创建与启动](https://sharrychoo.github.io/blog/2018/06/12/android-source-dc-handler1.html)
-- [消息的发送与处理](https://sharrychoo.github.io/blog/2018/06/13/android-source-dc-handler2.html)
-- [MessageQueue 同步屏障技术](https://sharrychoo.github.io/blog/2018/06/14/android-source-dc-handler3.html)
+- [Looper 的创建与启动](https://sharrychoo.github.io/blog/2018/05/12/android-source-dc-handler1.html)
+- [消息的发送与处理](https://sharrychoo.github.io/blog/2018/05/13/android-source-dc-handler2.html)
+- [MessageQueue 同步屏障技术](https://sharrychoo.github.io/blog/2018/05/14/android-source-dc-handler3.html)
 
 #### 2. Binder 驱动
 - 应用层
-  - [通信实例](https://sharrychoo.github.io/blog/2018/07/01/android-source-dc-binder1.html)
-  - [AIDL 与 Binder](https://sharrychoo.github.io/blog/2018/07/05/android-source-dc-binder2.html)
+  - [通信实例](https://sharrychoo.github.io/blog/2018/06/01/android-source-dc-binder1.html)
+  - [AIDL 与 Binder](https://sharrychoo.github.io/blog/2018/06/05/android-source-dc-binder2.html)
 - 运行时库层
-  - [IBinder 对象的实例化](https://sharrychoo.github.io/blog/2018/07/07/android-source-dc-binder3.html) 
+  - [IBinder 对象的实例化](https://sharrychoo.github.io/blog/2018/06/07/android-source-dc-binder3.html) 
 - Linux 内核层
-  - [Binder 驱动](https://sharrychoo.github.io/blog/2018/07/10/android-source-dc-binder4.html)
- 
-  - [Binder 通信完整流程](https://sharrychoo.github.io/blog/2018/07/25/android-source-dc-binder6.html)
+  - [Binder 驱动](https://sharrychoo.github.io/blog/2018/06/10/android-source-dc-binder4.html)
+- [Binder 上下文管理者的启动]
+  - 见系统启动中的 [ServiceManager 启动](https://sharrychoo.github.io/blog/2018/06/15/android-source-servicemanager-start.html)
+- [Binder 通信完整流程](https://sharrychoo.github.io/blog/2018/06/25/android-source-dc-binder5.html)
 
 #### 3. Asheme 共享内存驱动
-- [Ashmem 驱动共享内存驱动](https://sharrychoo.github.io/blog/2018/08/05/android-source-dc-ashmem.html)
+- [Ashmem 驱动共享内存驱动](https://sharrychoo.github.io/blog/2018/07/05/android-source-dc-ashmem.html)
 
 ### 二) 系统启动
-- [Init 进程的启动](https://sharrychoo.github.io/blog/2018/05/30/android-source-systemstart-init-start.html)
-- [ServiceManager 启动](https://sharrychoo.github.io/blog/2018/07/15/android-source-dc-binder5.html)
+- [Init 进程的启动](https://sharrychoo.github.io/blog/2018/07/30/android-source-init-process-start.html)
+- [ServiceManager 启动](https://sharrychoo.github.io/blog/2018/06/15/android-source-servicemanager-start.html)
 - [SurfaceFlinger 的启动](https://sharrychoo.github.io/blog/2019/10/11/android-source-graphic-consumer1.html)
    - [SurfaceFlinger Hotplug 的处理](https://sharrychoo.github.io/blog/2019/10/15/android-source-graphic-consumer2.html)
    - [SurfaceFlinger 对 Vsync 信号护理](https://sharrychoo.github.io/blog/2019/10/16/android-source-graphic-consumer3.html)
    - [SurfaceFlinger 渲染图层](https://sharrychoo.github.io/blog/2019/10/17/android-source-graphic-consumer4.html)
-- [Zygote 进程的启动](https://sharrychoo.github.io/blog/2018/06/03/android-source-systemstart-zygote-start.html)
-- [系统服务进程的启动](https://sharrychoo.github.io/blog/2018/06/04/android-source-systemstart-systemserver-start.html)
-  - [AMS 的启动]()
+- [Zygote 进程的启动](https://sharrychoo.github.io/blog/2018/08/03/android-source-zygote-process-start.html)
+- [SystemServer 进程的启动](https://sharrychoo.github.io/blog/2018/08/04/android-source-systemserver-process-start.html)
+  - [AMS 的启动](https://sharrychoo.github.io/blog/2018/08/05/android-source-ams_start.html)
   - [PMS 的启动](https://sharrychoo.github.io/blog/2019/11/12/android-source-pkms-launch1.html)
     - [解析备份文件](https://sharrychoo.github.io/blog/2019/11/12/android-source-pkms-launch1.html)
     - [扫描安装目录](https://sharrychoo.github.io/blog/2019/11/13/android-source-pkms-launch2.html)
     - [应用程序的安装](https://sharrychoo.github.io/blog/2019/11/14/android-source-pkms-install.html) 
   - [IMS 的启动](https://sharrychoo.github.io/blog/2019/11/19/android-source-ims-launch.html)
     - [IMS 的事件分发](https://sharrychoo.github.io/blog/2019/11/20/android-source-ims-dispatch.html) 
-  - [WMS 的启动]()
-- [应用进程]()
-  - [Activity 的启动]()
-    - [请求方的暂停]()
-    - [应用进程的创建]()
-    - [目标 Activity 的启动]()
+  - [WMS 的启动](https://sharrychoo.github.io/blog/2018/08/06/android-source-wms-start.html)
+- 应用进程
+  - Activity 的启动
+    - [请求方的暂停](https://sharrychoo.github.io/blog/2018/08/07/android-source-activity-launch1.html)
+    - [应用进程的创建](https://sharrychoo.github.io/blog/2018/08/08/android-source-activity-launch2.html)
+    - [目标 Activity 的启动](https://sharrychoo.github.io/blog/2018/08/09/android-source-activity-launch3.html)
 
 ### [三) 图形架构篇](https://sharrychoo.github.io/blog/2018/08/10/android-source-graphic-overview.html)
 - [Window 和 WindowManager 的关系](https://sharrychoo.github.io/blog/2018/08/11/android-source-graphic-producer1.html)
 - [Window 与 View 的关系](https://sharrychoo.github.io/blog/2018/08/12/android-source-graphic-producer2.html)
-- [ViewRootImpl 与 WMS](https://sharrychoo.github.io/blog/2018/08/20/android-source-graphic-producer3.html)
+- [ViewRootImpl 与 WMS 的通信](https://sharrychoo.github.io/blog/2018/08/20/android-source-graphic-producer3.html)
 - [View 的测量](https://sharrychoo.github.io/blog/2018/09/01/android-source-graphic-producer4.html)
-- [窗体的重置](https://sharrychoo.github.io/blog/2018/09/20/android-source-graphic-producer5.html)
+- [ViewRootImpl 的 Surface 创建](https://sharrychoo.github.io/blog/2018/09/20/android-source-graphic-producer5.html)
 - [View 的布局](https://sharrychoo.github.io/blog/2018/09/25/android-source-graphic-producer6.html)
 - [View 的软件渲染](https://sharrychoo.github.io/blog/2018/10/10/android-source-graphic-producer7.html)
 - [View 的硬件渲染](https://sharrychoo.github.io/blog/2019/08/14/android-source-graphic-producer8.html)
 
 ### 四) 资源管理篇
-- [PackageManagerService 启动-解析备份文件](https://sharrychoo.github.io/blog/2019/11/12/android-source-pkms-launch1.html)
-- [PackageManagerService 启动-扫描安装目录](https://sharrychoo.github.io/blog/2019/11/13/android-source-pkms-launch2.html)
-- [应用程序安装](https://sharrychoo.github.io/blog/2019/11/14/android-source-pkms-install.html)
+待补充
 
 ## 三. 学习资料
 - <<Android 系统源代码情景分析(第三版)>>
