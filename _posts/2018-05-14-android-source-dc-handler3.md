@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 数据通信篇 之 MessageQueue 的同步屏障"
-key: "Android 系统架构 —— 数据通信篇 之 MessageQueue 的同步屏障" 
+title: "Android 系统架构 —— MessageQueue 的同步屏障"
+key: "Android 系统架构 —— MessageQueue 的同步屏障" 
 tags: AndroidFramework
 aside:
   toc: true

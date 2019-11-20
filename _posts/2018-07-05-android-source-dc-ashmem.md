@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 数据通信篇 之 Ashmem 共享内存驱动"
-key: "Android 系统架构 —— 数据通信篇 之 Ashmem 共享内存驱动" 
+title: "Android 系统架构 —— Ashmem 共享内存驱动"
+key: "Android 系统架构 —— Ashmem 共享内存驱动" 
 tags: AndroidFramework
 aside:
   toc: true

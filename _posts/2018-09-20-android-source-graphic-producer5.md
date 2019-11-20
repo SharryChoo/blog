@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 图形架构篇 之 窗体的重置"
-key: "Android 系统架构 —— 图形架构篇 之 窗体的重置" 
+title: "Android 系统架构 —— ViewRootImpl 的 Surface 创建"
+key: "Android 系统架构 —— ViewRootImpl 的 Surface 创建" 
 tags: AndroidFramework
 aside:
   toc: true

@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 资源管理篇 之 PKMS 的启动(一)"
-key:  "Android 系统架构 —— 资源管理篇 之 PKMS 的启动(一)"
+title: "Android 系统架构 —— PKMS 的启动 之 备份文件的解析"
+key:  "Android 系统架构 —— PKMS 的启动 之 备份文件的解析"
 tags: AndroidFramework
 aside:
   toc: true

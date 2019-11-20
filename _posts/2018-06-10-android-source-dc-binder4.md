@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 数据通信篇 之 Binder 驱动"
-key: "Android 系统架构 —— 数据通信篇 之 Binder 驱动" 
+title: "Android 系统架构 —— Binder 驱动"
+key: "Android 系统架构 —— Binder 驱动" 
 tags: AndroidFramework
 aside:
   toc: true

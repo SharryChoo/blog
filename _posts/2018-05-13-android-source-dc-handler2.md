@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 数据通信篇 之 线程消息的发送与处理"
-key: "Android 系统架构 —— 数据通信篇 之 线程消息的发送与处理" 
+title: "Android 系统架构 —— 线程消息的发送与处理"
+key: "Android 系统架构 —— 线程消息的发送与处理" 
 tags: AndroidFramework
 aside:
   toc: true

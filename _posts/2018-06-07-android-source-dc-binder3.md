@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 数据通信篇 之 IBinder 对象的实例化"
-key: "Android 系统架构 —— 数据通信篇 之 IBinder 对象的实例化" 
+title: "Android 系统架构 —— IBinder 对象的实例化"
+key: "Android 系统架构 —— IBinder 对象的实例化" 
 tags: AndroidFramework
 aside:
   toc: true

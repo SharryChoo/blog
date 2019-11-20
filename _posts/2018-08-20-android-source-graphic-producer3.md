@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 图形架构篇 之 ViewRootImpl 与 WMS"
-key: "Android 系统架构 —— 图形架构篇 之 ViewRootImpl 与 WMS"
+title: "Android 系统架构 —— ViewRootImpl 与 WMS 通信"
+key: "Android 系统架构 —— ViewRootImpl 与 WMS 通信"
 tags: AndroidFramework
 aside:
   toc: true

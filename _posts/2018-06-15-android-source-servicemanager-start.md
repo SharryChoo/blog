@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 数据通信篇 之 ServiceManager 进程的启动"
-key: "Android 系统架构 —— 数据通信篇 之 ServiceManager 进程的启动" 
+title: "Android 系统架构 —— ServiceManager 进程的启动"
+key: "Android 系统架构 —— ServiceManager 进程的启动" 
 tags: AndroidFramework
 aside:
   toc: true

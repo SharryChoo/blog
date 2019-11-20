@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 图形架构篇 之 View 的测量"
-key: "Android 系统架构 —— 图形架构篇 之 View 的测量" 
+title: "Android 系统架构 —— View 的测量"
+key: "Android 系统架构 —— View 的测量" 
 tags: AndroidFramework
 aside:
   toc: true

@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 图形架构篇 之 SurfaceFlinger 对 Hotplug 事件的处理"
-key: "Android 系统架构 —— 图形架构篇 之 SurfaceFlinger 对 Hotplug 事件的处理"
+title: "Android 系统架构 —— SurfaceFlinger 对 Hotplug 事件的处理"
+key: "Android 系统架构 —— SurfaceFlinger 对 Hotplug 事件的处理"
 tags: AndroidFramework
 aside:
   toc: true

@@ -1,15 +1,15 @@
 ---
 layout: article
-title: "Android 系统架构 —— 数据通信篇 之 Binder 进程间通信的流程"
-key: "Android 系统架构 —— 数据通信篇 之 Binder 进程间通信的流程" 
+title: "Android 系统架构 —— Binder 进程间通信的流程"
+key: "Android 系统架构 —— Binder 进程间通信的流程" 
 tags: AndroidFramework
 aside:
   toc: true
 ---
 ## 前言
-前面学习了 ServiceManager 的启动, 知晓了它是 Binder 驱动上下文的管理者, 这里便通过一次完成的 Binder 通信来对学习的知识进行一次汇总
+ServiceManager 的启动, 关于它的启动流程可以[点击查看](https://sharrychoo.github.io/blog/2018/06/15/android/source/servicemanager/start.html)这篇文章
 
-通过 SystemService 与 ServiceManager 进程的交互, 学习一下整个 Binder 通信的流程
+它是 Binder 驱动上下文的管理者, 这里便通过一次完成的 Binder 通信来对学习的知识进行一次汇总, 通过 SystemService 与 ServiceManager 进程的交互, 学习一下整个 Binder 通信的流程
 
 <!--more-->
 

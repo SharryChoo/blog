@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 数据通信篇 之 Binder 通信实例"
-key: "Android 系统架构 —— 数据通信篇 之 Binder 通信实例" 
+title: "Android 系统架构 —— Binder 通信实例"
+key: "Android 系统架构 —— Binder 通信实例" 
 tags: AndroidFramework
 aside:
   toc: true

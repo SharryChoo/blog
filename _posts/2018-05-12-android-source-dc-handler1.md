@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 数据通信篇 之 Looper 的创建与启动"
-key: "Android 系统架构 —— 数据通信篇 之 Looper 的创建与启动" 
+title: "Android 系统架构 —— Looper 的创建与启动"
+key: "Android 系统架构 —— Looper 的创建与启动" 
 tags: AndroidFramework
 aside:
   toc: true

@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 图形架构篇 之 SurfaceFlinger 渲染图层"
-key: "Android 系统架构 —— 图形架构篇 之 SurfaceFlinger 渲染图层" 
+title: "Android 系统架构 —— SurfaceFlinger 渲染图层"
+key: "Android 系统架构 —— SurfaceFlinger 渲染图层" 
 tags: AndroidFramework
 aside:
   toc: true

@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 图形架构篇之 Window 与 WindowManager 的关系"
-key: "Android 系统架构 —— 图形架构篇之 Window 与 WindowManager 的关系" 
+title: "Android 系统架构 —— Window 与 WindowManager 的关系"
+key: "Android 系统架构 —— Window 与 WindowManager 的关系" 
 tags: AndroidFramework
 aside:
   toc: true

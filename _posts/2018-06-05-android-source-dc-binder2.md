@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 数据通信篇 之 AIDL 与 Binder"
-key: "Android 系统架构 —— 数据通信篇 之 AIDL 与 Binder" 
+title: "Android 系统架构 —— AIDL 与 Binder"
+key: "Android 系统架构 —— AIDL 与 Binder" 
 tags: AndroidFramework
 aside:
   toc: true

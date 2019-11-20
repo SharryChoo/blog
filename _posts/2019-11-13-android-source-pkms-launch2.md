@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 资源管理篇 之 PKMS 的启动(二)"
-key:  "Android 系统架构 —— 资源管理篇 之 PKMS 的启动(二)"
+title: "Android 系统架构 —— PKMS 的启动 之 应用目录的扫描"
+key:  "Android 系统架构 —— PKMS 的启动 之 应用目录的扫描"
 tags: AndroidFramework
 aside:
   toc: true

@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 资源管理篇 之 应用的安装"
-key:  "Android 系统架构 —— 资源管理篇 之 应用的安装"
+title: "Android 系统架构 —— PMS 之 应用的安装流程"
+key:  "Android 系统架构 —— PMS 之 应用的安装流程"
 tags: AndroidFramework
 aside:
   toc: true

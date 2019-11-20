@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 图形架构篇 之 SurfaceFlinger 的启动"
-key: "Android 系统架构 —— 图形架构篇 之 SurfaceFlinger 的启动" 
+title: "Android 系统架构 —— SurfaceFlinger 的启动"
+key: "Android 系统架构 —— SurfaceFlinger 的启动" 
 tags: AndroidFramework
 aside:
   toc: true
