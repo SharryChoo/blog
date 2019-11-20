@@ -102,10 +102,13 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
     - [IMS 的事件分发](https://sharrychoo.github.io/blog/2019/11/20/android-source-ims-dispatch.html) 
   - [WMS 的启动](https://sharrychoo.github.io/blog/2018/08/06/android-source-wms-start.html)
 - 应用进程
-  - Activity 的启动
-    - [请求方的暂停](https://sharrychoo.github.io/blog/2018/08/07/android-source-activity-launch1.html)
-    - [应用进程的创建](https://sharrychoo.github.io/blog/2018/08/08/android-source-activity-launch2.html)
+  - Activity
+    - [请求 Activity 的暂停](https://sharrychoo.github.io/blog/2018/08/07/android-source-activity-launch1.html)
+    - [目标应用进程的创建](https://sharrychoo.github.io/blog/2018/08/08/android-source-activity-launch2.html)
     - [目标 Activity 的启动](https://sharrychoo.github.io/blog/2018/08/09/android-source-activity-launch3.html)
+  - Service
+    - [Service 的启动](https://sharrychoo.github.io/blog/2018/12/01/android-source-service-launch.html)
+    - [Service 的绑定](https://sharrychoo.github.io/blog/2018/12/05/android-source-service-bind.html)
 
 ### [三) 图形架构篇](https://sharrychoo.github.io/blog/2018/08/10/android-source-graphic-overview.html)
 - [Window 和 WindowManager 的关系](https://sharrychoo.github.io/blog/2018/08/11/android-source-graphic-producer1.html)
