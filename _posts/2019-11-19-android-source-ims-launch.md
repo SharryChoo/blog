@@ -1176,7 +1176,7 @@ KeyEntry -> DispatchEntry -> InputMessage
 
 ## 后记
 这次 IMS 的启动我们分析了很多, 但是仍然留下了几个疑问
-- **mFocusedWindowHandle 焦点窗体是如何创建的?**
+- **描述 IMS 和焦点窗体的连接 Connection 是怎么来的?**
 - **InputChannel 是怎么创建的?**
 - **InputChannel 的 sendMessage 将这个事件发向了何方?**
 - **应用进程是如何接收到输入事件的?**
