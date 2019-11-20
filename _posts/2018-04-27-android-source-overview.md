@@ -121,13 +121,16 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 - [View 的硬件渲染](https://sharrychoo.github.io/blog/2019/08/14/android-source-graphic-producer8.html)
 
 ### 四) 资源管理篇
-待补充
+待补充: 可查看 yjy 的博客
+- [Android 重学系列 资源管理系统 资源的初始化加载(上)](https://www.jianshu.com/p/817a787910f2)
+- [Android 重学系列 资源管理系统 资源的初始化加载(下)](https://www.jianshu.com/p/02a2539890dc)
+- [Android 重学系列 资源的查找](https://www.jianshu.com/p/b153d63d60b3)
 
 ## 三. 学习资料
-- <<Android 系统源代码情景分析(第三版)>>
-- <<深入理解 Linux 内核>>
-- https://blog.csdn.net/Luoshengyang/article/details/8923485
-- http://gityuan.com/android/
+- [<<Android 系统源代码情景分析(第三版)>>](http://product.dangdang.com/25173853.html)
+- [<<深入理解 Linux 内核>>](http://product.dangdang.com/20046247.html)
+- [https://blog.csdn.net/Luoshengyang/article/details/8923485](https://blog.csdn.net/Luoshengyang/article/details/8923485)
+- [http://gityuan.com/android/](http://gityuan.com/android/)
 
 在个人学习的过程中, 以上的资料对我产生了极大的帮助, 尤其是罗老师 **<<Android 系统源码情景分析>>**, 它几乎陪我度过了 2017 年到 2018 年上半年所有的闲暇时光, 在这里对作者表示衷心的感谢
 
