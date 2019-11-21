@@ -3,8 +3,7 @@ layout: article
 title: "Android 系统架构 —— 概览"
 key: "Android 系统架构 —— 概览" 
 tags: AndroidFramework
-aside:
-  toc: true
+show_date: false
 ---
 
 ## 前言
@@ -14,6 +13,8 @@ aside:
 - 了解 Android 系统运行方式, 更好的追踪和解决开发中的问题
 - 学习 Android 系统中优秀的设计方案, 即时 Android 离开历史的舞台, 我们也能够将一些好的思想记录下来
 
+<!--more-->
+
 在学习 Android 系统架构的过程中, 留下印象最深刻的便是, **很难将零散的 Android 知识组织成自己的知识体系**
 - 比如在学习系统服务进程时, 因为其涉及到了 Binder 驱动, 于是不得不去补 Binder 驱动的知识, Binder 驱动定义在 Linux 内核中, 不得不去补 Linux 内核的知识
 
@@ -21,8 +22,6 @@ aside:
 - 应用层开发基础
 - C/C++ 基础
 - Linux 内核机制
-
-<!--more-->
 
 下面从广义上了解一下 Android 系统的组成
 
