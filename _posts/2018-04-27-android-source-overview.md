@@ -100,7 +100,8 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
     - [扫描安装目录](https://sharrychoo.github.io/blog/2019/11/13/android-source-pkms-launch2.html)
     - [应用程序的安装](https://sharrychoo.github.io/blog/2019/11/14/android-source-pkms-install.html) 
   - [IMS 的启动](https://sharrychoo.github.io/blog/2019/11/19/android-source-ims-launch.html)
-    - [IMS 的事件分发](https://sharrychoo.github.io/blog/2019/11/20/android-source-ims-dispatch.html) 
+    - [IMS 的事件分发](https://sharrychoo.github.io/blog/2019/11/20/android-source-ims-dispatch.html)
+    - [View 的事件分发](https://sharrychoo.github.io/blog/2018/10/15/android-source-view-dispatch.html)
   - [WMS 的启动](https://sharrychoo.github.io/blog/2018/08/06/android-source-wms-start.html)
 - 应用进程
   - Activity

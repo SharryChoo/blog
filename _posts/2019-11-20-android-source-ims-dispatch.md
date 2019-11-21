@@ -580,23 +580,26 @@ public final class ViewRootImpl implements ViewParent,
     private void deliverInputEvent(QueuedInputEvent q) {
         ......
         InputStage stage;
-        if (q.shouldSendToSynthesizer()) {
-            ......
-        } else {
-            stage = q.shouldSkipIme() ? mFirstPostImeInputStage : mFirstInputStage;
-        }
         if (stage != null) {
             ......
             // 调用 stage.deliver 分发事件, 它的对象在 setView 中构建
             stage.deliver(q);
         } else {
-            ......
+            // 描述事件分发完毕
+            finishInputEvent(q);
         }
     }
                
 }
 ```
-可以看到 doProcessInputEvents 最终会**调用 InputStage.deliver 进行 InputEvent 的分发**, ViewRootImpl 中的 InputState 对象是在 setView 时初始化的, **我们主要看看 ViewPostImeInputStage 的实现**
+可以看到 doProcessInputEvents 会调用 deliverInputEvnet 来分发这个事件
+- 调用 InputStage 启动事件分发
+- 调用 finishInputEvent 结束事件分发
+
+接下来我们就从这两个方面看看应用层事件分发的流程
+
+### 一) 事件分发的启动
+**调用 InputStage.deliver 进行 InputEvent 的分发**, ViewRootImpl 中的 InputState 对象是在 setView 时初始化的, **我们主要看看 ViewPostImeInputStage 的实现**
 
 ```java
 public final class ViewRootImpl implements ViewParent,
@@ -647,7 +650,7 @@ public final class ViewRootImpl implements ViewParent,
 ```
 好的, 可以看到 InputState.deliver 中回调了子类重写的 onProcess, ViewPostImeInputStage 中调用 processPointerEvent 方法, **最终会回调 DecorView 的 dispatchPointerEvent 方法**
 
-### 一) DecorView 的事件分发
+#### 1. DecorView 的事件分发
 ```java
 public class View implements Drawable.Callback, KeyEvent.Callback,
         AccessibilityEventSource {
@@ -701,7 +704,7 @@ public class Activity extends ContextThemeWrapper {
 ```
 原来**若是在 Activity 中创建的 Window, 那么这个 Window 的 Callback 就为 Activity**
 
-### 二) Activity 的事件分发
+#### 2. Activity 的事件分发
 ```java
 public class Activity extends ContextThemeWrapper {
     
@@ -743,535 +746,234 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     
 }
 ```
-好的, 兜兜转转最后还是回调了 View 的 dispatchTouchEvent 方法, 下面我们来分析 ViewGroup 的事件分发
+好的, 兜兜转转最后还是回调了 View 的 dispatchTouchEvent 方法, 从此便进入的 View 的事件分发流程, 我们到下一篇文章中再进程阐述
 
-### 三) ViewGroup 的事件分发
-Android 支持多指触控的, 因此一个事件序列存在多个焦点, 在 MotionEvent 中用 PointerId 描述, 好的了解了这个基础知识之后, 我们便看看 ViewGroup 的 dispatchTouchEvent
+接下来看看 finishInputEvent 结束事件分发执行了哪些操作
+
+### 二) 事件分发的结束
 ```java
-public abstract class ViewGroup extends View implements ViewParent, ViewManager {
-    
-    // TouchTarget 描述一个事件序列的响应者 从 DOWN -> UP | POINTER_DOWN -> POINTER_UP
-    // mFirstTouchTarget 为所有事件序列的链表头
-    private TouchTarget mFirstTouchTarget;
-    
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
+public final class ViewRootImpl implements ViewParent,
+        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
+        
+    private void finishInputEvent(QueuedInputEvent q) {
         ......
-        boolean handled = false;
-        // 过滤不安全的事件
-        if (onFilterTouchEventForSecurity(ev)) {
-            // 获取事件的类型
-            final int action = ev.getAction();
-            final int actionMasked = action & MotionEvent.ACTION_MASK;
-            // 若为 ACTION_DOWN, 则说明是一个全新的事件序列
-            if (actionMasked == MotionEvent.ACTION_DOWN) {
-                cancelAndClearTouchTargets(ev);   // 清空所有 TouchTarget
-                resetTouchState();                // 清空所有触摸状态
-            }
-            // 1. 处理事件拦截
-            final boolean intercepted;
-            // 1.1 若为初始事件 或 当前容器存在子 View 正在消费事件, 则尝试拦截
-            if (actionMasked == MotionEvent.ACTION_DOWN || mFirstTouchTarget != null) {
-                // 1.1.1 判断当前 ViewGroup 的 Flag 中是否设置了 不允许拦截事件
-                // 通过 ViewGroup.requestDisallowInterceptTouchEvent 进行设置, 常用于内部拦截法, 由子 View 控制容器的行为
-                final boolean disallowIntercept = (mGroupFlags & FLAG_DISALLOW_INTERCEPT) != 0;
-                if (!disallowIntercept) {
-                    // 若允许拦截, 则调用 onInterceptTouchEvent, 尝试进行拦截
-                    intercepted = onInterceptTouchEvent(ev);
-                    ev.setAction(action);
-                } else {
-                    // 不允许拦截, 则直接将标记为置为 false
-                    intercepted = false;
-                }
-            } else {
-                // 1.2 若非初始事件, 并且没有子 View 响应事件中的焦点, 则自己拦截下来由自己处理
-                // 自己处理不代表一定能消费, 这点要区分开来
-                intercepted = true;
-            }
+        if (q.mReceiver != null) {
+            boolean handled = (q.mFlags & QueuedInputEvent.FLAG_FINISHED_HANDLED) != 0;
+            // 调用了 InputEventReceiver 的 finishInputEvent 方法
+            q.mReceiver.finishInputEvent(q.mEvent, handled);
+        } else {
             ......
-            // 判断当前容器是否被取消了响应事件
-            final boolean canceled = resetCancelNextUpFlag(this)
-                    || actionMasked == MotionEvent.ACTION_CANCEL;
+        }
+    }
+    
+}
+
+public abstract class InputEventReceiver {
+    
+    public final void finishInputEvent(InputEvent event, boolean handled) {
+        ......
+        if (mReceiverPtr == 0) {
             ......
-            // 判断是否需要拆分 MotionEvent
-            final boolean split = (mGroupFlags & FLAG_SPLIT_MOTION_EVENTS) != 0;
-            TouchTarget newTouchTarget = null;                // 描述响应的目标
-            boolean alreadyDispatchedToNewTouchTarget = false;// 描述这个事件是否分发给了新的 TouchTarget
-            if (!canceled && !intercepted) {
+        } else {
+            ......
+            if (index < 0) {
                 ......
-                // 2. 若为 ACTION_DOWN 或者 ACTION_POINTER_DOWN, 则说明当前事件序列出现了一个新的焦点, 则找寻该焦点的处理者
-                if (actionMasked == MotionEvent.ACTION_DOWN
-                        || (split && actionMasked == MotionEvent.ACTION_POINTER_DOWN)
-                        || actionMasked == MotionEvent.ACTION_HOVER_MOVE) { 
-                    // 2.1 获取焦点的索引(第一个手指的 down 为 0, 第二个手指的 down 为 1)
-                    final int actionIndex = ev.getActionIndex(); // always 0 for down
-                    // 将焦点的索引序号映射成二进制位, 用于后续保存在 TouchTarget 的 pointerIdBits 中
-                    // 0 -> 1, 1 -> 10, 2 -> 100
-                    final int idBitsToAssign = split ? 1 << ev.getPointerId(actionIndex) : TouchTarget.ALL_POINTER_IDS;
-                    // 清理 TouchTarget 中对历史遗留的 idBitsToAssign 的缓存
-                    removePointersFromTouchTargets(idBitsToAssign);
-                    final int childrenCount = mChildrenCount;
-                    if (newTouchTarget == null && childrenCount != 0) {
-                        // 2.2 获取事件在当前容器中的相对位置
-                        final float x = ev.getX(actionIndex);
-                        final float y = ev.getY(actionIndex);
-                        // 获取当前容器前序遍历的 View 序列(即层级从高到低排序)
-                        final ArrayList<View> preorderedList = buildTouchDispatchChildList();
-                        // 2.3 遍历子 View, 找寻可以响应事件的目标
-                        final boolean customOrder = preorderedList == null
-                                && isChildrenDrawingOrderEnabled();
-                        final View[] children = mChildren;
-                        for (int i = childrenCount - 1; i >= 0; i--) {
-                            // 通过索引找到子孩子实例
-                            final int childIndex = getAndVerifyPreorderedIndex(
-                                    childrenCount, i, customOrder);
-                            final View child = getAndVerifyPreorderedView(
-                                    preorderedList, children, childIndex);
-                            ......
-                            // 2.3.1 判断这个子 View 是否在响应事件的区域
-                            if (!canViewReceivePointerEvents(child)
-                                    || !isTransformedTouchPointInView(x, y, child, null)) {
-                                ......
-                                // 若不在可响应的区域, 则继续遍历下一个子 View
-                                continue;
-                            }
-                            // 2.3.2 判断获取这个子 View, 是否已经响应了序列中的一个焦点
-                            newTouchTarget = getTouchTarget(child);
-                            if (newTouchTarget != null) {
-                                // 若这个 View 已经响应了一个焦点, 则在它的 TouchTarget.pointerIdBits 添加新焦点的索引
-                                newTouchTarget.pointerIdBits |= idBitsToAssign;
-                                // 则直接结束查找, 直接进行后续的分发操作
-                                break;
-                            }
-                            ......
-                            // 2.3.3 调用 dispatchTransformedTouchEvent 尝试将这个焦点分发给这个 View 处理
-                            if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {
-                                ......
-                                // 子 View 成功的消费了这个事件, 则将这个 View 封装成 TouchTarget 链到表头
-                                newTouchTarget = addTouchTarget(child, idBitsToAssign);
-                                // 表示这个事件在找寻新的响应目标时已经消费了
-                                alreadyDispatchedToNewTouchTarget = true;
-                                break;
-                            }
-                            ......
-                        }
-                        ......
-                    }
-                    // 2.4 若没有找到可以响应的子 View, 则交由最早的 TouchTarget 处理
-                    if (newTouchTarget == null && mFirstTouchTarget != null) {
-                        newTouchTarget = mFirstTouchTarget;
-                        while (newTouchTarget.next != null) {
-                            newTouchTarget = newTouchTarget.next;
-                        }
-                        // 在其 pointerIdBits 保存焦点的 ID 
-                        newTouchTarget.pointerIdBits |= idBitsToAssign;
-                    }
-                }
-            }
-            // 3. 执行事件分发
-            // 3.1 没有任何子 View 可以响应事件序列, 则交由自己处理
-            if (mFirstTouchTarget == null) {
-                handled = dispatchTransformedTouchEvent(ev, canceled, null,
-                        TouchTarget.ALL_POINTER_IDS);
             } else {
-                // 3.2 若存在子 View 响应事件序列, 则将这个事件分发下去
-                TouchTarget predecessor = null;
-                TouchTarget target = mFirstTouchTarget;
-                while (target != null) {
-                    final TouchTarget next = target.next;
-                    // 3.2.1 alreadyDispatchedToNewTouchTarget 为 true 并且 target 为我们上面新找到的响应目标时, 跳过这次分发
-                    // 因为在查找焦点处理者的过程中, 已经分发给这个 View 了
-                    if (alreadyDispatchedToNewTouchTarget && target == newTouchTarget) {
-                        handled = true;
-                    } else {
-                        // 3.2.2 处理还未消耗这个事件的子 View
-                        final boolean cancelChild = resetCancelNextUpFlag(target.child)
-                                || intercepted;// 判断是否需要给 View 发送 CANCEL 事件, view 设置了 PFLAG_CANCEL_NEXT_UP_EVENT 这个 Flag, 或者这个事件被该容器拦截了, 那么将会给子 View 发送 Cancel 事件
-                        // 3.2.2 调用 dispatchTransformedTouchEvent 将事件分发给子 View 
-                        if (dispatchTransformedTouchEvent(ev, cancelChild,
-                                target.child, target.pointerIdBits)) {
-                            handled = true;
-                        }
-                        // 3.2.3 若给这个 View 分发了 cancel 事件, 则说明它已经无法响应事件序列的焦点了, 因此将它从响应链表中移除
-                        if (cancelChild) {
-                            if (predecessor == null) {
-                                mFirstTouchTarget = next;
-                            } else {
-                                predecessor.next = next;
-                            }
-                            target.recycle();
-                            target = next;
-                            continue;
-                        }
-                    }
-                    predecessor = target;
-                    target = next;
-                }
-            } 
-            // 4. 清理失效的 TouchTarget
-            // 4.1 若事件序列取消 或 整个事件 UP 了, 则移除所有的 TouchTarget
-            if (canceled || actionMasked == MotionEvent.ACTION_UP || actionMasked == MotionEvent.ACTION_HOVER_MOVE) {
-                resetTouchState();
-            } else if (split && actionMasked == MotionEvent.ACTION_POINTER_UP) {
-                // 4.2 若事件序列的一个焦点 UP 了, 则移除响应这个焦点的 TouchTarget
-                final int actionIndex = ev.getActionIndex();
-                final int idBitsToRemove = 1 << ev.getPointerId(actionIndex);
-                removePointersFromTouchTargets(idBitsToRemove);
+                ......
+                // 到了 Native 层结束事件分发
+                nativeFinishInputEvent(mReceiverPtr, seq, handled);
             }
         }
         ......
-        return handled;
     }
     
 }
 ```
-好的, 可以看到上述的步骤非常复杂的, 其注释已经非常详细了, 总结下来其实就三点
-- 若为初始事件或该容器能够处理该事件, 则尝试拦截
-  - 若为初始事件或事件被他处理了, 则尝试拦截, 当然还与是否设置了 FLAG_DISALLOW_INTERCEPT 有关
-- 若为初始事件或事件序列的新焦点, 则在容器内部找寻能够响应它的子 View
-  - 通过 canViewReceivePointerEvents 和 isTransformedTouchPointInView 判断是否落在了 View 的区域内
-- 若无响应目标, 则自行处理, 若存在响应目标, 则将事件分发给响应目标
+可以看到 finishInputEvent 最终会调用到 InputEventReceiver 的 nativeFinishInputEvent, 它主要是负责向 IMS 发送回执信息, 下面看看它的实现
 
-以上过程有两个疑问
-- **当事件的新焦点到来时, 它是如何找寻能够响应它的子 View 的, 仅仅根据坐标这么简单吗?**
-- 在事件分发时, 我们看到 ViewGroup 遍历了所有的 TouchTarget 对它们逐一进行事件分发, **直接分发给这事件对应焦点的处理者不就可以了吗, 为什么要分发给事件序列所有焦点的处理者呢?**
+#### 1. 客户发送回执信息
+```
+// frameworks/base/core/jni/android_view_InputEventReceiver.cpp
+static void nativeFinishInputEvent(JNIEnv* env, jclass clazz, jlong receiverPtr,
+        jint seq, jboolean handled) {
+    // 调用了 NativeInputEventReceiver 的 finishInputEvent
+    sp<NativeInputEventReceiver> receiver =
+            reinterpret_cast<NativeInputEventReceiver*>(receiverPtr);
+    status_t status = receiver->finishInputEvent(seq, handled);
+    ......
+}
 
-我们先看看第一个问题
-
-#### 1. 找寻事件的响应目标
-从 ViewGroup 的 dispatchTouchEvent 中, 我们知道判断一个 View 是否可以响应事件主要有两个方法分别是 canViewReceivePointerEvents 和 isTransformedTouchPointInView, 这里我们一个一个探究
-```java
-public abstract class ViewGroup extends View implements ViewParent, ViewManager {
-    
-    private static boolean canViewReceivePointerEvents(@NonNull View child) {
-        // Condition1: View 为 Visible
-        // Condition2: 当前 View 设置了动画
-        return (child.mViewFlags & VISIBILITY_MASK) == VISIBLE
-                || child.getAnimation() != null;
-    }
-    
+status_t NativeInputEventReceiver::finishInputEvent(uint32_t seq, bool handled) {
+    ......
+    // 调用了 InputChannel 的 sendFinishedSignal 向服务端发送了一个执行结束的指令
+    status_t status = mInputConsumer.sendFinishedSignal(seq, handled);
+    ......
+    return status;
 }
 ```
-可以看到 canViewReceivePointerEvents 中, 若 View 是可见的 或 View 存在动画, 则说明它可以接收事件, 可以看到这个方法是根据 View 的状态来判断是否可以接收事件的, 具体是否能够接收事件还是得看后面一个方法
+好的, 最终调用了 InputChannel 的 sendFinishedSignal 通知服务端应用进程的事件分发完毕了
 
-接下来我们看看 isTransformedTouchPointInView 这个方法做了哪些判断
-```java
-public abstract class ViewGroup extends View implements ViewParent, ViewManager {
-    
-    protected boolean isTransformedTouchPointInView(float x, float y, View child,
-            PointF outLocalPoint) {
-        // 1. 获取一个坐标数组, 数据为事件在当前 ViewGroup 中的相对坐标 x, y 值
-        final float[] point = getTempPoint();
-        point[0] = x;
-        point[1] = y;
-        // 2. 调用了 transformPointToViewLocal, 将坐标转为 Child 的相对坐标
-        transformPointToViewLocal(point, child);
-        // 3. 调用了 View.pointInView 判断坐标是否落在了 View 中
-        final boolean isInView = child.pointInView(point[0], point[1]);
-        // 若在子 View 中, 则尝试输出到 outLocalPoint 中, dispatchToucEvent 中传入的为 null
-        if (isInView && outLocalPoint != null) {
-            outLocalPoint.set(point[0], point[1]);
-        }
-        return isInView;
-    }
-    
-     public void transformPointToViewLocal(float[] point, View child) {
-        // 2.1 将 point 转为 View 的相对坐标
-        point[0] += mScrollX - child.mLeft;
-        point[1] += mScrollY - child.mTop;
-        // 2.2 若 View 设置了 Matrix 变化, 则通过 Matrix 来映射这个坐标
-        if (!child.hasIdentityMatrix()) {
-            child.getInverseMatrix().mapPoints(point);
-        }
-    }
-    
-}
+还记得我们上面 IMS 注册 InputChannel 的过程吗, 它使用 InputDispatcher 内部的 mLooper 监听了服务端的 socket 端口, 有数据会回调 handleReceiveCallback, 下面我们看看服务端收到了回执消息之后的处理
 
-public class View implements Drawable.Callback, KeyEvent.Callback,
-        AccessibilityEventSource {
-    
-    final boolean pointInView(float localX, float localY) {
-        return pointInView(localX, localY, 0);
-    }
-    
-    public boolean pointInView(float localX, float localY, float slop) {
-        // 很简单, 即判断是否落在 View 的区域内, 小于 View 的宽度和高度
-        // slop 为当前 Android 系统能够识别出来的手指区域的大小
-        return localX >= -slop && localY >= -slop && localX < ((mRight - mLeft) + slop) &&
-                localY < ((mBottom - mTop) + slop);
-    }
-    
-}
+#### 2. 服务端处理回执信息
 ```
-好的, 可以看到 isTransformedTouchPointInView 中判断其是否可以响应事件的依据是判断事件的相对坐标是否落在了子 View 的宽高之内
+// frameworks/native/services/inputflinger/InputDispatcher.cpp
+int InputDispatcher::handleReceiveCallback(int fd, int events, void* data) {
+    InputDispatcher* d = static_cast<InputDispatcher*>(data);
 
-不过**这里有一个细微的操作, 它会调用 child.getInverseMatrix().mapPoints(point); 来映射一次坐标, 这是为什么呢?**
-- 因为我们在执行属性动画的时候, 有的时候会进行 View 的 transition, scale 等操作, 这些操作并不会改变 View 的原始坐标, 但会改变它内部的 RenderNode 的 Matrix, **进行坐标映射, 是为了让 View 在变化后的区域依旧可以响应事件流, 这就是为什么属性动画作用后的 View 依旧可以响应点击事件的原因**
-
-好的, 分析完了如何判断子 View 是否可以响应事件之后, 接下来看一看 ViewGroup 事件流是如何分发的
-
-#### 2. 将事件分发给子 View
-在 ViewGroup.dispatchTouchEvent 中, 我们知道最后它会遍历 TouchTarget 链表, 逐个调用 dispatchTransformedTouchEvent 方法, 将一个事件, 分发给该事件所在序列的所有焦点处理者, 接下来我们就看看它是如何做的
-```java
-public abstract class ViewGroup extends View implements ViewParent, ViewManager {
-    
-    private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,
-            View child, int desiredPointerIdBits) {
-        final boolean handled;
-        // 获取事件的动作
-        final int oldAction = event.getAction();
-        // 1. 处理 Cancel 操作
-        if (cancel || oldAction == MotionEvent.ACTION_CANCEL) {
-            // 1.1 将事件的 Action 强行改为 ACTION_CANCEL
-            event.setAction(MotionEvent.ACTION_CANCEL);
-            // 1.2 ACTION_CANCEL 的分发操作
-            if (child == null) {
-                // 1.2.1 自己处理
-                handled = super.dispatchTouchEvent(event);
-            } else {
-                // 1.2.2 分发给子 View 
-                handled = child.dispatchTouchEvent(event);
-            }
-            event.setAction(oldAction);
-            return handled;
-        }
-        
-        // 2. 判断这个 child 是否可以响应该事件
-        // 2.1 获取这个事件所在序列的所有焦点
-        final int oldPointerIdBits = event.getPointerIdBits();
-        // 2.2 desiredPointerIdBits 描述这个 child 能够处理的焦点
-        final int newPointerIdBits = oldPointerIdBits & desiredPointerIdBits; 
-        // 2.3 若他们之间没有交集, 则说明出现了异常情况, 这个 child 所响应的并非是这个事件序列中的焦点
-        if (newPointerIdBits == 0) {
-            return false;
-        }
-        
-        // 3. 将事件分发给子 View 
-        final MotionEvent transformedEvent;
-        // 3.1 若这个子 View 能够处理这个事件序列的所有焦点, 则直接进行分发操作
-        if (newPointerIdBits == oldPointerIdBits) {
-            // 若不存子 View, 或者子 View 设置 Matrix 变幻, 则走下面的分支
-            if (child == null || child.hasIdentityMatrix()) {
-                if (child == null) {
-                    // 3.1.1 自己处理
-                    handled = super.dispatchTouchEvent(event);
-                } else {
-                    // 3.1.2 分发给子 View
-                    ......
-                    handled = child.dispatchTouchEvent(event);
-                    ......
-                }
-                return handled;
-            }
-            transformedEvent = MotionEvent.obtain(event);
-        } else {
-            // 3.2 若这个子 View 只能够处理事件序列中部分的焦点, 则调用 MotionEvent.split 进行焦点分割
-            transformedEvent = event.split(newPointerIdBits);
-        }
-
-        if (child == null) {
-            // 3.2.1 不存在子 View 则自己处理
-            handled = super.dispatchTouchEvent(transformedEvent);
-        } else {
-            // 3.2.2 将进行焦点分割后的事件, 分发给子 View
+    { // acquire lock
+        AutoMutex _l(d->mLock);
+        // 1. 找到分发的窗体连接
+        ssize_t connectionIndex = d->mConnectionsByFd.indexOfKey(fd);
+        ......
+        bool notify;
+        sp<Connection> connection = d->mConnectionsByFd.valueAt(connectionIndex);
+        if (!(events & (ALOOPER_EVENT_ERROR | ALOOPER_EVENT_HANGUP))) {
             ......
-            handled = child.dispatchTouchEvent(transformedEvent);
+            nsecs_t currentTime = now();
+            bool gotOne = false;
+            status_t status;
+            for (;;) {
+                uint32_t seq;
+                bool handled;
+                // 2. 接收 Socket 发送过来的回执信息
+                status = connection->inputPublisher.receiveFinishedSignal(&seq, &handled);
+                if (status) {
+                    break;
+                }
+                // 3. 处理回执数据
+                d->finishDispatchCycleLocked(currentTime, connection, seq, handled);
+                gotOne = true;
+            }
+            if (gotOne) {
+                // 4. 执行 Commands
+                d->runCommandsLockedInterruptible();
+                if (status == WOULD_BLOCK) {
+                    return 1;
+                }
+            }
+            ......
+        } else {
+            ......
+            // InputChannel 被关闭或者发生错误
         }
         ......
-        return handled;
-    }
-    
+    } // release lock
 }
 ```
-可以看到, **只要 View 能够处理当前 MotionEvent 所在事件序列中的一个焦点, 便会分发给它**, 分发之前会调用 MotionEvent.split 将事件分割成为 View 能够处理的焦点事件, 并将其分发下去
+IMS 处理回执消息流程如下
+- 找到分发事件的窗体连接 Connection
+- 通过 Socket 获取回执数据
+- 调用 finishDispatchCycleLocked 添加分发结束的指令
+- 调用 runCommandsLockedInterruptible 执行分发结束指令
 
+接下来我们从指令的添加和执行来看看 InputDispatcher 对回执信息的处理
+
+##### 1) 添加结束指令
 ```
-E/TAG: --------------------dispatch begin----------------------
-E/TAG: ViewGroup PointerId is: 0, eventRawX 531.7157, eventRawY 747.5201
-E/TAG: Child PointerId is: 1, eventRawX 467.7539, eventRawY 1387.9688
-E/TAG: Child PointerId is: 0, eventRawX 531.7157, eventRawY 747.5201
-E/TAG: --------------------dispatch begin----------------------
-E/TAG: ViewGroup PointerId is: 0, eventRawX 534.09283, eventRawY 744.18854
-E/TAG: Child PointerId is: 1, eventRawX 467.7539, eventRawY 1387.9688
-E/TAG: Child PointerId is: 0, eventRawX 534.09283, eventRawY 744.18854
-```
-从测试的打印日志可以看出, **ViewGroup 中的一个事件的确会分发给这个事件序列所有的焦点处理者, 可以看到 MotionEvent.split 方法, 不仅仅分割了焦点, 并且还巧妙的将触摸事件转换到了焦点处理 View 对应的区域, 这样一来就没有任何违和感了, Google 如此处理的原因可能是为了保证触摸过程中事件的连续性, 以实现更好的交互效果**
-
-好的, 接下来我们看看 View 中是如何处理事件的
-
-### 四) View 的事件分发
-```java
-public class View implements Drawable.Callback, KeyEvent.Callback,
-        AccessibilityEventSource {
-    
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        ......
-        boolean result = false;
-        ......
-        // 获取 Mask 后的 action
-        final int actionMasked = event.getActionMasked();
-        // 若为 DOWN, 则停止 Scroll 操作
-        if (actionMasked == MotionEvent.ACTION_DOWN) {
-            // Defensive cleanup for new gesture
-            stopNestedScroll();
-        }
-        // 处理事件
-        if (onFilterTouchEventForSecurity(event)) {
-            // 1. 若是拖拽滚动条, 则优先将事件交给 handleScrollBarDragging 方法消耗
-            if ((mViewFlags & ENABLED_MASK) == ENABLED && handleScrollBarDragging(event)) {
-                result = true;
-            }
-            // 2. 若 ListenerInfo 中设置了 OnTouchListener, 则尝试将其交给 mOnTouchListener 消耗
-            ListenerInfo li = mListenerInfo;
-            if (li != null && li.mOnTouchListener != null
-                    && (mViewFlags & ENABLED_MASK) == ENABLED
-                    && li.mOnTouchListener.onTouch(this, event)) {
-                result = true;
-            }
-            // 3. 若上面的操作没有将 result 位置 true, 则交给 onTouchEvent 消耗
-            if (!result && onTouchEvent(event)) {
-                result = true;
-            }
-        }
-        ......
-        return result;
+// frameworks/native/services/inputflinger/InputDispatcher.cpp
+void InputDispatcher::finishDispatchCycleLocked(nsecs_t currentTime,
+        const sp<Connection>& connection, uint32_t seq, bool handled) {
+    connection->inputPublisherBlocked = false;
+    if (connection->status == Connection::STATUS_BROKEN
+            || connection->status == Connection::STATUS_ZOMBIE) {
+        return;
     }
-               
+    // 1. 通知其他组件分发下一个事件序列
+    onDispatchCycleFinishedLocked(currentTime, connection, seq, handled);
+}
+
+void InputDispatcher::onDispatchCycleFinishedLocked(
+        nsecs_t currentTime, const sp<Connection>& connection, uint32_t seq, bool handled) {
+    // 2. 创建了一个指令信息实体类 CommandEntry
+    CommandEntry* commandEntry = postCommandLocked(
+            & InputDispatcher::doDispatchCycleFinishedLockedInterruptible);
+    // 3. 填充数据
+    commandEntry->connection = connection;
+    commandEntry->eventTime = currentTime;
+    commandEntry->seq = seq;
+    commandEntry->handled = handled;
+}
+
+InputDispatcher::CommandEntry* InputDispatcher::postCommandLocked(Command command) {
+    // 2.1 创建指令信息 CommandEntry 对象, 指令为 doDispatchCycleFinishedLockedInterruptible
+    CommandEntry* commandEntry = new CommandEntry(command);
+    // 2.2 添加到指令队列尾部
+    mCommandQueue.enqueueAtTail(commandEntry);
+    return commandEntry;
 }
 ```
-好的, 可以看到主要有三个操作
-- 优先将事件交给 ScrollBar 处理
-  - 成功消费则将 result 置为 true
-- 次优先将事件交给 OnTouchListener 处理
-  - 成功消费则将 result 置为 true
-- 最后将事件交给 onTouchEvent 处理
+finishDispatchCycleLocked 处理回执数据的过程非常简单
+- 它**创建了一个 doDispatchCycleFinishedLockedInterruptible 执行指令对象 CommandEntry**
+- 将它添加到了指令队列的尾部, 等待后续的执行
 
-好的, 可以看到这里 View 的事件分发比 ViewGroup 的要简单太多太多, 接下来我们看看 View 的事件处理
+接下来我们看看 runCommandsLockedInterruptible 执行指令的过程
 
-#### onTouchEvent 处理事件
-```java
-public class View implements Drawable.Callback, KeyEvent.Callback,
-        AccessibilityEventSource {
-            
-    public boolean onTouchEvent(MotionEvent event) {
-        final float x = event.getX();
-        final float y = event.getY();
-        final int viewFlags = mViewFlags;
-        final int action = event.getAction();
-        // 判断当前 View 是否是可点击的
-        final boolean clickable = ((viewFlags & CLICKABLE) == CLICKABLE
-                || (viewFlags & LONG_CLICKABLE) == LONG_CLICKABLE)
-                || (viewFlags & CONTEXT_CLICKABLE) == CONTEXT_CLICKABLE;
-
-        ......
-        // 若设置了代理, 则交由代理处理
-        if (mTouchDelegate != null) {
-            if (mTouchDelegate.onTouchEvent(event)) {
-                return true;
-            }
-        }
-        // 执行事件处理
-        if (clickable || (viewFlags & TOOLTIP) == TOOLTIP) {
-            switch (action) {
-                // 1. 处理按压事件
-                case MotionEvent.ACTION_DOWN:
-                    ......
-                    // 处理 View 在可滑动容器中的按压事件
-                    if (isInScrollingContainer) {
-                        ......
-                    } else {
-                        // 处理在非滑动容器中的按压事件
-                        // 1.1 设置为 Pressed 状态
-                        setPressed(true, x, y);
-                        // 1.2 尝试添加一个长按事件
-                        checkForLongClick(0, x, y);
-                    }
-                    break;
-                // 2. 处理移动事件
-                case MotionEvent.ACTION_MOVE:
-                    ......
-                    // 处理若移动到了 View 之外的情况
-                    if (!pointInView(x, y, mTouchSlop)) {
-                        // 移除 TapCallback
-                        removeTapCallback();
-                        // 移除长按的 Callback
-                        removeLongPressCallback();
-                        // 清除按压状态
-                        if ((mPrivateFlags & PFLAG_PRESSED) != 0) {
-                            setPressed(false);
-                        }
-                        ......
-                    }
-                    break;
-                // 3. 处理 UP 事件
-                case MotionEvent.ACTION_UP:
-                    // 3.1 若置为不可点击了, 则移除相关回调, 重置相关 Flag
-                    if (!clickable) {
-                        removeTapCallback();
-                        removeLongPressCallback();
-                        ......
-                        break;
-                    }
-                    // 3.2 判断 UP 时, Viwe 是否处于按压状态
-                    boolean prepressed = (mPrivateFlags & PFLAG_PREPRESSED) != 0;
-                    if ((mPrivateFlags & PFLAG_PRESSED) != 0 || prepressed) {
-                        ......
-                        // 3.2.1 若没有触发长按事件, 则处理点击事件
-                        if (!mHasPerformedLongPress && !mIgnoreNextUpEvent) {
-                            removeLongPressCallback();// 移除长按回调
-                            // 处理点击事件
-                            if (!focusTaken) {
-                                // 创建一个事件处理器
-                                if (mPerformClick == null) {
-                                    mPerformClick = new PerformClick();
-                                }
-                                // 发送到 MessageQueue 中执行
-                                if (!post(mPerformClick)) {
-                                    performClickInternal();
-                                }
-                            }
-                        }
-                        // 清除按压状态
-                        ......
-                    }
-                    ......
-                    break;
-                // 4. 处理取消事件
-                case MotionEvent.ACTION_CANCEL:
-                    // 移除回调, 重置标记位
-                    if (clickable) {
-                        setPressed(false);
-                    }
-                    removeTapCallback();
-                    removeLongPressCallback();
-                    mInContextButtonPress = false;
-                    mHasPerformedLongPress = false;
-                    mIgnoreNextUpEvent = false;
-                    break;
-            }
-            return true;
-        }
+##### 2) 执行结束指令
+```
+// frameworks/native/services/inputflinger/InputDispatcher.cpp
+bool InputDispatcher::runCommandsLockedInterruptible() {
+    if (mCommandQueue.isEmpty()) {
         return false;
     }
-                
+    do {
+        // 取出指令
+        CommandEntry* commandEntry = mCommandQueue.dequeueAtHead();
+        // 执行指令
+        Command command = commandEntry->command;
+        (this->*command)(commandEntry);
+        // 删除指令
+        commandEntry->connection.clear();
+        delete commandEntry;
+    } while (! mCommandQueue.isEmpty());
+    return true;
 }
 ```
-好的, 可以看到 onTouchEvent 中也做了非常多的操作, 这里省略了一些代码, 我们主要看看它如何处理不同事件的
-- ACTION_DOWN
-  - 将 View 设置为按压状态 
-  - 添加了一个长按监听器 
-- ACTION_MOVE
-  - 若坐标在 View 的范围之外了, 则移除相关回调, 清除按压的状态 
-- ACTION_UP
-  - 若长按事件没有响应, 则处理 View 的点击事件
-  - 移除按压状态
-- ACTION_CANCEL
-  - 移除相关回调, 清除按压状态
+InputDispatcher 执行指令的过程即遍历指令队列, 执行具体的指令
 
-好的, 至此 View 对事件的处理就分析完了
+由上面的分析可知, 分发结束的执行执行函数为 
+doDispatchCycleFinishedLockedInterruptible, 下面看看它的具体是实现
+```
+// frameworks/native/services/inputflinger/InputDispatcher.cpp
+void InputDispatcher::doDispatchCycleFinishedLockedInterruptible(
+        CommandEntry* commandEntry) {
+    sp<Connection> connection = commandEntry->connection;
+    nsecs_t finishTime = commandEntry->eventTime;
+    uint32_t seq = commandEntry->seq;
+    bool handled = commandEntry->handled;
+    // 1. 获取分发的事件
+    DispatchEntry* dispatchEntry = connection->findWaitQueueEntry(seq);
+    if (dispatchEntry) {
+        ......
+        if (dispatchEntry == connection->findWaitQueueEntry(seq)) {
+            // 2. 将事件从等待分发完毕的队列中移除
+            connection->waitQueue.dequeue(dispatchEntry);
+            ......
+        }
+        // 3. 让当前 connection 去处理其 outboundQueue 中的后续事件
+        startDispatchCycleLocked(now(), connection);
+    }
+}
+```
+这里我们可以看到处理事件分发结束的操作主要如下
+- 获取本次分发的事件描述 DispatchEntry
+- 从 connection 待回执的事件队列 waitQueue 中移除
+- 让 connection 继续处理其待分发队列 outboundQueue 的后续事件
+
+### 三) 回顾
+这里就与 IMS 启动时 connection 分发事件首尾呼应了, Connection 的整个流程如下
+- 服务端 Connection 分发事件
+  - 从 outboundQueue 取出一个事件, 交由 InputChannel 的 Socket 端口发到客户端
+  - 将这个事件添加到等待队列 waitQueue
+- 客户端处理完毕后通过 InputChannel 的 Socket 端口发到服务端
+- 服务 Connection 的 InputChannel 接收到回执信息
+  - 将这个事件从 waitQueue 中移除
+  - 从 outboundQueue 获取下一个事件重复上述操作进行分发
 
 ## 总结
-至此窗体事件流的分发就到这里了, 这里回顾一下整个事件分发的流程
+![Android 系统事件分发流程图](https://i.loli.net/2019/11/21/OVAPohwv2H8t9CW.png)
+
+到这里我们整个 IMS 事件分发在宏观上就分析完毕了, 这里回顾一下整个事件分发的流程
 - 创建 InputChannel 输入通道组
   - 创建最大缓冲为 32 kb 的 Socket
   - 服务端的 InputChannel 保留 Socket 服务端的文件描述符
@@ -1283,16 +985,18 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
   - **InputChannelReceived 在 Native 层监听了 InputChannel 的 Socket 端口**
   - 有数据写入便会通过 JNI 调用 dispatchInputEvent 分发到 Java 层 
 - 执行事件分发
-  - ViewRootImpl 中维护了一个输入事件队列, 这个事件最终会交给 InputStage 消费
-  - InputStage 中会将事件传递给 DecorView
-  - DecorView 首先会尝试将事件呈递给当前 Window 的 Callback 对象处理
-  - 在 Activity 创建的 Window 则会先将事件发送给 Activity
-  - 最终调用 View.dispatchTouchEvent 进入 View 的事件分发流程
-    - ViewGroup 的事件分发
-    - View 的事件分发
+  - 事件分发的启动
+    - ViewRootImpl 中维护了一个输入事件队列, 这个事件最终会交给 InputStage 消费
+    - InputStage 中会将事件传递给 DecorView
+    - DecorView 首先会尝试将事件呈递给当前 Window 的 Callback 对象处理
+    - 在 Activity 创建的 Window 则会先将事件发送给 Activity
+    - 最终调用 View.dispatchTouchEvent 进入 View 的事件分发流程
+  - 事件分发的结束
+    - 客户端发送回执信息
+    - 服务端接收回执信息并处理
+      - 创建结束指令到 mCommandQueue 指令队列
+      - mCommandQueue 执行的结束指令
+        - 从 Connection 待回执的事件队列 waitQueue 中移除
+        - 让 Connection 继续处理其待分发队列 outboundQueue 的后续事件 
 
-View 的事件分发, 是比较基础也是比较重要的一个知识点, 通过本次的分析, 我们理清了事件是如何从 ViewGroup 中分发到 View 的, 以及 View 中是如何处理事件的, 再加上之前 IMS 的知识, 我们对事件流从哪儿来, 从哪儿获取, 以及如何分发处理, 就有了一个比较全面的认知
-
-到这里整个 Android 系统的事件分发也完成了, 它的具体流程图如下
-
-![Android 系统事件分发流程图](https://i.loli.net/2019/11/20/1aHfUsijBbtQXOw.png)
+IMS 的事件分发, 是比较赋值且重要的知识点, 通过本次的分析, 我们对事件流从哪儿来, 从哪儿获取, 以及如何分发处理, 就有了一个比较全面的认知
