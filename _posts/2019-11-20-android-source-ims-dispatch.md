@@ -478,7 +478,7 @@ status_t NativeInputEventReceiver::consumeEvents(JNIEnv* env,
 ```
 好的, 可以看到当有事件产生时, 便会通过 JNI 回调 InputEventReceiver.dispatchInputEvent 回调 Java 层去进行分发事件, 如此一来 Native 层的工作就分析完了
 
-### 流程回顾
+### 三) 回顾
 ![应用进程事件的处理](https://i.loli.net/2019/11/20/pBJIRLyGa6mHFe4.png)
 
 ## 三. 事件流的分发
