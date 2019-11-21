@@ -999,4 +999,6 @@ void InputDispatcher::doDispatchCycleFinishedLockedInterruptible(
         - 从 Connection 待回执的事件队列 waitQueue 中移除
         - 让 Connection 继续处理其待分发队列 outboundQueue 的后续事件 
 
-IMS 的事件分发, 是比较赋值且重要的知识点, 通过本次的分析, 我们对事件流从哪儿来, 从哪儿获取, 以及如何分发处理, 就有了一个比较全面的认知
+IMS 的事件分发, 是比较困难但又非常重要的知识点, 通过本次的分析, 我们对事件流从哪儿来, 从哪儿获取, 以及如何分发处理, 就有了一个宏观上的的认知
+ 
+关于更加微观的 View 的事件分发我们在前面已经分析过了, 请[查阅这篇文章](https://sharrychoo.github.io/blog/2018/10/15/android-source-view-dispatch.html)

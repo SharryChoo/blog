@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— IMS 的事件分发"
-key:  "Android 系统架构 —— IMS 的事件分发"
+title: "Android 系统架构 —— View 的事件分发"
+key:  "Android 系统架构 —— View 的事件分发"
 tags: AndroidFramework
 aside:
   toc: true
