@@ -1,7 +1,7 @@
 ---
 layout: article
-title: "Android 系统架构 —— 启动篇"
-key: "Android 系统架构 —— 启动篇" 
+title: "Android 系统架构 —— 概览"
+key: "Android 系统架构 —— 概览" 
 tags: AndroidFramework
 aside:
   toc: true
