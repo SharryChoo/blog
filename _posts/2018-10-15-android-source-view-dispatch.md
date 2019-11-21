@@ -8,11 +8,12 @@ aside:
 ---
 
 ## 前言
-View 的事件分发是我们在自定义 View 必须要掌握的技术点, Android 是支持多指触控的, 因此一个事件序列如下
+View 的事件分发是我们在自定义 View 必须要掌握的技术点, Android 是支持多指触控的, 一个完整的事件序列如下
 ```
 DOWN ... MOVE ... POINTER_DOWN ... MOVE .... POINTER_UP ... MOVE .... UP
 ```
-可以看到一个事件序列从 Down -> UP 的过程中存在多个连续的 MOVE 事件, 可能还有其他手指的参与, 一个 DOWN/POINTER_DOWN 称之为焦点事件, 在 MotionEvent 中用 PointerId 描述
+可以看到一个事件序列从 Down -> UP 的过程中存在多个连续的 MOVE 事件, 若有其他手指参与还会存在 POINTER_DOWN 和 POINTER_UP 事件
+- 一个 DOWN/POINTER_DOWN 称之为焦点事件, 在 MotionEvent 中用 PointerId 描述
 
 好的了解了这个基础知识之后, 我们从 ViewGroup 的 dispatchTouchEvent 开始看看一次事件分发的流程
 
