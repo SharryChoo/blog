@@ -989,8 +989,8 @@ void InputDispatcher::doDispatchCycleFinishedLockedInterruptible(
     - ViewRootImpl 中维护了一个输入事件队列, 这个事件最终会交给 InputStage 消费
     - InputStage 中会将事件传递给 DecorView
     - DecorView 首先会尝试将事件呈递给当前 Window 的 Callback 对象处理
-    - 在 Activity 创建的 Window 则会先将事件发送给 Activity
-    - 最终调用 View.dispatchTouchEvent 进入 View 的事件分发流程
+      - 在 Activity 中创建的 Window, Callback 为 Activity 本身
+    - Activity 将事件再次呈递给 DecorView, 最终调用 dispatchTouchEvent 进入 ViewGroup 的事件分发流程
   - 事件分发的结束
     - 客户端发送回执信息
     - 服务端接收回执信息并处理
