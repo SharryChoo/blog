@@ -54,6 +54,7 @@ public class WindowManagerService extends IWindowManager.Stub {
   - native 层的 mFocusedWindowHandle
 
 IMS 能够将事件分发到窗体上 openInputChannel 输入通道的创建便是重中之重了, 这里我们主要对 openInputChannel 进行分析
+
 <!--more-->
 
 ## 一. 系统服务进程创建 InputChannel 通道组
