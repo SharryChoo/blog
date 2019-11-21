@@ -267,7 +267,7 @@ status_t InputDispatcher::registerInputChannel(const sp<InputChannel>& inputChan
 
 到这里我们在 IMS 中留下的疑问就全部明了了, InputChannel 是在 WMS 新建窗体时创建的, InputChannel 的 sendMessage 最终会发送到应用进程的 Socket 端口
 
-### 回顾
+### 三) 回顾
 - 创建 InputChannel 输入通道组
   - 创建最大缓冲为 32 kb 的 Socket
   - 服务端的 InputChannel 保留 Socket 服务端的文件描述符
