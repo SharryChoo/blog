@@ -12,8 +12,7 @@ aside:
 ```java
 public class WindowManagerService extends IWindowManager.Stub {
 
-    // 在 WMS 的构造函数中赋值, 其实例为 PhoneWindowManager
-    final WindowManagerPolicy mPolicy;
+    final WindowManagerPolicy mPolicy;// 在 WMS 的构造函数中赋值, 其实例为 PhoneWindowManager
     final WindowHashMap mWindowMap = new WindowHashMap();
 
     public int addWindow(Session session, IWindow client, int seq,
@@ -24,26 +23,37 @@ public class WindowManagerService extends IWindowManager.Stub {
         .......
         synchronized(mWindowMap) {
             ......
-            // 创建一个窗体的描述
+            // 1. 创建一个窗体的描述
             final WindowState win = new WindowState(this, session, client, token, parentWindow,
                     appOp[0], seq, attrs, viewVisibility, session.mUid,
                     session.mCanAddInternalSystemWindow);
             ......
-            // 给这个窗体描述打开一个输入通道, 用于接收屏幕的点击事件(事件分发)
-            final boolean openInputChannels = (outInputChannel != null
-                    && (attrs.inputFeatures & INPUT_FEATURE_NO_INPUT_CHANNEL) == 0);
+            // 2. 给这个窗体描述打开一个输入通道, 用于接收屏幕的点击事件(事件分发)
+            final boolean openInputChannels = (outInputChannel != null && (attrs.inputFeatures & INPUT_FEATURE_NO_INPUT_CHANNEL) == 0);
             if  (openInputChannels) {
                 win.openInputChannel(outInputChannel);
             }
             ......
+            // 3. 将新创建添加的 WindowState 设置为 IMS 的焦点 Window, 即 native 层的 mFocusedWindowHandle
+            if (win.canReceiveKeys()) {
+                focusChanged = updateFocusedWindowLocked(UPDATE_FOCUS_WILL_ASSIGN_LAYERS,
+                        false /*updateInputWindows*/);
+                ......
+            }
+            .......
         }
         ......
         return res;
     }
 }
 ```
-IMS 能够将事件分发到窗体上以至于最后能够分发到 View 中就是从这里开始关联的, 我们先跳过 WMS 的启动, 看看添加 Window 的过程
+上述代码即 WMS 添加一个 Window 的片段, 它主要做了如下几件事情
+- 创建窗体描述 WindowState
+- **打开窗体的输入通道 InputChannel**
+- 更新 IMS 的焦点窗体
+  - native 层的 mFocusedWindowHandle
 
+IMS 能够将事件分发到窗体上 openInputChannel 输入通道的创建便是重中之重了, 这里我们主要对 openInputChannel 进行分析
 <!--more-->
 
 ## 一. 系统服务进程创建 InputChannel 通道组
