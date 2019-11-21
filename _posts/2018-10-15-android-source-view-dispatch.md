@@ -200,7 +200,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
 ```
 好的, 可以看到上述的步骤非常复杂的, 其注释已经非常详细了, 总结下来其实就三点
 - **拦截事件**
-  - 若为 **起始事件 (Down|ACTION_POINTER_DOWN)** 或 **存在子 View 正在消费事件**, 则调用 onInterceptTouchEvent 尝试拦截
+  - 若为 **起始事件 ACTION_Down/ACTION_POINTER_DOWN** 或 **存在子 View 正在消费事件**, 则调用 onInterceptTouchEvent 尝试拦截
     - 若设置了 FLAG_DISALLOW_INTERCEPT 则不进行拦截操作, 直接分发给子 View
   - 若非起始事件, 并且无子 View 响应事件, 则进行拦截操作
 - **找寻起始事件的处理者**
@@ -554,7 +554,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
 ## 总结
 ### ViewGroup 的事件分发
 - **拦截事件**
-  - 若为 **起始事件 (Down|ACTION_POINTER_DOWN)** 或 **存在子 View 正在消费事件**, 则调用 onInterceptTouchEvent 尝试拦截
+  - 若为 **起始事件 ACTION_Down/ACTION_POINTER_DOWN** 或 **存在子 View 正在消费事件**, 则调用 onInterceptTouchEvent 尝试拦截
     - 若设置了 FLAG_DISALLOW_INTERCEPT 则不进行拦截操作, 直接分发给子 View
   - 若非起始事件, 并且无子 View 响应事件, 则进行拦截操作
 - **找寻起始事件的处理者**
