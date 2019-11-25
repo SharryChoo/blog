@@ -1181,7 +1181,7 @@ KeyEntry -> DispatchEntry -> InputMessage
 - **InputChannel 的 sendMessage 将这个事件发向了何方?**
 - **应用进程是如何接收到输入事件的?**
 
-这些疑问点, 我们到 WMS 的文章中再进行揭秘
+这些疑问点, 我们到 [IMS 的事件分发](https://sharrychoo.github.io/blog/2019/11/20/android-source-ims-dispatch.html) 中再进行揭秘
 
 ## 参考文献
 http://gityuan.com/2016/12/17/input-dispatcher/
