@@ -101,7 +101,7 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
   - [IMS 的启动](https://sharrychoo.github.io/blog/2019/11/19/android-source-ims-launch.html)
     - [IMS 的事件分发](https://sharrychoo.github.io/blog/2019/11/20/android-source-ims-dispatch.html)
     - [View 的事件分发](https://sharrychoo.github.io/blog/2018/10/15/android-source-view-dispatch.html)
-    - [IMS ANR 的产生流程](https://sharrychoo.github.io/blog/2019/11/21/android-source-ims-anr.html)
+    - [IMS 的 ANR 产生流程](https://sharrychoo.github.io/blog/2019/11/21/android-source-ims-anr.html)
   - [WMS 的启动](https://sharrychoo.github.io/blog/2018/08/06/android-source-wms-start.html)
 - 应用进程
   - Activity
