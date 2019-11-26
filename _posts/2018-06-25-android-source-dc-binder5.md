@@ -1,11 +1,11 @@
 ---
 layout: article
 title: "Android 系统架构 —— Binder 进程间通信的流程"
-key: "Android 系统架构 —— Binder 进程间通信的流程" 
+permalink: android-source/dc-binder5
+key: android-source-dc-binder5
 tags: AndroidFramework
-aside:
-  toc: true
 ---
+
 ## 前言
 ServiceManager 的启动, 关于它的启动流程可以[点击查看](https://sharrychoo.github.io/blog/2018/06/15/android/source/servicemanager/start.html)这篇文章
 

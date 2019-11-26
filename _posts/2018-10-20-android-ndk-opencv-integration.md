@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "OpenCV 的集成"
-key: "OpenCV 的集成"
 tags: OpenCV
-aside:
-  toc: true
 ---
 
 ## OpenCV

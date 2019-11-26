@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— MessageQueue 的同步屏障"
-key: "Android 系统架构 —— MessageQueue 的同步屏障" 
+permalink: android-source/dc-handler3
+key: android-source-dc-handler3
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 
 <!--more-->

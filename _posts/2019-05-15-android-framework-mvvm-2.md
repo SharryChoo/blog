@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "MVVM 架构演进 —— DataBinding 实现原理"
-key:  "MVVM 架构演进 —— DataBinding 实现原理"
 tags: Framework
-aside:
-  toc: true
 ---
 
 ## 前言

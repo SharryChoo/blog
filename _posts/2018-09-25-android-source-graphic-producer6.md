@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— View 的布局"
-key: "Android 系统架构 —— View 的布局" 
+permalink: android-source/graphic-producer6
+key: android-source-graphic-producer6
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 
 ## 前言

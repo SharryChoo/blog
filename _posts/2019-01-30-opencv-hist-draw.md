@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "OpenCV 统计学 —— 直方图的绘制"
-key:  "OpenCV 统计学 —— 直方图的绘制"
 tags: OpenCV
-aside:
-  toc: true
 ---
 
 ## 什么是直方图

@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "OpenCV 特征匹配 —— HOG 行人检测"
-key:  "OpenCV 特征匹配 —— HOG 行人检测"
 tags: OpenCV
-aside:
-  toc: true
 ---
 
 ## 什么是 HOG

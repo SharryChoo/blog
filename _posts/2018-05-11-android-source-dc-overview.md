@@ -1,11 +1,11 @@
 ---
 layout: article
-title: "Android 系统架构 —— 数据通信篇 概览"
-key: "Android 系统架构 —— 数据通信篇 概览" 
+title: Android 系统架构 —— 数据通信篇 概览
+permalink: android-source/dc-overview
+key: android-source-dc-overview
 tags: AndroidFramework
-aside:
-  toc: true
 ---
+
 ## 前言
 任何一个操作系统, 都需要解决线程和进程之间数据交互的问题, 基于 Linux 内核的 Android 自然也不例外, 它能够使用的跨进程通信手段如下
 - 线程间通信
@@ -29,9 +29,9 @@ aside:
 Handler 我们平时用的是最多的, 在线程之间传输数据, 一般都用它来完成, 它也是三者之中最容易学习的
 
 ### 学习路线
-- [Looper 的创建与启动](https://sharrychoo.github.io/blog/2018/06/12/android-source-dc-handler1.html)
-- [消息的发送与处理](https://sharrychoo.github.io/blog/2018/06/13/android-source-dc-handler2.html)
-- [MessageQueue 同步屏障技术](https://sharrychoo.github.io/blog/2018/06/14/android-source-dc-handler3.html)
+- [Looper 的创建与启动](https://sharrychoo.github.io/blog/android-source/dc-handler1)
+- [消息的发送与处理](https://sharrychoo.github.io/blog/android-source/dc-handler2)
+- [MessageQueue 同步屏障技术](https://sharrychoo.github.io/blog/android-source/dc-handler3)
 
 ## 二. Binder 驱动
 Binder 这个名词我们经常能够听到, 也知道 AIDL 是对 Binder 的封装, 但是 Binder 到底是什么呢? 
@@ -54,14 +54,14 @@ Binder 驱动用于在 Android 中提供**高效**、**便捷**和**轻量级**�
 ### 学习路线
 笔者学习 Binder 驱动, 是由浅入深的方式进行
 - 应用层
-  - [通信实例](https://sharrychoo.github.io/blog/2018/07/01/android-source-dc-binder1.html)
-  - [AIDL 与 Binder](https://sharrychoo.github.io/blog/2018/07/05/android-source-dc-binder2.html)
+  - [通信实例](https://sharrychoo.github.io/blog/android-source/dc-binder1)
+  - [AIDL 与 Binder](https://sharrychoo.github.io/blog/android-source/dc-binder2)
 - 运行时库层
-  - [IBinder 对象的实例化](https://sharrychoo.github.io/blog/2018/07/07/android-source-dc-binder3.html) 
+  - [IBinder 对象的实例化](https://sharrychoo.github.io/blog/android-source/dc-binder3) 
 - Linux 内核层
-  - [Binder 驱动](https://sharrychoo.github.io/blog/2018/07/10/android-source-dc-binder4.html)
-  - [ServiceManager 启动](https://sharrychoo.github.io/blog/2018/07/15/android-source-dc-binder5.html)
-  - [Binder 通信完整流程](https://sharrychoo.github.io/blog/2018/07/25/android-source-dc-binder6.html)
+  - [Binder 驱动](https://sharrychoo.github.io/blog/android-source/dc-binder4)
+  - [ServiceManager 启动](https://sharrychoo.github.io/blog/android-source/dc-binder5)
+  - [Binder 通信完整流程](https://sharrychoo.github.io/blog/android-source/dc-binder6)
 
 ### 需要解决的疑问
 - Binder 驱动, 服务进程如何进入等待?
@@ -85,7 +85,7 @@ Binder 驱动用于在 Android 中提供**高效**、**便捷**和**轻量级**�
 在 Android UI 渲染时, 我们需要将我们需要渲染的 Surface 数据发送到 SurfaceFlinger 进程进行最后的绘制, Binder 驱动传输显然是无法满足这么大的数据量, 因此这里使用到了 Ashmem 共享内存
 
 ### 相关文章
-- [Ashmem 驱动共享内存驱动](https://sharrychoo.github.io/blog/2018/08/05/android-source-dc-ashmem.html)
+- [Ashmem 驱动共享内存驱动](https://sharrychoo.github.io/blog/android-source/dc-ashmem)
 
 ## 总结
 Android 数据交互中 Handler 是开发过程中最为常用的, Binder 是在 Android 系统源码中最为常用的, 进程之间的数据交互, 基本上都是使用 Binder

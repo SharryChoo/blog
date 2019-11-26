@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— SurfaceFlinger 对 Hotplug 事件的处理"
-key: "Android 系统架构 —— SurfaceFlinger 对 Hotplug 事件的处理"
+permalink: android-source/surfaceflinger-hotplug
+key: android-source-surfaceflinger-hotplug
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 
 ## 前言

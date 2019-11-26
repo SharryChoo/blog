@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— AIDL 与 Binder"
-key: "Android 系统架构 —— AIDL 与 Binder" 
+permalink: android-source/dc-binder2
+key: android-source-dc-binder2
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 
 ## 一. 什么是 AIDL?

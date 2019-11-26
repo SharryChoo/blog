@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "OpenCV 形态学 —— 验证码提取"
-key:  "OpenCV 形态学 —— 验证码提取"
 tags: OpenCV
-aside:
-  toc: true
 ---
 
 ## 问题描述

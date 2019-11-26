@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "MVVM 架构演进 —— 初探"
-key: "MVVM 架构演进 —— 初探" 
 tags: Framework
-aside:
-  toc: true
 ---
 
 ## 一. 什么是 MVVM ?

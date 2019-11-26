@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— IMS 的启动"
-key:  "Android 系统架构 —— IMS 的启动"
+permalink: android-source/ims-launch
+key: android-source-ims-launch
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 
 ## 前言

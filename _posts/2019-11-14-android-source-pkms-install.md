@@ -1,11 +1,11 @@
 ---
 layout: article
 title: "Android 系统架构 —— PMS 之 应用的安装流程"
-key:  "Android 系统架构 —— PMS 之 应用的安装流程"
+permalink: android-source/pkms-install
+key: android-source-pkms-install
 tags: AndroidFramework
-aside:
-  toc: true
 ---
+
 ## 前言
 通过前面两篇文章的学习, 我们知晓了 PKMS 的启动过程
 - 解析备份文件

@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— View 的硬件渲染"
-key: "Android 系统架构 —— View 的硬件渲染" 
+permalink: android-source/graphic-producer8
+key: android-source-graphic-producer8
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 # 前言
 通过对 OpenCV 和 OpenGL 的学习, 让我们对图像图形学有了一定的了解, 这里再回过头来看看 Android 的图形架构的硬件绘制部分就比较轻松了

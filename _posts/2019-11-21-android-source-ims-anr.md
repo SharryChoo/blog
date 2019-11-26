@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— IMS 的 ANR 产生流程"
-key:  "Android 系统架构 —— IMS 的 ANR 产生流程"
+permalink: android-source/ims-anr
+key: android-source-ims-anr
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 ## 前言
 前面我们学习了 IMS 的启动和 IMS 的事件分发, 了解整个事件的分发流程, 除了事件分发之外 ANR 也是与 IMS 息息相关的

@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— Binder 驱动"
-key: "Android 系统架构 —— Binder 驱动" 
+permalink: android-source/dc-binder4
+key: android-source-dc-binder4
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 
 ## 前言

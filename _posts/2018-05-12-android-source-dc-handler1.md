@@ -1,10 +1,9 @@
 ---
 layout: article
-title: "Android 系统架构 —— Looper 的创建与启动"
-key: "Android 系统架构 —— Looper 的创建与启动" 
+title: Android 系统架构 —— Looper 的创建与启动
+permalink: android-source/dc-handler1 
+key: android-source-dc-handler1
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 
 ## 前言

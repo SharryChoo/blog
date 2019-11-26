@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "OpenCV 轮廓过滤 —— Sobel 算子"
-key:  "OpenCV 轮廓过滤 —— Sobel 算子"
 tags: OpenCV
-aside:
-  toc: true
 ---
 
 ## 图像轮廓过滤思路

@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "Android 存储优化 —— MMKV 集成与实现原理"
-key: "Android 存储优化 —— MMKV 集成与实现原理"
 tags: PerformanceOptimization
-aside:
-  toc: true
 ---
 
 ## 前言

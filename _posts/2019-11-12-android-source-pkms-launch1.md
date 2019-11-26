@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— PKMS 的启动 之 备份文件的解析"
-key:  "Android 系统架构 —— PKMS 的启动 之 备份文件的解析"
+permalink: android-source/pkms-launch1
+key: android-source-pkms-launch1
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 
 ## 前言

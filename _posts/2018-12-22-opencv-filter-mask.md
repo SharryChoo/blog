@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "OpenCV 滤波处理 —— 图像掩模"
-key: "OpenCV 滤波处理 —— 图像掩模"
 tags: OpenCV
-aside:
-  toc: true
 ---
 
 ## 一. 掩模操作原理

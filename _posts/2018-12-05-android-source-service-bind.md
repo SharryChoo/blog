@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— Service 的绑定"
-key: "Android 系统架构 —— Service 的绑定"
+permalink: android-source/service-bind
+key: android-source-service-bind
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 ## 前言
 上面一篇文章我们了解了 Service 的启动流程, 这里我们分析一下 Service 的绑定流程

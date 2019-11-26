@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— Service 的启动"
-key: "Android 系统架构 —— Service 的启动"
+permalink: android-source/service-launch
+key: android-source-service-launch
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 ## 前言
 之前的 Android 系统架构中我们分析了 Android 应用层的图形架构, 忽然发现应用进程还少了一个 Service 的启动没有分析

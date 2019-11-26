@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "OpenCV 实战 —— 二维码识别"
-key: "OpenCV 实战 —— 二维码识别" 
 tags: OpenCV
-aside:
-  toc: true
 ---
 
 ## 一. 特征分析

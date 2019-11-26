@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "OpenCV 滤波处理 —— 均值模糊与高斯模糊"
-key: "OpenCV 滤波处理 —— 均值模糊与高斯模糊"
 tags: OpenCV
-aside:
-  toc: true
 ---
 
 ## 一. 均值模糊

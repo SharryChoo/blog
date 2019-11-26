@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "OpenCV 实战 —— 人像美容(一) 积分图算法"
-key: "OpenCV 实战 —— 人像美容(一) 积分图算法" 
 tags: OpenCV
-aside:
-  toc: true
 ---
 
 ## 一. 什么是积分图(Integral Image)

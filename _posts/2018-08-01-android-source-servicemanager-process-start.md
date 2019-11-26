@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— ServiceManager 进程的启动"
-key: "Android 系统架构 —— ServiceManager 进程的启动" 
+permalink: android-source/servicemanager-process-start
+key: android-source-servicemanager-process-start
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 ## 前言
 我们之前在学习 Binder 驱动的过程中就提及过 ServiceManager 是 Binder 驱动的上下文管理者

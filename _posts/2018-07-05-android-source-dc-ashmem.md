@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— Ashmem 共享内存驱动"
-key: "Android 系统架构 —— Ashmem 共享内存驱动" 
+permalink: android-source/dc-ashmem
+key: android-source-dc-ashmem
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 
 ## 前言

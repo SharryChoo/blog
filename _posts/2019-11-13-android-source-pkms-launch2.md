@@ -1,10 +1,9 @@
 ---
 layout: article
 title: "Android 系统架构 —— PKMS 的启动 之 应用目录的扫描"
-key:  "Android 系统架构 —— PKMS 的启动 之 应用目录的扫描"
+permalink: android-source/pkms-launch2
+key: android-source-pkms-launch2
 tags: AndroidFramework
-aside:
-  toc: true
 ---
 
 ## 前言

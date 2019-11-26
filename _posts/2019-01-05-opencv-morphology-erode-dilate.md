@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "OpenCV 形态学 —— 腐蚀与膨胀"
-key: "OpenCV 形态学 —— 腐蚀与膨胀" 
 tags: OpenCV
-aside:
-  toc: true
 ---
 
 ## 前言

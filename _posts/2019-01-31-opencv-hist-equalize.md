@@ -1,10 +1,7 @@
 ---
 layout: article
 title: "OpenCV 统计学 —— 直方均衡补偿"
-key:  "OpenCV 统计学 —— 直方均衡补偿"
 tags: OpenCV
-aside:
-  toc: true
 ---
 
 ## 前言
