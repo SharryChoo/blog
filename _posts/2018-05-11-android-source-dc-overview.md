@@ -60,8 +60,8 @@ Binder 驱动用于在 Android 中提供**高效**、**便捷**和**轻量级**�
   - [IBinder 对象的实例化](https://sharrychoo.github.io/blog/android-source/dc-binder3) 
 - Linux 内核层
   - [Binder 驱动](https://sharrychoo.github.io/blog/android-source/dc-binder4)
-  - [ServiceManager 启动](https://sharrychoo.github.io/blog/android-source/dc-binder5)
-  - [Binder 通信完整流程](https://sharrychoo.github.io/blog/android-source/dc-binder6)
+  - [ServiceManager 启动](https://sharrychoo.github.io/blog/android-source/servicemanager-process-start)
+  - [Binder 通信完整流程](https://sharrychoo.github.io/blog/android-source/dc-binder5)
 
 ### 需要解决的疑问
 - Binder 驱动, 服务进程如何进入等待?
