@@ -79,7 +79,7 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 - Linux 内核层
   - [Binder 驱动](https://sharrychoo.github.io/blog/android-source/dc-binder4)
 - Binder 上下文管理者的启动
-  - 见系统启动中的 [ServiceManager 启动](https://sharrychoo.github.io/blog/android-source/servicemanager-start)
+  - 见系统启动中的 [ServiceManager 启动](https://sharrychoo.github.io/blog/android-source/servicemanager-process-start)
 - [Binder 通信完整流程](https://sharrychoo.github.io/blog/android-source/dc-binder5)
 
 #### 3. Asheme 共享内存驱动
@@ -87,14 +87,14 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 
 ### 二) 系统启动
 - [Init 进程的启动](https://sharrychoo.github.io/blog/android-source/init-process-start)
-- [ServiceManager 启动](https://sharrychoo.github.io/blog/android-source/servicemanager-start)
+- [ServiceManager 启动](https://sharrychoo.github.io/blog/android-source/servicemanager-process-start)
 - [SurfaceFlinger 的启动](https://sharrychoo.github.io/blog/android-source/surfaceflinger-launch)
    - [SurfaceFlinger Hotplug 的处理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-hotplug)
    - [SurfaceFlinger 对 Vsync 信号护理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-vsync)
    - [SurfaceFlinger 渲染图层](https://sharrychoo.github.io/blog/android-source/surfaceflinger-composer)
 - [Zygote 进程的启动](https://sharrychoo.github.io/blog/android-source/zygote-process-start)
 - [SystemServer 进程的启动](https://sharrychoo.github.io/blog/android-source/systemserver-process-start)
-  - [AMS 的启动](https://sharrychoo.github.io/blog/android-source/ams_start)
+  - [AMS 的启动](https://sharrychoo.github.io/blog/android-source/ams-start)
   - [PMS 的启动](https://sharrychoo.github.io/blog/android-source/pkms-launch1)
     - [解析备份文件](https://sharrychoo.github.io/blog/android-source/pkms-launch1)
     - [扫描安装目录](https://sharrychoo.github.io/blog/android-source/pkms-launch2)
