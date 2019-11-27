@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— Zygote 进程的启动
 permalink: android-source/zygote-process-start
 key: android-source-zygote-process-start

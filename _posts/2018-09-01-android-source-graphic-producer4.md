@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— View 的测量
 permalink: android-source/graphic-producer4
 key: android-source-graphic-producer4

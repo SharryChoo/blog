@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— Service 的绑定
 permalink: android-source/service-bind
 key: android-source-service-bind

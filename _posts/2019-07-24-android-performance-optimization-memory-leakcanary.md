@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 内存监控 —— LeakCanary 检测内存泄漏
 tags: PerformanceOptimization
 ---

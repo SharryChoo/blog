@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 ——  Activity 的启动 之 目标的启动
 permalink: android-source/activity-launch3
 key: android-source-activity-launch3

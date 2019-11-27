@@ -1,5 +1,4 @@
 ---
-layout: article
 title: OpenCV 统计学 —— 直方均衡补偿
 tags: OpenCV
 ---

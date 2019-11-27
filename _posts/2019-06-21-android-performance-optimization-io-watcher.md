@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android IO 监控技术
 tags: PerformanceOptimization
 ---

@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— Binder 通信实例
 permalink: android-source/dc-binder1
 key: android-source-dc-binder1

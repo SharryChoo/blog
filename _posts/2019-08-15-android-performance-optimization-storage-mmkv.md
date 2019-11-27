@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 存储优化 —— MMKV 集成与实现原理
 tags: PerformanceOptimization
 ---

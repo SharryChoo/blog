@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android Native 异常捕获
 tags: PerformanceOptimization
 ---

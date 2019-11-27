@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— IBinder 对象的实例化
 permalink: android-source/dc-binder3
 key: android-source-dc-binder3

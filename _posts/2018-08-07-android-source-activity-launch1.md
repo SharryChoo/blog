@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— Activity 的启动 之 请求方的暂停
 permalink: android-source/activity-launch1
 key: android-source-activity-launch1

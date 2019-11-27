@@ -1,5 +1,4 @@
 ---
-layout: article
 title: OpenCV 特征匹配 —— HOG 行人检测
 tags: OpenCV
 ---

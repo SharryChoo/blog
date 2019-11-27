@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— SurfaceFlinger 的启动
 permalink: android-source/surfaceflinger-launch
 key: android-source-surfaceflinger-launch

@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— Init 进程的启动
 permalink: android-source/init-process-start
 key: android-source-init-process-start

@@ -1,5 +1,4 @@
 ---
-layout: article
 title: OpenCV 实战 —— 二维码识别
 tags: OpenCV
 ---

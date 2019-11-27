@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— IMS 的事件分发
 permalink: android-source/ims-dispatch
 key: android-source-ims-dispatch

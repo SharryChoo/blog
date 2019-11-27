@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android IO 性能优化
 tags: PerformanceOptimization
 ---

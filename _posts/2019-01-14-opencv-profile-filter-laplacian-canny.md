@@ -1,5 +1,4 @@
 ---
-layout: article
 title: OpenCV 轮廓过滤 —— Laplacian & Canny 算子与轮廓筛选
 tags: OpenCV
 ---

@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— View 的硬件渲染
 permalink: android-source/graphic-producer8
 key: android-source-graphic-producer8

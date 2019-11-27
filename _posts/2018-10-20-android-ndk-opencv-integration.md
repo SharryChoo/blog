@@ -1,5 +1,4 @@
 ---
-layout: article
 title: OpenCV 的集成
 tags: OpenCV
 ---

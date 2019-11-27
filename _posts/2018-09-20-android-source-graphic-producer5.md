@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— ViewRootImpl 的 Surface 创建
 permalink: android-source/graphic-producer5
 key: android-source-graphic-producer5

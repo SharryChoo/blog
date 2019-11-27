@@ -1,5 +1,4 @@
 ---
-layout: article
 title: OpenCV 形态学 —— 验证码提取
 tags: OpenCV
 ---

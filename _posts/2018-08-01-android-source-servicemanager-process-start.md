@@ -1,5 +1,4 @@
 ---
-layout: article
 title: Android 系统架构 —— ServiceManager 进程的启动
 permalink: android-source/servicemanager-process-start
 key: android-source-servicemanager-process-start

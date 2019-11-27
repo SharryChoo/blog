@@ -1,5 +1,4 @@
 ---
-layout: article
 title: OpenCV 滤波处理 —— 均值模糊与高斯模糊
 tags: OpenCV
 ---
