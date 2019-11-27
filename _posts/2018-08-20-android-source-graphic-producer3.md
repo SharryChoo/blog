@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android 系统架构 —— ViewRootImpl 与 WMS 通信"
+title: Android 系统架构 —— ViewRootImpl 与 WMS 通信
 permalink: android-source/graphic-producer3
 key: android-source-graphic-producer3
 tags: AndroidFramework

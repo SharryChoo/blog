@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android NDK —— JPEG 压缩的优化"
+title: Android NDK —— JPEG 压缩的优化
 permalink: android-ndk/jpeg-compress-optimizing
 key: android-ndk-jpeg-compress-optimizing
 tags: NDK

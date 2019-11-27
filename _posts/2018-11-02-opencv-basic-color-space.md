@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "OpenCV 基础篇 —— 色彩空间"
+title: OpenCV 基础篇 —— 色彩空间
 tags: OpenCV
 ---
 

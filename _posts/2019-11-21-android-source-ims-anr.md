@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android 系统架构 —— IMS 的 ANR 产生流程"
+title: Android 系统架构 —— IMS 的 ANR 产生流程
 permalink: android-source/ims-anr
 key: android-source-ims-anr
 tags: AndroidFramework

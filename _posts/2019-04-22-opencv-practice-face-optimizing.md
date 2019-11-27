@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "OpenCV 实战 —— 人像美容(二) 美容实战"
+title: OpenCV 实战 —— 人像美容(二) 美容实战
 tags: OpenCV
 ---
 

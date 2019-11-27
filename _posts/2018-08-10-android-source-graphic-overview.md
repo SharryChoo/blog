@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android 系统架构 —— 图形架构篇 概览"
+title: Android 系统架构 —— 图形架构篇 概览
 permalink: android-source/graphic-overview
 key: android-source-graphic-overview
 tags: AndroidFramework

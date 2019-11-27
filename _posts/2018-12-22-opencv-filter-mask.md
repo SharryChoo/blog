@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "OpenCV 滤波处理 —— 图像掩模"
+title: OpenCV 滤波处理 —— 图像掩模
 tags: OpenCV
 ---
 

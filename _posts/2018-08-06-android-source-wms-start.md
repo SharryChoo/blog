@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android 系统架构 —— WMS 的启动"
+title: Android 系统架构 —— WMS 的启动
 permalink: android-source/wms-start
 key: android-source-wms-start
 tags: AndroidFramework

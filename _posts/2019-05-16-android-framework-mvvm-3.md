@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "MVVM 架构演进 —— 架构的搭建"
+title: MVVM 架构演进 —— 架构的搭建
 tags: Framework
 ---
 

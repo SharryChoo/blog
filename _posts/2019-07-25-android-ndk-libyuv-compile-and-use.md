@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android NDK —— Libyuv 编译与使用"
+title: Android NDK —— Libyuv 编译与使用
 tags: NDK
 ---
 

@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android 系统架构 —— SurfaceFlinger 渲染图层"
+title: Android 系统架构 —— SurfaceFlinger 渲染图层
 permalink: android-source/surfaceflinger-composer
 key: android-source-surfaceflinger-composer
 tags: AndroidFramework

@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android 系统架构 —— Service 的启动"
+title: Android 系统架构 —— Service 的启动
 permalink: android-source/service-launch
 key: android-source-service-launch
 tags: AndroidFramework

@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android 系统架构 —— Window 与 WindowManager 的关系"
+title: Android 系统架构 —— Window 与 WindowManager 的关系
 permalink: android-source/graphic-producer1
 key: android-source-graphic-producer1
 tags: AndroidFramework

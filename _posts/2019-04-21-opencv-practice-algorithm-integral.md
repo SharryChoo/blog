@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "OpenCV 实战 —— 人像美容(一) 积分图算法"
+title: OpenCV 实战 —— 人像美容(一) 积分图算法
 tags: OpenCV
 ---
 

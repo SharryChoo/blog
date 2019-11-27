@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android 系统架构 —— Window 与 View 的关联"
+title: Android 系统架构 —— Window 与 View 的关联
 permalink: android-source/graphic-producer2
 key: android-source-graphic-producer2
 tags: AndroidFramework

@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android 系统架构 —— SurfaceFlinger 对 Vsync 的处理"
+title: Android 系统架构 —— SurfaceFlinger 对 Vsync 的处理
 permalink: android-source/surfaceflinger-vsync
 key: android-source-surfaceflinger-vsync
 tags: AndroidFramework

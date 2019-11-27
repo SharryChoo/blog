@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "OpenCV 基础篇 —— JPEG 编码"
+title: OpenCV 基础篇 —— JPEG 编码
 tags: OpenCV
 ---
 

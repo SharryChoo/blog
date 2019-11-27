@@ -1,6 +1,6 @@
 ---
 layout: article
-title: "Android 系统架构 —— 线程消息的发送与处理"
+title: Android 系统架构 —— 线程消息的发送与处理
 permalink: android-source/dc-handler2
 key: android-source-dc-handler2
 tags: AndroidFramework
