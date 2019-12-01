@@ -1,5 +1,7 @@
 ---
 title: Android 存储优化 —— MMKV 集成与实现原理
+permalink: android-performance-optimization/storage-mmkv
+key: android-performance-optimization-storage-mmkv
 tags: PerformanceOptimization
 ---
 
