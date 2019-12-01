@@ -60,9 +60,9 @@ InputStream is = res .openRawResource(R.raw.filename);
   - **R.java: 资源 ID 值**
 
 ## 三. 学习目标
-- [资源打包流程](https://sharrychoo.github.io/blog/android-source/resources-package.md)
-- [资源的管理者的创建](https://sharrychoo.github.io/blog/android-source/resources-manager.md)
-- [资源的查找与打开](https://sharrychoo.github.io/blog/android-source/resources-find-and-open.md)
+- [资源打包流程](https://sharrychoo.github.io/blog/android-source/resources-package)
+- [资源的管理者的创建](https://sharrychoo.github.io/blog/android-source/resources-manager)
+- [资源的查找与打开](https://sharrychoo.github.io/blog/android-source/resources-find-and-open)
 
 ## 参考文献
 - https://blog.csdn.net/luoshengyang/article/details/8738877

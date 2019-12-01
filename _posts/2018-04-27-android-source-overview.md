@@ -122,10 +122,10 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 - [View 的软件渲染](https://sharrychoo.github.io/blog/android-source/graphic-producer7)
 - [View 的硬件渲染](https://sharrychoo.github.io/blog/android-source/graphic-producer8)
 
-### [四) 资源管理篇](https://sharrychoo.github.io/blog/android-source/resources-overview.md)
-- [资源打包流程](https://sharrychoo.github.io/blog/android-source/resources-package.md)
-- [资源的管理者的创建](https://sharrychoo.github.io/blog/android-source/resources-manager.md)
-- [资源的查找与打开](https://sharrychoo.github.io/blog/android-source/resources-find-and-open.md)
+### [四) 资源管理篇](https://sharrychoo.github.io/blog/android-source/resources-overview)
+- [资源打包流程](https://sharrychoo.github.io/blog/android-source/resources-package)
+- [资源的管理者的创建](https://sharrychoo.github.io/blog/android-source/resources-manager)
+- [资源的查找与打开](https://sharrychoo.github.io/blog/android-source/resources-find-and-open)
 
 ## 三. 学习资料
 - [<<Android 系统源代码情景分析(第三版)>>](http://product.dangdang.com/25173853.html)
