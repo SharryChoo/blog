@@ -1020,9 +1020,6 @@ AssetManager 的构建算是资源管理的核心内容了, 它主要处理的�
 
 资源管理的创建我们就分析到这里, 后面一篇文章我们着重分析一下资源的查找流程, 看看我们是如何通过资源表找到对应的资源的
 
-## 疑问
-.apk 文件被解析到哪里去了?
-
 ## 参考文献
 - [Android 重学系列 资源的查找](https://www.jianshu.com/p/b153d63d60b3)
 - [Dynamic Reference](https://blog.csdn.net/dayong198866/article/details/95635910)
