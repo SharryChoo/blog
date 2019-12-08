@@ -96,5 +96,4 @@ Android 7.0 之后除了添加 OpenGL ES3.2 的支持, 同时添加了 Vulkan �
 ### 消费进程
 - [SurfaceFlinger 的启动](https://sharrychoo.github.io/blog/android-source/surfaceflinger-launch)
 - [SurfaceFlinger Hotplug 的处理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-hotplug)
-- [SurfaceFlinger 对 Vsync 信号护理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-vsync)
-- [SurfaceFlinger 渲染图层](https://sharrychoo.github.io/blog/android-source/surfaceflinger-composer)
+- [SurfaceFlinger 对 Vsync 信号护理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-vsync-dispatch)

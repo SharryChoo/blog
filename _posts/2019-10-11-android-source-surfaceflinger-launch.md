@@ -626,7 +626,7 @@ void Device::loadCapabilities()
 }
 ```
 
-### 3. 回调的注册
+#### 3. 回调的注册
 ```
 // frameworks/native/services/surfaceflinger/DisplayHardware/HWComposer.cpp
 void HWComposer::registerCallback(HWC2::ComposerCallback* callback,
