@@ -24,7 +24,7 @@ Android 的图形渲染是一个生产者消费者模型, Android 图形渲染�
 
 ### 一) 图像生产者
 生产者为 Media Player 视频解码器, OpenGL ES 等产生的图像缓存数据, 他们通过 BufferData 的形式传递到缓冲队列中
-- OpenGL ES: 通过渲染管线之后, 将数据输出到 EGLDisplay 上
+- OpenGL ES: 通过渲染管线之后, 将数据输出到 EGLSurface 中绑定的 GraphicBuffer 中
 - Media Player: 解码视频数据, 获取到 YUV 视频帧
 - Camera Preview: 获取预览数据, 输出到 SurfaceTexture 上
 
