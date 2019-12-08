@@ -770,7 +770,7 @@ View 的 DisplayList 重构完成之后, 只需要将它的 DisplayList 保存�
 #### 3. 回顾
 整个 DisplayList 的更新流程如下所示
 
-[DisplayList 的重构](https://i.loli.net/2019/12/08/7zwjfk3KrON4LEX.jpg)
+![DisplayList 的重构](https://i.loli.net/2019/12/08/7zwjfk3KrON4LEX.jpg)
 
 了解了硬件渲染 DisplayList 的重构之后, 接下来我们看看 nSyncAndDrawFrame 是如何在子线程执行渲染操作的
 
