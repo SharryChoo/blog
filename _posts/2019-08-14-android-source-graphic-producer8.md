@@ -6,7 +6,7 @@ tags: AndroidFramework
 ---
 
 ## 前言
-Android 系统不如 IOS 流畅的问题, 一致被广大用户诟病, Google 为此也下了很多的功夫
+Android 系统不如 IOS 流畅的问题, 一致被广大用户诟病, Google 为此也下了很多的功夫, 各个 Android 版本的渲染变更如下
 
 Android 版本 | 渲染变更
 ---|---
@@ -17,7 +17,7 @@ Android 4.2 阶段 | 开发者选项中引入了过度渲染监控工具
 Android 5.0 阶段 | 1. 引入了 RenderNode 来保存 View 的绘制动作 DisplayList<br>2. 引入了 RenderThread, 所有的 GL 命令都在 RenderThread 中进行, 减轻了 UI 线程的工作量 
 Android 7.0 阶段 | 引入了  Vulkan 的硬件渲染引擎
 
-可以看到 Android 4.0 之后, 就已经默认开启硬件加速了, 5.0 之后更是引入了 RenderNode 和 RenderThread 来提升渲染能力, 关于[软件渲染的相关知识请点击这里回顾](https://sharrychoo.github.io/blog/android-source-graphic-producer7)
+可以看到 Android 4.0 之后, 就已经默认开启硬件加速了, 5.0 之后更是引入了 RenderNode 和 RenderThread 来提升渲染能力, 关于[软件渲染的相关知识请点击这里回顾](https://sharrychoo.github.io/blog/android-source/graphic-producer7)
 
 通过对 OpenCV 和 OpenGL 的学习, 让我们对图像图形学有了一定的了解, 这里再回过头来看看 Android 的图形架构的硬件绘制部分就比较轻松了, 这里我们以 Android 9.0 源码为例, 揭开 5.0 阶段之后硬件渲染的机制, 以及 RenderNode 和 RenderThread 的神秘面纱 
 
