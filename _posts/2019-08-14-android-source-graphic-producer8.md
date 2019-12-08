@@ -4,43 +4,29 @@ permalink: android-source/graphic-producer8
 key: android-source-graphic-producer8
 tags: AndroidFramework
 ---
-# 前言
-通过对 OpenCV 和 OpenGL 的学习, 让我们对图像图形学有了一定的了解, 这里再回过头来看看 Android 的图形架构的硬件绘制部分就比较轻松了
 
-<!--more-->
- 
-关于[软件渲染的相关知识请点击这里回顾](https://sharrychoo.github.io/blog/2018/10/10/android-source-graphic-producer7.html), 这里我们先回顾一下硬件加速绘制的时机
-```
-public final class ViewRootImpl implements ViewParent,
-        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
-    
-    ......
-    
-    private boolean draw(boolean fullRedrawNeeded) {
-        ......
-        final Rect dirty = mDirty;
-        if (!dirty.isEmpty() || mIsAnimating || accessibilityFocusDirty) {
-            // 若开启了硬件加速, 则使用 OpenGL 的 ThreadedRenderer 进行绘制
-            if (mAttachInfo.mThreadedRenderer != null && mAttachInfo.mThreadedRenderer.isEnabled()) {
-                ......
-                mAttachInfo.mThreadedRenderer.draw(mView, mAttachInfo, this, callback);
-            } else {
-                // ......软件绘制
-            }
-        }
-        .......
-    }
-}
-```
-从 ViewRootImpl.draw 的代码中, 我们看到硬件绘制只有在 mAttachInfo 的 mThreadedRenderer 有效的情况下才会执行
+## 前言
+Android 系统不如 IOS 流畅的问题, 一致被广大用户诟病, Google 为此也下了很多的功夫
 
-因此在想了解硬件绘制流程之前, 需要搞清楚 mThreadedRenderer 它是如何创建和初始化的
+Android 版本 | 渲染变更
+---|---
+Android 3.0 阶段 | 开始支持硬件加速
+Android 4.0 阶段 | 默认开启硬件加速
+Android 4.1 阶段 | 1. 引入了 VSYNC 垂直同步信号<br> 2. Triple Buffering 三缓冲机制
+Android 4.2 阶段 | 开发者选项中引入了过度渲染监控工具
+Android 5.0 阶段 | 1. 引入了 RenderNode 来保存 View 的绘制动作 DisplayList<br>2. 引入了 RenderThread, 所有的 GL 命令都在 RenderThread 中进行, 减轻了 UI 线程的工作量 
+Android 7.0 阶段 | 引入了  Vulkan 的硬件渲染引擎
+
+可以看到 Android 4.0 之后, 就已经默认开启硬件加速了, 5.0 之后更是引入了 RenderNode 和 RenderThread 来提升渲染能力, 关于[软件渲染的相关知识请点击这里回顾](https://sharrychoo.github.io/blog/android-source-graphic-producer7)
+
+通过对 OpenCV 和 OpenGL 的学习, 让我们对图像图形学有了一定的了解, 这里再回过头来看看 Android 的图形架构的硬件绘制部分就比较轻松了, 这里我们以 Android 9.0 源码为例, 揭开 5.0 阶段之后硬件渲染的机制, 以及 RenderNode 和 RenderThread 的神秘面纱 
 
 ## 一. ThreadedRenderer 的创建
 关于硬件绘制的开启, 这需要从 ViewRootImpl 的创建说起
 
 ViewRootImpl 是用于管理 View 树与其依附 Window 的一个媒介, 当我们调用 WindowManager.addView 时便会创建一个 ViewRootImpl 来管理即将添加到 Window 中的 View
-```
+
+```java
 public final class WindowManagerGlobal {
 
     public void addView(View view, ViewGroup.LayoutParams params,
@@ -130,18 +116,28 @@ public final class ViewRootImpl implements ViewParent,
 ```
 好的, 这个硬件加速渲染器是通过 **WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED** 来决定的, 最终会调用 ThreadedRenderer.create 来创建一个 ThreadedRenderer 对象
 
-他会给 mAttachInfo 的 mThreadedRenderer 属性创建一个渲染器线程的描述
+他会给 mAttachInfo 的 mThreadedRenderer 属性创建一个渲染器线程的描述, 下面看看 ThreadedRenderer.create 函数的实现
 
-```
+```java
 public final class ThreadedRenderer {
 
+    public static ThreadedRenderer create(Context context, boolean translucent, String name) {
+        ThreadedRenderer renderer = null;
+        if (isAvailable()) {
+            // 创建 ThreadedRenderer 对象
+            renderer = new ThreadedRenderer(context, translucent, name);
+        }
+        return renderer;
+    }
+    
     private long mNativeProxy;   // 描述渲染代理对象 Native 句柄值
-    private RenderNode mRootNode;// 描述当前窗体的根渲染器
+    private RenderNode mRootNode;// 描述当前窗体的根渲染结点
 
     ThreadedRenderer(Context context, boolean translucent, String name) {
         ......
-        // 构建了一个根 RenderNode, 它表示当前窗体的根渲染器
+        // 调用 nCreateRootRenderNode 构建了一个 Native 对象, 来描述窗体的跟渲染结点
         long rootNodePtr = nCreateRootRenderNode();
+        // 包装成 Java 的 RenderNode
         mRootNode = RenderNode.adopt(rootNodePtr);
         // 创建了一个 RenderProxy 渲染代理对象
         mNativeProxy = nCreateProxy(translucent, rootNodePtr);
@@ -158,10 +154,12 @@ public class RenderNode {
 }
 ```
 ThreadedRenderer 的构造函数中, 有两个非常重要的操作
-- 通过 nCreateRootRenderNode 创建渲染根结点
+- 通过 nCreateRootRenderNode 创建 Native 层的根渲染结点
 - 通过 nCreateProxy 创建渲染代理对象
 
-#### 创建渲染根结点
+下面我们一一分析
+
+### 一) 创建 Native 层的根渲染结点
 ```
 // frameworks/base/core/jni/android_view_ThreadedRenderer.cpp
 static jlong android_view_ThreadedRenderer_createRootRenderNode(JNIEnv* env, jobject clazz) {
@@ -176,6 +174,7 @@ static jlong android_view_ThreadedRenderer_createRootRenderNode(JNIEnv* env, job
 class RootRenderNode : public RenderNode, ErrorHandler {
 public:
     explicit RootRenderNode(JNIEnv* env) : RenderNode() {
+        // 保存了主线程的 Looper (Native)
         mLooper = Looper::getForThread();
         env->GetJavaVM(&mVm);
     }
@@ -190,9 +189,11 @@ RenderNode::RenderNode()
         , mAnimatorManager(*this)
         , mParentCount(0) {}
 ```
+更渲染结点的创建流程比较简单, 即创建了一个 Native 层的 RootRenderNode 对象, 然后将其句柄值返回到 Java 层
+
 接下来看看渲染代理对象的创建 
 
-#### 创建渲染代理对象
+### 二) 创建渲染代理对象
 ```
 // frameworks/base/core/jni/android_view_ThreadedRenderer.cpp
 static jlong android_view_ThreadedRenderer_createProxy(JNIEnv* env, jobject clazz,
@@ -206,17 +207,21 @@ static jlong android_view_ThreadedRenderer_createProxy(JNIEnv* env, jobject claz
 
 RenderProxy::RenderProxy(bool translucent, RenderNode* rootRenderNode,
                          IContextFactory* contextFactory)
-        // 获取 RenderThread 对象
+        // 1. 获取 RenderThread 对象
         : mRenderThread(RenderThread::getInstance())
         , mContext(nullptr) {
-    // 可以看到这里创建了一个 CanvasContext
+    // 2, 可以看到这里创建了一个 CanvasContext
     mContext = mRenderThread.queue().runSync([&]() -> CanvasContext* {
         return CanvasContext::create(mRenderThread, translucent, rootRenderNode, contextFactory);
     });
     mDrawFrameTask.setContext(&mRenderThread, mContext, rootRenderNode);
 }
 ```
-RenderProxy 中创建了一个 CanvasContext 上下文, 用于管理 Canvas 绘制时所需要的上下文数据
+从 RenderProxy 对象的创建中我们可以看到非常重要的信息, 它内部持有了 mRenderThread 的渲染子线程, 并且**创建一个了 CanvasContext 描述实现渲染操作的上下文**
+
+从这里了我们就可以猜测, 最终我们的渲染动作会交由 RenderProxy 的 mRenderThread 线程来执行的, 以此来减轻 UI 线程的工作压力, 下面我们看看 CanvasContext 的创建过程
+
+##### CanvasContext 的创建
 ```
 // frameworks/base/libs/hwui/renderthread/CanvasContext.cpp
 CanvasContext* CanvasContext::create(RenderThread& thread, bool translucent,
@@ -261,17 +266,20 @@ CanvasContext::CanvasContext(RenderThread& thread, bool translucent, RenderNode*
     mProfiler.setDensity(mRenderThread.mainDisplayInfo().density);
 }
 ```
+从这里可以看到, CanvasContext 的工厂方法的 create 中根据不同的 Type, 注入了不同的渲染管线的实现
 
-从这里可以看到, CanvasContext 的工厂方法的 create 中根据不同的 Type, 注入了不同的渲染管线, **通过这种方式这样子就可以将上层抽象的 API 与具体的实现分开了, 其中还可以看到最新的 Vulkan 渲染管线**, 这里我们主要探究 OpenGLPipeline 的渲染管线
+**通过 API 的方式对上层提供服务, 很好的屏蔽了实现的细节, 也是策略设计模式的一种体现, 其中还可以看到 7.0 之后支持的 Vulkan 渲染管线的实现**
 
-### 回顾
-到这里 ThreadRenderer 的初始化便完成了, 这里回顾一下各个对象的依赖关系
+关于 Vlukan 的硬件渲染引擎笔者不是很了解, 想了解更多可以 [查看这篇博文](https://glumes.com/post/vulkan/vulkan-tutorial-concept/), 本篇我们主要关注 OpenGL 硬件渲染引擎的实现
+
+### 三) 回顾
+到这里 ThreadRenderer 的创建便完成了, 这里回顾一下各个对象的依赖关系
 
 ![依赖关系](https://i.loli.net/2019/10/23/GCLwjWkEJUOSZYu.png)
 
-在 ThreadRenderer 创建的过程中, 我们并没有看到它与 Surface 进行绑定的过程, 这意为着**此时只有画笔却没有画布, 所以还需要一个与 Surface 绑定的过程**
-
-接下来看看初始化操作
+在 ThreadRenderer 创建的过程中, 我们并没有看到它与 Surface 进行绑定的过程, 这意味着渲染之后的数据是无法推送给 SurfaceFlinger 进行图像合成, 更别提展示到屏幕上了
+ 
+因此一定还存在一个与 Surface 绑定的过程, 这就是 ThreadedRenderer 的初始化, 下面看看它的具体实现
 
 ## 二. ThreadedRenderer 的初始化
 ```
@@ -283,7 +291,7 @@ public final class ViewRootImpl implements ViewParent,
         try {
             
             ......
-            // relayoutWindow 之后 Surface 便被填充了 IGraphicBufferProducer, 即有效了
+            // relayoutWindow 之后 Surface 便被填充了 IGraphicBufferProducer, 可以正常使用了
             relayoutResult = relayoutWindow(params, viewVisibility, insetsPending);
             if (!hadSurface) {
                 if (mSurface.isValid()) {
@@ -357,8 +365,6 @@ void CanvasContext::setSurface(sp<Surface>&& surface) {
     bool hasSurface = mRenderPipeline->setSurface(mNativeSurface.get(), mSwapBehavior, colorMode);
     ......
 }
-
-
 ```
 这里为 mRenderPipeline 注入了 Surface, 其具体操作如下
 ```
@@ -368,7 +374,7 @@ bool OpenGLPipeline::setSurface(Surface* surface, SwapBehavior swapBehavior, Col
         mEglManager.destroySurface(mEglSurface);
         mEglSurface = EGL_NO_SURFACE;
     }
-    // 创建 EGLSurface, 作为帧缓冲
+    // 创建 EGLSurface 作为渲染数据的输出 Buffer
     if (surface) {
         const bool wideColorGamut = colorMode == ColorMode::WideColorGamut;
         mEglSurface = mEglManager.createSurface(surface, wideColorGamut);
@@ -381,31 +387,49 @@ bool OpenGLPipeline::setSurface(Surface* surface, SwapBehavior swapBehavior, Col
     return false;
 }
 ```
-可以看到这里通过 Surface, 创建了一个 EGLSurface, 我们知道 EGLSurface 表示 OpenGL 的缓冲区, 有了缓冲区便可以进行渲染管线的操作了
+可以看到这里通过 Surface, 创建了一个 EGLSurface, 我们知道 EGLSurface 表示 OpenGL 渲染后数据的输出 Buffer, 有了缓冲区便可以进行渲染管线的操作了
 
-到这里 ThreadedRenderer 的初始化工作便结束了, 接下来就可以**探索 mThreadedRenderer.draw 是如何进行硬件绘制的**了
+到这里 ThreadedRenderer 的初始化工作便结束了, 接下来就可以**探索 mThreadedRenderer.draw 是如何进行硬件绘制的**
 
 ## 三. ThreadedRenderer.draw
-硬件渲染开启之后, 在 ViewRootImpl.draw 中就会执行 mAttachInfo.mThreadedRenderer.draw(mView, mAttachInfo, this, callback); 进行 View 的绘制
-```
-public final class ThreadedRenderer {
-
-    private RenderNode mRootNode;// 描述当前窗体的渲染器
-
-    ThreadedRenderer(Context context, boolean translucent, String name) {
+```java
+public final class ViewRootImpl implements ViewParent,
+        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
+    
+    ......
+    
+    private boolean draw(boolean fullRedrawNeeded) {
         ......
-        // 构建了一个根 RenderNode, 它表示当前窗体的根渲染器
-        long rootNodePtr = nCreateRootRenderNode();
-        mRootNode = RenderNode.adopt(rootNodePtr);
+        final Rect dirty = mDirty;
+        if (!dirty.isEmpty() || mIsAnimating || accessibilityFocusDirty) {
+            // 若开启了硬件加速, 则使用 OpenGL 的 ThreadedRenderer 进行绘制
+            if (mAttachInfo.mThreadedRenderer != null && mAttachInfo.mThreadedRenderer.isEnabled()) {
+                ......
+                mAttachInfo.mThreadedRenderer.draw(mView, mAttachInfo, this, callback);
+            } else {
+                // ......软件绘制
+            }
+        }
+        .......
     }
+}
+```
+硬件渲染开启之后, 在 ViewRootImpl.draw 中就会执行 mAttachInfo.mThreadedRenderer.draw(...) 进行 View 的硬件渲染, 下面我们就看看它的具体实现
+
+```java
+public final class ThreadedRenderer {
+    // Native 层 RootRenderNode 的 Java 包装类
+    private RenderNode mRootNode;
+    // Native 层 RenderProxy 句柄
+    private long mNativeProxy;
     
     void draw(View view, AttachInfo attachInfo, DrawCallbacks callbacks,
             FrameDrawingCallback frameDrawingCallback) {
         ......    
-        // 1. 更新当前窗体的渲染数据
+        // 1. 更新 mRootNode 的 DisplayList
         updateRootDisplayList(view, callbacks);
         ......
-        // 2. 同步渲染帧, 并且推入 SurfaceFlinger
+        // 2. 同步绘制渲染帧
         int syncResult = nSyncAndDrawFrame(mNativeProxy, frameInfo, frameInfo.length);
         ......
     }
@@ -413,12 +437,12 @@ public final class ThreadedRenderer {
 }
 ```
 好的, 可以看到 ThreadedRenderer 主要进行了两个操作
-- 构建窗体的渲染数据
-- 调用 nSyncAndDrawFrame 将数据推入 SurfaceFlinger
+- 更新 mRootNode 的 DisplayList
+- 调用 nSyncAndDrawFrame 执行渲染操作
 
-可以看到当前窗体的渲染数据是从 View 树中获取的, 因此我们这里要着重分析一下, **如何构建 View 树的渲染数据**
+接下来我们一一分析
 
-### 一) 构建窗体的渲染数据
+### 一) 更新 mRootNode 的 DisplayList
 ```
 public final class ThreadedRenderer {
     
@@ -426,17 +450,16 @@ public final class ThreadedRenderer {
         ......
         // 视图需要更新 || 当前的根渲染器中的数据已经无效了, 会进入如下分支
         if (mRootNodeNeedsUpdate || !mRootNode.isValid()) {
-            // 1. 构建根结点的 DisplayListCanvas, 开始采集 View 绘制操作
+            // 1. 构建根结点的 Canvas
             DisplayListCanvas canvas = mRootNode.start(mSurfaceWidth, mSurfaceHeight);
             try {
                 ......
-                // 2. 将 DecorView 中绘制的操作渲染数据, 保存到根结点 DisplayListCanvas 中
+                // 2. 调用 view.updateDisplayListIfDirty() 更新 DecorView 的 DisplayList, 返回 View 的 RenderNode
+                // 3. 将 DecorView 的 RenderNode 中更新的 DisplayList 数据, 保存到根结点的 Canvas 中
                 canvas.drawRenderNode(view.updateDisplayListIfDirty());
                 ......
-                // 3. 表示当前窗体的视图数据更新完毕, 不需要更新了
-                mRootNodeNeedsUpdate = false;
             } finally {
-                // 3. 通知根结点数据采集完毕
+                // 4. 将根结点 Canvas 中的 DisplayList 注入根结点的 RenderNode
                 mRootNode.end(canvas);
             }
         }
@@ -444,13 +467,25 @@ public final class ThreadedRenderer {
 }
 ```
 好的, 可以看到渲染的操作主要有三步
-- 调用 RootNode.start: 构建根结点的 DisplayListCanvas
-- 调用 DecorView.updateDisplayListIfDirty: 采集 View 的绘制操作
-- 调用 RootNode.end: 通知数据采集完毕
+- **调用 mRootNode.start 构建根结点的 Canvas 对象**
+- **调用 DecorView.updateDisplayListIfDirty 更新 View 的 DisplayList**
+- 调用 DisplayListCanvas.drawRenderNode 将 View 的 DisplayList 注入根结点的 Canvas 中
+- **调用 mRootNode.end 将根结点的 Canvas 中记录的 DisplayList 数据保存到 mRootNode 中**
 
-#### 1. 开启数据的采集
-```
+上的步骤看起来比较绕, 我们先一一分析, 分析之后再进行总结
+
+#### 1. 构建根结点的 Canvas 对象
+```java
+public class RenderNode {
+
+    public DisplayListCanvas start(int width, int height) {
+        return DisplayListCanvas.obtain(this, width, height);
+    }
+
+}
+
 public final class DisplayListCanvas extends RecordingCanvas {
+
     static DisplayListCanvas obtain(@NonNull RenderNode node, int width, int height) {
         ......
         DisplayListCanvas canvas = sPool.acquire();
@@ -497,7 +532,7 @@ Canvas* Canvas::create_recording_canvas(int width, int height, uirenderer::Rende
 ```
 也就是说 DisplayListCanvas 它会关联一个 SkiaRecordingCanvas/RecordingCanvas
 
-这里主要看看 [RecordingCanvas](http://androidxref.com/9.0.0_r3/xref/frameworks/base/libs/hwui/RecordingCanvas.cpp) 的操作
+这里主要看看 [RecordingCanvas](http://androidxref.com/9.0.0_r3/xref/frameworks/base/libs/hwui/RecordingCanvas.cpp) 的实现
 ```
 // frameworks/base/libs/hwui/RecordingCanvas.cpp
 RecordingCanvas::RecordingCanvas(size_t width, size_t height)
@@ -543,21 +578,21 @@ void CanvasState::initializeRecordingSaveStack(int viewportWidth, int viewportHe
     mSaveCount = 1;
 }
 ```
-RecordingCanvas 在构建之后, 会创建一个 DisplayList, 同时初始化 CanvasState 用于记录每一步的绘制动作
+RecordingCanvas 这个 Canvas 与软件渲染的 SkiaCanvas 完全不同
+- SkiaCanvas 将 SkBitmap 作为缓冲区, 所有的绘制操作会直接写入到缓冲区中
+- RecordingCanvas 持有了 **DisplayList** 和 **CanvasState** 对象, 这意味着它并没有真正的执行绘制, 而是通过 DisplayList 记录了 View 的绘制动作
 
-好的, 到这里 DisplayListCanvas 的创建便完成了, 从这里可以看到 DisplayListCanvas 使用的 Native 对象为 RecordingCanvas
+了解了硬件渲染的 Canvas 与软件渲染 Canvas 的不同之后, 接下来我们就看看 DecorView 的 updateDisplayListIfDirty 的操作
 
-**RecordingCanvas 这个 Canvas 与 SkiaCanvas 不同, 它持有一个 DisplayList 和 CanvasState, 并没有没有发现 SkiaCanvas 的 SkBitmap 作为缓冲区, 这意味着它的 draw 操作并不会绘制到缓冲区, 而是记录了每一步的操作**, 也就是说后面的 updateDisplayListIfDirty 并不是绘制流程, 而是对绘制步骤的采集了
-
-#### 2. 采集子 View 的数据
-```
+#### 2. updateDisplayListIfDirty 捕获 View 的绘制动作
+```java
 public class View {
     
     final RenderNode mRenderNode;
     
     public View(Context context) {
         ......
-        // 可见在硬件绘制中, 每一个 View 对应着一个渲染器中的结点
+        // 可见在硬件绘制中, 每一个 View 都持有一个 RenderNode
         mRenderNode = RenderNode.create(getClass().getName(), this);
         ......    
     }
@@ -568,33 +603,34 @@ public class View {
         
         if ((mPrivateFlags & PFLAG_DRAWING_CACHE_VALID) == 0
                 || !renderNode.isValid() || (mRecreateDisplayList)) {
-            // 当前 View 渲染器中数据依旧是有效的 && 没有要求重绘
+            // 1. 当前 View 中的渲染数据有效
             if (renderNode.isValid() && !mRecreateDisplayList) {
-                // 将更新 Render 的操作分发给子 View, 该方法会在 ViewGroup 中重写
+                // 1.1 将更新 Render 的操作分发给子 View, 该方法会在 ViewGroup 中重写
                 dispatchGetDisplayList();
-                // 直接跳过使用 Canvas 绘制的操作
+                // 1.2 返回该 View 的 RenderNode
                 return renderNode;
             }
 
-            // 走到这里说明当前 View 的渲染数据已经失效了, 需要重新构建渲染数据
+            // 2. 走到这里说明当前 View 的渲染数据已经失效了, 需要重新构建渲染数据
             mRecreateDisplayList = true;
 
             int width = mRight - mLeft;
             int height = mBottom - mTop;
             int layerType = getLayerType();
             
-            // 1. 通过渲染器构建一个 Canvas 画笔, 画笔的可作用的区域为 width, height
+            // 2.1 通过渲染器构建一个 DisplayListCanvas 画笔, 画笔的可作用的区域为 width, height
             final DisplayListCanvas canvas = renderNode.start(width, height);
             try {
                 if (layerType == LAYER_TYPE_SOFTWARE) {
                     ......
                 } else {
                     ......
-                    // 2.2 当前 View 的 Draw 可跳过, 直接分发去构建子 View 渲染数据
+                    // 判断是否需要绘制子孩子
                     if ((mPrivateFlags & PFLAG_SKIP_DRAW) == PFLAG_SKIP_DRAW) {
+                        // 2.2 分发绘制动作
                         dispatchDraw(canvas);
                     } else {
-                        // 2.3 绘制自身
+                        // 2.3 仅绘制自身
                         draw(canvas);
                     }
                 }
@@ -611,22 +647,52 @@ public class View {
     
 }
 ```
-DecorView.updateDisplayListIfDirty 方法从名字上来理解是若 View 展示列表无效了则更新它, 事实上它做的也是如此, 它主要做了如下操作
-- 当前 View 渲染数据依旧是有效的 并且没有要求重绘
-  - 将更新渲染数据的操作分发给子 View
+从 View 的构造函数中可以看到每一个 View 都持有一个 RenderNode 对象, DecorView.updateDisplayListIfDirty 执行操作如下
+- 当前 View 渲染数据依旧是有效的, 并且没有要求重绘
+  - 调用 **dispatchGetDisplayList** 更新子 View 的 DisplayList
   - 遍历结束之后直接返回 当前现有的渲染器结点对象
 - 当前 View 渲染数据无效了
-  - 通过渲染器构建可渲染区域的画笔 DisplayListCanvas
-  - 调用 view.draw 进行渲染数据的构建
-    - **这个方法留在软件渲染的时候再分析**
-  - 当前 View 的渲染数据重新构建好了, 则将它保存在渲染器 renderNode 中
+  - 构建 Canvas 对象
+  - 调用 dispatchDraw 分发绘制操作
+- 调用 **RenderNode.end** 将 Canvas 中的 DisplayList 注入到 RenderNode 中
 
-可以看到 DecorView 也使用了 RenderNode 构建了 DisplayListCanvas, 也就是说绘制的操作会保存 DecorView 的 DisplayListCanvas 中
+好的, 从这里我们就可以看出硬件绘制的优势了, 通过 RenderNode 可以来判断当前 View 是否需要重绘, 若是不需要则直接调用 dispatchGetDisplayList 更新子 View 的 RenderNode 中的 DisplayList
 
-绘制结束之后同样会调用 renderNode.end, 表示数据采集结束, 接下来我们看看这个操作
+比起软件渲染只要 invalidate 就会触发整体重绘的实现, 使用 RenderNode 和 DisplayList 的实现无疑要高效的多
 
-#### 3. 结束采集操作
+这里我们再看看 dispatchGetDisplayList 和 RenderNode.end 的实现
+
+##### 1) dispatchGetDisplayList
+```java
+public abstract class ViewGroup extends View implements ViewParent, ViewManager {
+    
+     protected void dispatchGetDisplayList() {
+        final int count = mChildrenCount;
+        final View[] children = mChildren;
+        for (int i = 0; i < count; i++) {
+            final View child = children[i];
+            if (((child.mViewFlags & VISIBILITY_MASK) == VISIBLE || child.getAnimation() != null)) {
+                // 重新构建子 View 的 DisplayList
+                recreateChildDisplayList(child);
+            }
+        }
+        ......
+     }
+    
+     private void recreateChildDisplayList(View child) {
+         child.mRecreateDisplayList = (child.mPrivateFlags & PFLAG_INVALIDATED) != 0;
+         child.mPrivateFlags &= ~PFLAG_INVALIDATED;
+         // 调用了子 View 的 updateDisplayListIfDirty
+         child.updateDisplayListIfDirty();
+         child.mRecreateDisplayList = false;
+     }
+
+}
 ```
+可以看到这里循环的调用了子 View 的 updateDisplayListIfDirty 方法实现, 只更新了需要重绘的 View 的 DisplayList
+
+##### 2) RenderNode.end 结束绘制动作
+```java
 public class RenderNode {
 
     public void end(DisplayListCanvas canvas) {
@@ -639,7 +705,9 @@ public class RenderNode {
     
 }
 ```
-##### 1) 结束 Canvas 数据的采集
+可以看到 RenderNode.end 中主要有两步操作, 首先调用 DisplayListCanvas.finishRecording 返回内部保存的 DisplayList, 然后将 DisplayList 注入到 Native 层的 RenderNode 中
+
+###### Step1 返回 DisplayList
 ```
 public final class DisplayListCanvas extends RecordingCanvas {
 
@@ -672,7 +740,7 @@ DisplayList* RecordingCanvas::finishRecording() {
 ```
 从这里可以看出, finishRecording 的操作会将绘制过程中的 DisplayList 返回, 接下来看看如何将 DisplayList 返回给 RenderNode
 
-##### 2) 将采集的数据保存到 RenderNode
+###### Step2 将 DisplayList 保存到 RenderNode 中
 ```
 // frameworks/base/core/jni/android_view_RenderNode.cpp
 static void android_view_RenderNode_setDisplayList(JNIEnv* env,
@@ -693,14 +761,21 @@ void RenderNode::setStagingDisplayList(DisplayList* displayList) {
 ```
 好的, 到这里我们 Canvas 记录的 DisplayList 数据就保存到了 mStagingDisplayList 变量中了
 
-#### 回顾
+整个 View 更新 DisplayList 的流程如下所示
 
-![View 硬件绘制结构图](https://i.loli.net/2019/10/23/RseqzM8aAkVt4GX.png)
+![View 更新 DisplayList](https://i.loli.net/2019/12/08/3Nn4PSDqfkJpchA.jpg)
 
-接下来看看, 数据推送到 SurfaceFlinger 的过程
+View 的 DisplayList 重构完成之后, 只需要将它的 DisplayList 保存到 ThreadedRenderer 的 mRootNode 中, 整个 DisplayList 的更新动作就完成了
 
-### 二) nSyncAndDrawFrame
-ThreadedRenderer 通过 nSyncAndDrawFrame 将数据发送到 SurfaceFlinger, 这里看看它的具体操作
+#### 3. 回顾
+整个 DisplayList 的更新流程如下所示
+
+[DisplayList 的重构](https://i.loli.net/2019/12/08/7zwjfk3KrON4LEX.jpg)
+
+了解了硬件渲染 DisplayList 的重构之后, 接下来我们看看 nSyncAndDrawFrame 是如何在子线程执行渲染操作的
+
+### 二) nSyncAndDrawFrame 子线程渲染
+ThreadedRenderer 通过 nSyncAndDrawFrame 将数据发送给 SurfaceFlinger, 这里看看它的具体操作
 ```
 // frameworks/base/core/jni/android_view_ThreadedRenderer.cpp
 static int android_view_ThreadedRenderer_syncAndDrawFrame(JNIEnv* env, jobject clazz,
@@ -763,7 +838,7 @@ void CanvasContext::draw() {
     int64_t frameCompleteNr = mFrameCompleteCallbacks.size() ? getFrameNumber() : -1;
     waitOnFences();
     bool requireSwap = false;
-    // 2. 通知渲染管线将数据, 交换到 Surface 的缓冲区, 并且推送给 SurfaceFlinger
+    // 2. 通知渲染管线将数据, 交换到 Surface 的缓冲区中
     bool didSwap =
             mRenderPipeline->swapBuffers(frame, drew, windowDirty, mCurrentFrameInfo, &requireSwap);
     mIsDirty = false;
@@ -772,24 +847,24 @@ void CanvasContext::draw() {
 ```
 可以看到最终的绘制操作是在 CanvasContext 中交由渲染管线去执行的, 这里主要有两个步骤
 - 通过 mRenderPipeline->draw, 将 RenderNode 中的 DisplayList 记录的数据绘制到 Surface 的缓冲区
-- 通过 mRenderPipeline->swapBuffers 将缓冲区的数据推送到 SurfaceFlinger 的函数
+- 通过 mRenderPipeline->swapBuffers 将缓冲区的数据推送到 Surface 的缓冲区中, 等待 SurfaceFlinger 的合成操作
 
 至此, 一次硬件绘制就完成了
 
 ## 总结
 可以看到 View 的硬件渲染比起软件渲染要复杂的多, 笔者也有很多内容没有看到, 旨在理清硬件渲染的流程, 这里做个简单的回顾
 - ThreadRenderer 的创建
-  - 会创建一个根结点 RenderNode 用于记录所有的绘制动作
+  - 会创建一个根结点 RenderNode 用于记录所有的绘制动作 DisplayList
   - 创建 RenderProxy 执行渲染操作
 - ThreadRenderer 的初始化
   - 将 Surface 的缓冲区绑定到 RenderProxy 的渲染管线 RenderPipeline 中
 - **ThreadRenderer 的绘制**
-  - RenderNode.start 开始捕获绘制动作
-  - 调用 DecorView.updateDisplayListIfDirty 捕获 View 绘制动作
-  - RenderNode.end 结束绘制动作捕获
+  - 更新 mRootNode 中的 DisplayList
+    - 更新 View 的 mRenderNode 中的 DisplayList
+    - 将 View 的 DisplayList 注入到 mRootNode 中
   - nSyncAndDrawFrame(在 RenderThread 线程执行)
-    - 使用渲染管线绘制捕获到的绘制动作 DisplayList
-    - 使用渲染管线将绘制的数据推到 SurfaceFlinger 中
+    - 通过 mRenderPipeline->draw 执行 mRootNode 中的 DisplayList 的绘制动作
+    - 通过 mRenderPipeline->swapBuffer 将数据推送到 GraphicBuffer 中
 
 ###  硬件绘制与软件绘制差异
 #### 1. 从渲染机制
@@ -800,7 +875,6 @@ void CanvasContext::draw() {
 - 硬件绘制
   - 在 Android 5.0 之后引入了 RendererThread, 它将 OpenGL 图形栅格化的操作全部投递到了这个线程
   - 硬件绘制会跳过渲染数据无变更的 View, 直接分发给子视图
-
 - 软件绘制
   - 在将数据投入 SurfaceFlinger 之前, 所有的操作均在主线程执行
   - 不会跳过无变化的 View
