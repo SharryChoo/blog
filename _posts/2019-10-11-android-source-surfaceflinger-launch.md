@@ -13,7 +13,7 @@ tags: AndroidFramework
 <!--more-->
 
 ## SurfaceFlinger 的启动
-在系统启动篇, 我们知道 SurfaceFlinger 是由 init 进程 fork 出来的, 它的启动脚本定义如下
+在系统启动篇, 我们知道 SurfaceFlinger 是由 init 进程 fork 出来的, 它的[启动脚本](http://androidxref.com/9.0.0_r3/xref/frameworks/native/services/surfaceflinger/SurfaceFlinger.rc)定义如下
 ```
 // frameworks/native/services/surfaceflinger/surfaceflinger.rc
 service surfaceflinger /system/bin/surfaceflinger
@@ -26,7 +26,7 @@ service surfaceflinger /system/bin/surfaceflinger
     socket pdx/system/vr/display/manager    stream 0666 system graphics u:object_r:pdx_display_manager_endpoint_socket:s0
     socket pdx/system/vr/display/vsync      stream 0666 system graphics u:object_r:pdx_display_vsync_endpoint_socket:s0
 ```
-当 SurfaceFlinger 被 fork 出来后, 会调用 main_surfaceflinger.cpp 的 main 方法, 接下来看看它的启动
+当 SurfaceFlinger 被 fork 出来后, 会调用 [main_surfaceflinger.cpp](http://androidxref.com/9.0.0_r3/xref/frameworks/native/services/surfaceflinger/main_surfaceflinger.cpp) 的 main 方法, 接下来看看它的启动
 ```
 // frameworks/native/services/surfaceflinger/main_surfaceflinger.cpp
 int main(int, char**) {
@@ -68,7 +68,7 @@ int main(int, char**) {
 
 其中, 将 SurfaceFlinger Binder 本地对象发布到 ServiceManager 这里就不再赘述了, 我们主要关心一下其他三个方面
 
-## 一. SurfaceFlinger 的创建
+## 一. [SurfaceFlinger](http://androidxref.com/9.0.0_r3/xref/frameworks/native/services/surfaceflinger/SurfaceFlinger.h) 的创建
 ```
 // frameworks/native/services/surfaceflinger/SurfaceFlinger.h
 class SurfaceFlinger : public BnSurfaceComposer,
@@ -77,10 +77,6 @@ class SurfaceFlinger : public BnSurfaceComposer,
                        private HWC2::ComposerCallback
 {
     ......
-    // 展示同步线程
-    DispSync mPrimaryDispSync;
-    // 消息队列
-    mutable std::unique_ptr<MessageQueue> mEventQueue{std::make_unique<impl::MessageQueue>()};
 }
 
 // frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
@@ -91,17 +87,35 @@ SurfaceFlinger::SurfaceFlinger() : SurfaceFlinger(SkipInitialization) {
 SurfaceFlinger::SurfaceFlinger(SurfaceFlinger::SkipInitializationTag)
       : BnSurfaceComposer(),
       .......
+      // 创建 DispSync 对象
       mPrimaryDispSync("PrimaryDispSync"),
       ....... {
       
-      
+    // 初始化 DispSync 对象
     mPrimaryDispSync.init(SurfaceFlinger::hasSyncFramework, SurfaceFlinger::dispSyncPresentTimeOffset); 
           
 }
 ```
-从 SurfaceFlinger 的构造中我们了解到它是继承了 BnSurfaceComposer Binder 本地对象, 这也是为何它能够发布到 ServiceManager 的原因, 在其构造方法中, 我们看到初始化了 mPrimaryDispSync 这个变量, 我们看看那它的具体操作
+从 SurfaceFlinger 的构造中我们了解到它是继承了 BnSurfaceComposer Binder 本地对象, 这也是为何它能够发布到 ServiceManager 的原因
 
-### DispSync 的初始化
+在其构造方法中, 我们看到它创建并初始化了 DispSync mPrimaryDispSync 这个对象, **DispSync 类似于一个 PLL（phase lock loop，锁相回路），它通过接收硬件 VSYNC，然后给其他关心硬件 VSYNC 的组件（SurfaceFlinger 和需要渲染的 app）在指定的偏移以后发送软件 VSYNC，并且当误差在可接受的范围内，将会关闭硬件 VSYNC**
+
+![VSYNC 信号转移](https://i.loli.net/2019/12/08/7gcVndjkAWJMs8L.png)
+
+- HW-Vsync: 由硬件直接产生的垂直同步信号
+- SW-Vsync: 由 DispSync 转移后的软件垂直同步信号
+- SF-Vsync: 供 SurfaceFlinger 端使用的垂直同步信号
+- APP-Vsync: 供 App 端 Choreographer 使用的垂直同步信号
+
+**也就是说 DispSync 主要是负责将硬件垂直同步信号转为软件垂直同步信号, 然后供上层使用**
+
+关于为何不直接使用硬件垂直同步信号, 笔者从这篇博文中找到了满意的答案 https://simowce.github.io/2019/10/07/all-about-dispsync/
+- 在 Android 4.1 的时候，Google 提出了著名的 “Project Butter”，引入了 VSYNC, 把 app 画图，SurfaceFlinger 合成的时间点都规范了起来，减少了掉帧，增强了渲染的流畅度。
+- 假设有这么一种需求，我希望在 VSYNC 偏移一段时间以后再干活，那么这个是硬件 VSYNC 提供不了，所以这个时候就必须引入软件模型。而 DispSync 就是为了解决这个需求引入的软件模型。
+
+因此 DispSync 还是非常重要的, 下面我们看看 DispSync 的初始化操作
+
+### 一) DispSync 的初始化
 ```
 // frameworks/native/services/surfaceflinger/DispSync.cpp
 DispSync::DispSync(const char* name)
@@ -158,11 +172,11 @@ virtual bool threadLoop() {
     return false;
 }
 ```
-可以看到 threadLoop 中实现了一个死循环, 从循环的实现中可以得知, **DispSyncThread 的职责是分发 Vsync 信号**的, 关于其循环内部的相关函数功能实现, 到后面的章节在具体分析
+可以看到 threadLoop 中实现了一个死循环, 从循环的实现中可以得知, **DispSyncThread 的职责是分发 sw-Vsync 信号**的, 关于其循环内部的相关函数功能实现, 到后面的章节在具体分析
 
 除此之外 SurfaceFlinger 是支持智能指针的, 当他第一次被引用的时候, 会回调 onFirstRef 方法, 下面看看 onFirstRef 中做了什么
 
-### onFirstRef
+### 二) onFirstRef
 ```
 // frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
 void SurfaceFlinger::onFirstRef()
@@ -195,8 +209,8 @@ void SurfaceFlinger::init() {
     
     Mutex::Autolock _l(mStateLock);
 
-    // 1.基于不同的 vsync 信号模型创建的 EventThread
-    // 1.1 创建 APP 端对 vsync 信号的处理线程
+    // 1. 创建 APP 端对 vsync 信号的处理线程
+    // DispSyncSource 为 DispSync 与 EventThread 沟通的桥梁
     mEventThreadSource =
             std::make_unique<DispSyncSource>(&mPrimaryDispSync, SurfaceFlinger::vsyncPhaseOffsetNs,
                                              true, "app");
@@ -204,7 +218,7 @@ void SurfaceFlinger::init() {
                                                        [this]() { resyncWithRateLimit(); },
                                                        impl::EventThread::InterceptVSyncsCallback(),
                                                        "appEventThread");
-    // 1.2 创建 SF 端对 vsync 信号的处理线程
+    // 2. 创建 SF 端对 vsync 信号的处理线程
     mSfEventThreadSource =
             std::make_unique<DispSyncSource>(&mPrimaryDispSync,
                                              SurfaceFlinger::sfVsyncPhaseOffsetNs, true, "sf");
@@ -216,7 +230,7 @@ void SurfaceFlinger::init() {
                                                 },
                                                 "sfEventThread");
                                                 
-    // 2. 将 mSFEventThread 设置为处理 EventQueue 要监听的线程
+    // 3. 将 mSFEventThread 设置为处理 EventQueue 要监听的线程
     mEventQueue->setEventThread(mSFEventThread.get());
 
     // 初始化 GL 渲染引擎
@@ -225,10 +239,10 @@ void SurfaceFlinger::init() {
                                            hasWideColorDisplay
                                                    ? RE::RenderEngine::WIDE_COLOR_SUPPORT
                                                    : 0);
-    // 3. 初始化 HWComposer
+    // 4. 初始化 HWComposer
     getBE().mHwc.reset(
             new HWComposer(std::make_unique<Hwc2::impl::Composer>(getBE().mHwcServiceName)));
-    // 4. 注册监听回调
+    // 5. 注册监听回调
     getBE().mHwc->registerCallback(this, getBE().mComposerSequenceId);
     
     // 将默认的 GLContext 绑定为当前线程的 EGL 上下文
@@ -236,7 +250,7 @@ void SurfaceFlinger::init() {
 
     ......
     
-    // 创建 EventControlThread 用来开关 vsync 信号
+    // 6. 创建 EventControlThread 用来开关 vsync 信号
     mEventControlThread = std::make_unique<impl::EventControlThread>(
             [this](bool enabled) { setVsyncEnabled(HWC_DISPLAY_PRIMARY, enabled); });
     
@@ -249,12 +263,16 @@ void SurfaceFlinger::init() {
 }
 ```
 上述代码即为 SurfaceFlinger 初始化操作的大体流程, 其重点步骤如下
-- **基于不同的 Vsync 信号模型创建的 EventThread**
-  - 创建 APP 的 Vsync 信号处理线程 mEventThread
-  - 创建 SurfaceFlinger 的 Vysnc 信号处理线程 mSFEventThread
-- **监听 EventThread**
+- **创建 APP 的 Vsync 信号处理线程 mEventThread-app**
+  - 负责接收 sw-Vsync 并且发送信号给 App 进程的 Choreographer 执行 View 的绘制 
+- **创建 SurfaceFlinger 的 Vysnc 信号处理线程 mSFEventThread-sf**
+  - 负责接收 sw-Vsync 并且发送给 SurfaceFlinger 触发图层的合成
+- **绑定 mSFEventThread**
 - **初始化 HWComposer**
    - 注册 HWComposer 的回调
+- **创建 EventControlThread 用来开关 Vsync 信号**
+
+这里可以看到 SurfaceFlinger 初始化的过程中创建了三个线程, 其中 EventThread 非常重要, 它是 sw-Vsync 的分发者, 我们先看看 EventThread 的创建过程
 
 ### 一) EventThread 的创建
 ```
@@ -732,27 +750,47 @@ void SurfaceFlinger::waitForEvent() {
     mEventQueue->waitMessage();
 }
 ```
-好的, 可以看到 SurfaceFlinger 的 run 函数非常简单, 即不断等待主线程 MessageQueue 中消息的死循环
+好的, 可以看到 SurfaceFlinger 的 run 函数非常简单, 即不断等待 Event 回调的死循环
 
 ## 总结
 ![SurfaceFlinger 初始化相关类](https://i.loli.net/2019/10/23/ODuxcyfPS36snCQ.png)
 
 这篇文章主要是从广义上了解 SurfaceFlinger 的启动流程, 这里做个简单的总结, Surface 的启动主要有如下几个步骤
 - **SurfaceFlinger 的创建**
-  - **启动 Vsync 的分发线程 DispSyncThread**
-  - 初始化主线程的 MessageQueue
+  - **创建 DispSync 对象**:  用于将硬件 hw-Vsync 信号转为软件 sw-Vysnc 信号
+    - DispSync.init 会**启动 DisplaySyncThread 线程**, 该线程在 sw-Vysnc 到来时唤醒并分发给监听者
+  - **onFirstRef 创建 MessageQueue 对象**
+    - Native 层的 MessageQueue 与 Java 的不同, 它没有真正的队列, 而是配合 Looper 进行 IO 多路复用的监听
 - **SurfaceFlinger 的初始化**
-  - **启动 Vsync 的处理线程 EventThread**
-    - Looper 监听 EventThread 中 Connection 的文件描述符
-      - 文件描述符有信号投入, 回调到 SurfaceFlinger 的 onMessageReceived 中处理
-  - **创建 HwComposer 负责与硬件驱动交互**
-    - onHotplugReceived
-    - onRefreshReceived
-    - onVsyncReceived
+  - **创建 APP 的 Vsync 信号处理线程 EventThread-app**
+    - 负责接收 sw-Vsync 并且发送信号给 App 进程的 Choreographer 执行 View 的绘制
+  - **创建 SurfaceFlinger 的 Vysnc 信号处理线程 EventThread-sf**
+    - 负责接收 sw-Vsync 并且发送给 SurfaceFlinger 触发图层的合成
+  - EventThread 执行过程
+    - 使用 Connection 描述 Vsync 信号的处理者
+    - 有 Vsync 信号时, 会写入 Connection 的 BitTube
+  - **MessageQueue 监听 EventThread-sf 线程**
+    - 创建与 EventThread 的连接 Connection
+    - 获取 Connection 内部的 BitTube 对象
+    - **使用 mLooper 监听 BitTube，一旦有数据到来则调用 cb_eventReceiver**
+  - **初始化 HWComposer**
+    - onHotplugReceived: 处理热插拔信号
+    - onRefreshReceived: 处理刷新信号
+    - onVsyncReceived: 处理垂直同步信号
+  - **创建 EventControlThread 用来开关 Vsync 信号**
 - **SurfaceFlinger 的发布**
   - 将这个 Binder 本地对象发布到 ServiceManager 进程
 - **SurfaceFlinger 的启动**
-  - 死循环, 监听 MessageQueue 的消息 
+  - 死循环, 等待 Looper 唤醒处理任务
+
+简单总结起来, SurfaceFlinger 创建了 4 个非常重要的线程
+- **DispSyncThread**: 用于将 DispSync 处理好的 SW-VSYNC 分发给监听者 DisplaySyncSource
+- **EventThread-app**: 维护了与 App 进程的 Connection 连接, 用于接收 DispSyncThread 发送的信号, 并且发送给 App 端, 会触发 Choreographer 执行 View 的绘制流程
+- **EventThread-sf**: 维护了与 SurfaceFlinger 的 Connection, 接收到 VSYNC 后, 会调用 cb_eventReceiver 执行图层的合成操作
+- **EventControlThread**: 用于控制硬件 Vsync 的开关
+
 
 ## 参考文献
-- [关于 Vsync 垂直同步的理解](https://blog.csdn.net/zhaizu/article/details/51882768)
+- [Android Project Buffer](https://blog.csdn.net/innost/article/details/8272867)
+- [Android Developer DispSync](https://source.android.google.cn/devices/graphics/implement-vsync)
+- [DispSync 的 SW-Vsync 计算细节](https://www.jianshu.com/p/d3e4b1805c92)
