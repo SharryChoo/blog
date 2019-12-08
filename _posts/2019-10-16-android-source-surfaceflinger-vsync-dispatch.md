@@ -356,7 +356,7 @@ void SurfaceFlinger::onMessageReceived(int32_t what) {
 ```
 好的可以看到 INVALIDATE 消息, 首先会调用 handleMessageInvalidate, 判断是否需要重新刷新界面, 若需要则会调用 signalRefresh 进行数据重绘
 
-### 三) 回顾
+### 四) 回顾
 ![VSYNC 信号转化](https://i.loli.net/2019/12/08/ZBJLpX2Arl9KnPQ.png)
 
 Vsync 的信号分发流程如下
