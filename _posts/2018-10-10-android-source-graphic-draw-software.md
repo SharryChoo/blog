@@ -1,7 +1,7 @@
 ---
 title: Android 系统架构 —— View 的软件渲染
-permalink: android-source/graphic-producer7
-key: android-source-graphic-producer7
+permalink: android-source/graphic-draw-software
+key: android-source-graphic-draw-software
 tags: AndroidFramework
 ---
 
