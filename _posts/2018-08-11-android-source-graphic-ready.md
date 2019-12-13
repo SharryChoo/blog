@@ -1,1023 +1,1033 @@
 ---
 title: Android 系统架构 —— 图形渲染的准备
-permalink: android-source/graphic-view-traversals-measure-layout
-key: android-source-graphic-view-traversals-measure-layout
+permalink: android-source/graphic-ready
+key: android-source-graphic-view-ready
 tags: AndroidFramework
 ---
-
 ## 前言
-通过图像渲染的准备的学习, 我们知道在 onResume 之后我们的 ViewRootImpl 会通过 addToDisplay 与 WMS 建立联系, 之后就会执行 requestLayout 发送的消息执行 View 的遍历操作
+我们平时开发的过程中最常打交道的是 View 和 Window, 他们是能够呈现视图的关键所在, 这里我们以 Activity 的启动为例, 从如下三个方面来了解一下图形渲染的准备过程
+- Window 的创建与初始化
+- 为 Window 填充 View
+- 与 WMS 建立联系
 
-这里我们就 requestLayout 入手分析 View 的变量
+下面我们一一分析
 
-## 一. requestLayout
+## 一. Window 的创建与初始化
 ```
-public final class ViewRootImpl implements ViewParent,
-        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
+public final class ActivityThread extends ClientTransactionHandler {
     
-    // 用于区分是否需要进行 View 的布局
-    boolean mLayoutRequested;
-    
-    @Override
-    public void requestLayout() {
-        if (!mHandlingLayoutInLayoutRequest) {
-            // 1. 检查请求 requestLayout 的线程
-            checkThread();
-            // 2. 标记为请求遍历的状态
-            mLayoutRequested = true;
-            // 3. 调用了 scheduleTraversals
-            scheduleTraversals();
-        }
-    }
-    
-    final Thread mThread;
-   
-    public ViewRootImpl(Context context, Display display) {
+    private Activity performLaunchActivity(ActivityClientRecord r, Intent customIntent) {
         ......
-        mThread = Thread.currentThread();
-        ......
-    }
-   
-    // 检查当前的线程是否为 ViewRootImpl 创建的线程
-    void checkThread() {
-        // 1. 若非 ViewRootImpl 创建的线程会扔出异常
-        // 因此 View 只能在主线程更新 UI 是伪命题, 它只能在其 ViewRootImpl 创建的线程更新 UI
-        if (mThread != Thread.currentThread()) {
-            throw new CalledFromWrongThreadException(
-                    "Only the original thread that created a view hierarchy can touch its views.");
+        try {
+            Application app = r.packageInfo.makeApplication(false, mInstrumentation);
+            if (activity != null) {
+                ......
+                // 给 Activity 绑定数据
+                activity.attach(appContext, this, getInstrumentation(), r.token,
+                        r.ident, app, r.intent, r.activityInfo, title, r.parent,
+                        r.embeddedID, r.lastNonConfigurationInstances, config,
+                        r.referrer, r.voiceInteractor, window, r.configCallback);
+                ......
+                if (r.isPersistable()) {
+                    // 回调 OnCreate()
+                    mInstrumentation.callActivityOnCreate(activity, r.state, r.persistentState);
+                } else {
+                    mInstrumentation.callActivityOnCreate(activity, r.state);
+                }
+                ......
+            }
+            ......
+
         }
+        ......
+        return activity;
     }
     
 }
 ```
-好的, 可以看到 ViewRootImpl 的 requestLayout 方法中做了如下几件事情
-- 检查请求 requestLayout 的线程是否为 ViewRootImpl 创建的线程, 若非 ViewRootImpl 创建的线程会扔出异常
-  - **因此 View 只能在主线程更新 UI 是伪命题, 它只能在其 ViewRootImpl 创建的线程更新 UI**
-- 将 mLayoutRequested flag 标记为 true
-  - 这个标记开启说名 View 是否需要重新布局
-- 调用了 ViewRootImpl.scheduleTraversals
-
-从 requestLayout 中, 我们明确了为什么 View 只能在主线程更新 UI 是个伪命题, 结下来继续分析 scheduleTraversals,  看看它为 View 的遍历做了哪些计划
+在 Activity 创建的方法中可以看到, 我们在回调 onCreate 之前调用了 Activity 的 attach 方法, 为 Activity 注入参数, 这个我们的图形渲染架构的窗体就在这里创建的
 ```
-public final class ViewRootImpl implements ViewParent,
-        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
+public class Activity extends ContextThemeWrapper {
+
+    final void attach(Context context, ActivityThread aThread,
+            Instrumentation instr, IBinder token, int ident,
+            Application application, Intent intent, ActivityInfo info,
+            CharSequence title, Activity parent, String id,
+            NonConfigurationInstances lastNonConfigurationInstances,
+            Configuration config, String referrer, IVoiceInteractor voiceInteractor,
+            Window window, ActivityConfigCallback activityConfigCallback) {
+        ......
+        // 1. 构建了 PhoneWindow 对象
+        mWindow = new PhoneWindow(this, window, activityConfigCallback);
+        ......
+        // 2. 给这个 Window 设置了 WindowManager
+        mWindow.setWindowManager(
+                (WindowManager)context.getSystemService(Context.WINDOW_SERVICE),
+                mToken, mComponent.flattenToString(),
+                (info.flags & ActivityInfo.FLAG_HARDWARE_ACCELERATED) != 0);
+        ......
+        // 3. 将与这个 Window 绑定的 WindowManager 保存在 mWindowManager 成员变量中
+        mWindowManager = mWindow.getWindowManager();
+    }
+}
+```
+可以看到在 Activity 的 attach 方法中, 关于 Window 它主要做了如下三件事情
+- 构建了当前 Activity 的 Window 对象 PhoneWindow
+- 给构建的 Window 绑定管理器的 WindowManager
+- 将这个 WindowManager 保存到 Activity 的 mWindowManager 中
+
+从这里可以看到 Window 的实例对象为 PhoneWindow, 一个 Window 有一个对应的管理者 WindowManager, 下面我们看看 setWindowManager 的过程
+
+接下来我们看看这个 Window 是如何绑定 WindowManager 的
+```
+public class Window {
     
-    public boolean mTraversalScheduled;
-    final TraversalRunnable mTraversalRunnable = new TraversalRunnable();
-    
-    void scheduleTraversals() {
-        if (!mTraversalScheduled) {
-            // 表示当前正在计划 View 的遍历
-            mTraversalScheduled = true;
-            // 插入同步屏障
-            mTraversalBarrier = mHandler.getLooper().getQueue().postSyncBarrier();
-            // post 到 Looper 的 MessageQueue 中
-            mChoreographer.postCallback(
-                    Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);
-            ......
+    public void setWindowManager(WindowManager wm, IBinder appToken, String appName,
+            boolean hardwareAccelerated) {
+        // 若 wm 为 null, 则当前 Context 在 SystemServiceRegistry 中注册的 WindowManagerImpl 对象
+        if (wm == null) {
+            wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
         }
+        // 通过 WindowManager 的实例创建了一个新的 WindowManager 提供给自己使用
+        mWindowManager = ((WindowManagerImpl)wm).createLocalWindowManager(this);
     }
     
-    final class TraversalRunnable implements Runnable {
+}
+```
+很有意思, 在 Window.setWindowManager 时, 若 wm 未传值, 则通过 Context.getSystemService 获取 WindowMangaer 对象, 接着会创建一个新的 WindowMangerIml 对象专门提供给这个 Window 使用
+
+### 一) 获取 Context 的 WindowManager
+我们先看看它是如何通过 Context.getSystemService(Context.WINDOW_SERVICE) 获取 WindowMangerImpl 这个实例对象的
+```
+class ContextImpl extends Context {
+    
+     @Override
+    public Object getSystemService(String name) {
+        return SystemServiceRegistry.getSystemService(this, name);
+    }
+    
+}
+
+final class SystemServiceRegistry {
+    
+    // 服务获取器缓存(并非服务对象)
+    private static final HashMap<String, ServiceFetcher<?>> SYSTEM_SERVICE_FETCHERS =
+            new HashMap<String, ServiceFetcher<?>>();
+    
+    public static Object getSystemService(ContextImpl ctx, String name) {
+        // 1. 通过 SYSTEM_SERVICE_FETCHERS 缓存的服务获取器
+        ServiceFetcher<?> fetcher = SYSTEM_SERVICE_FETCHERS.get(name);
+        // 2. 通过服务获取器 fetcher, 获取服务对象
+        return fetcher != null ? fetcher.getService(ctx) : null;
+    }
+}
+```
+好的, 可以看到 SystemServiceRegistry 的 getSystemService 方法首先通过缓存获取到了服务获取器的实例, 然后调用获取器的 getService 方法获取了我们需要的 WindowManager 对象
+
+接下来我们看看这个服务获取器在什么地方注册的
+
+#### 1. ServiceFetcher 的注册
+```
+final class SystemServiceRegistry {
+
+    // 服务名的缓存
+    private static final HashMap<Class<?>, String> SYSTEM_SERVICE_NAMES =
+            new HashMap<Class<?>, String>();
+    // 服务获取器缓存(并非服务对象)
+    private static final HashMap<String, ServiceFetcher<?>> SYSTEM_SERVICE_FETCHERS =
+            new HashMap<String, ServiceFetcher<?>>();
+    
+    static {
+        ......
+        // 注册 WINDOW_SERVICE
+        registerService(
+            Context.WINDOW_SERVICE,
+            WindowManager.class,
+            // 注册了一个实例获取器
+            new CachedServiceFetcher<WindowManager>() {
+                @Override
+                public WindowManager createService(ContextImpl ctx) {
+                    return new WindowManagerImpl(ctx);
+                }
+            }
+        );
+        ......
+    }
+    
+    private static <T> void registerService(String serviceName, Class<T> serviceClass,
+            ServiceFetcher<T> serviceFetcher) {
+        // 添加到 服务名称 缓存
+        SYSTEM_SERVICE_NAMES.put(serviceClass, serviceName);
+        // 添加 服务获取器 的缓存
+        SYSTEM_SERVICE_FETCHERS.put(serviceName, serviceFetcher);
+    }
+    
+}
+```
+好的可以看到, 服务获取器的注册操作是在 SystemServiceRegistry 类的静态代码块中进行的, 由 JVM 的知识可知, 静态代码块的执行, 是在类加载过程中的初始化阶段进行的, 也就是说只要触发了 SystemServiceRegistry 类初始化, 便会先将所有的服务获取器注册完成
+- 注册这个 WINDOW_SERVICE 它 new 了一个 CachedServiceFetcher 服务获取器, 并且**重写了其 createService 方法**
+
+由上面 SystemServiceRegistry.getSystemService 中的代码可知, 它是使用 ServiceFetcher.getService 获取 WindowManager 对象的, 接下来我们再看看这个服务获取器, 是如何通过 ServiceFetcher.getService 获取我们需要的 WindowManager 对象的
+
+#### 2. CachedServiceFetcher.getService
+```
+final class SystemServiceRegistry {
+    
+    // 记录所有注册的缓存服务获取器的数量
+    private static int sServiceCacheSize;
+    
+    static abstract class CachedServiceFetcher<T> implements ServiceFetcher<T> {
+    
+        // 构建的时候便会为这个 ServiceFetcher 创建一个 CacheIndex 代表其索引值
+        private final int mCacheIndex;
+
+        CachedServiceFetcher() {
+            mCacheIndex = sServiceCacheSize++;
+        }
+
         @Override
-        public void run() {
-            doTraversal();
-        }
-    }
-    
-    void doTraversal() {
-        if (mTraversalScheduled) {
-            // 走到这里, 说明遍历的计划阶段已经完成, 即将进入执行遍历的阶段
-            mTraversalScheduled = false;
-            // 移除同步屏障
-            mHandler.getLooper().getQueue().removeSyncBarrier(mTraversalBarrier);
-            ......
-            // 执行 View 的遍历
-            performTraversals();
-            ......
-        }
-    }
-}
-```
-从这里我们可以看到, 我们的 Traversals 操作是添加到 Choreographer 的 CallbackQueue 中统一调度的, 当 VSYNC 到来时会自动执行
+        @SuppressWarnings("unchecked")
+        public final T getService(ContextImpl ctx) {
+            // 从 ctx 中获取其中服务缓存数组(大小为 sServiceCacheSize)
+            final Object[] cache = ctx.mServiceCache;
+            // 从 ctx 中获取缓存的服务状态数组(大小为 sServiceCacheSize)
+            final int[] gates = ctx.mServiceInitializationStateArray;
 
-最有趣的是, 它为了保证 traversal 操作的优先执行, 插入了一个同步屏障
+            for (;;) {
+                boolean doInitialize = false;
+                synchronized (cache) {
+                    // 1. 尝试从 Context 的缓存中获取这个服务, 
+                    // 我们知道这个 Context 是 Activity 创建时构建的一个 ContextImpl 对象
+                    // 若是第一次调用 getService, ContextImpl 不存在这个缓存
+                    T service = (T) cache[mCacheIndex];
+                    if (service != null || gates[mCacheIndex] == ContextImpl.STATE_NOT_FOUND) {
+                        // 1.1 若存在, 则直接将这个对象返回给调用方
+                        return service;
+                    }
 
-接下来我们看看 ViewRootImpl 是如何遍历 View 的
-
-###  ViewRootImpl.performTraversals
-```
-public final class ViewRootImpl implements ViewParent,
-        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
-    
-    @NonNull Display mDisplay;   // 描述屏幕的尺寸
-    boolean mFirst;              // 描述是否是第一次进行 performTraversals 
-    final Rect mWinFrame;        // frame given by window manager.
-
-    public ViewRootImpl(Context context, Display display) {
-        mDisplay = display;
-        ......
-        mWinFrame = new Rect();
-        ......
-        mFirst = true;
-        ......
-    }
-    
-    
-    private void performTraversals() {
-        // 获取 DecorView
-        // 使用局部变量保存, 防止变更
-        final View host = mView;
-        
-        WindowManager.LayoutParams lp = mWindowAttributes;   // 获取这个 DecorView 的布局参数
-        boolean windowSizeMayChange = false;                 // 用于判断窗体大小是否有可能发生改变
-        
-        // 1. View 的测量
-        int desiredWindowWidth;
-        int desiredWindowHeight;
-        Rect frame = mWinFrame;
-        // 若为第一次 Traversals
-        if (mFirst) {
-            ......
-            mLayoutRequested = true;
-            final Configuration config = mContext.getResources().getConfiguration();
-            // 使用屏幕物理宽高作为窗体期望尺寸
-            if (shouldUseDisplaySize(lp)) {
-                Point size = new Point();
-                mDisplay.getRealSize(size);
-                desiredWindowWidth = size.x;
-                desiredWindowHeight = size.y;
-            } else {
-                // 使用 mWindFrame 中的宽高作为窗体期望尺寸
-                desiredWindowWidth = mWinFrame.width();
-                desiredWindowHeight = mWinFrame.height();
-                ......
-            }
-            ......
-        } else {
-            // 若非第一次进行 Traversals, 那么窗体期望尺寸直接使用 frame(mWinFrame) 中记录的宽高
-            desiredWindowWidth = frame.width();
-            desiredWindowHeight = frame.height();
-            ......
-        }
-        ......
-        boolean layoutRequested = mLayoutRequested && (!mStopped || mReportNextDraw);
-        if (layoutRequested) {
-            final Resources res = mView.getContext().getResources();
-            ......
-             if (mFirst) {
-                ......// 第一次的尺寸已经在上面设置过了, 这里不会进行窗体期望尺寸的设置操作
-            } else {
-                ......
-                // 若 LayoutParams 为 WRAP_CONTENT, 那么会再次进行窗体期望尺寸的判断
-                if (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT
-                        || lp.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
-                    windowSizeMayChange = true;
-                    // 使用屏幕物理宽高作为窗体期望尺寸
-                    if (shouldUseDisplaySize(lp)) {
-                        Point size = new Point();
-                        mDisplay.getRealSize(size);
-                        desiredWindowWidth = size.x;
-                        desiredWindowHeight = size.y;
-                    } else { 
-                        // 使用屏幕可用宽高作为窗体期望尺寸
-                        Configuration config = res.getConfiguration();
-                        desiredWindowWidth = dipToPx(config.screenWidthDp);
-                        desiredWindowHeight = dipToPx(config.screenHeightDp);
+                    // 1.2 如果 Context 缓存池中该服务的状态是 STATE_READY, 则说明之前创建过一次, 但实例被恶意清除了
+                    if (gates[mCacheIndex] == ContextImpl.STATE_READY) {
+                        // 将其置为 UNINITIALIZED 状态
+                        gates[mCacheIndex] = ContextImpl.STATE_UNINITIALIZED;
+                    }
+                    // 1.3 将 doInitialize 置为 true, 状态变更为 INITIALIZING
+                    if (gates[mCacheIndex] == ContextImpl.STATE_UNINITIALIZED) {
+                        doInitialize = true;
+                        gates[mCacheIndex] = ContextImpl.STATE_INITIALIZING;
                     }
                 }
-            }
-            // 1.1 调用 measureHierarchy 方法, 为了确定其布局位置, 先确定它的大小
-            windowSizeMayChange |= measureHierarchy(host, lp, res,
-                    desiredWindowWidth, desiredWindowHeight);
-        }
-        
-        ......
-        
-        // 1.2 若测量尺寸变更, 则重置 Surface
-        ......
-        if (mFirst || windowShouldResize || insetsChanged ||
-                viewVisibilityChanged || params != null || mForceNextWindowRelayout) {
-            ......
-            boolean hadSurface = mSurface.isValid();
-            try {
-                ......
-                relayoutResult = relayoutWindow(params, viewVisibility, insetsPending);
-                ......
-            }
-        }
-        ......
-        if (didLayout) {
-            // 2. View 的布局
-            performLayout(lp, mWidth, mHeight);
-            ......
-        }
-        // 3. View 的绘制
-        if (!cancelDraw && !newSurface) {
-            ......
-            performDraw();
-        }
-    }
-   
-    // LayoutParams 若为如下三种, 则直接使用屏幕的大小       
-    private static boolean shouldUseDisplaySize(final WindowManager.LayoutParams lp) {
-        return lp.type == TYPE_STATUS_BAR_PANEL
-                || lp.type == TYPE_INPUT_METHOD
-                || lp.type == TYPE_VOLUME_OVERLAY;
-    }   
-}
-```
-好的, 可以看到 performTraversals 中便是 View 绘制的流程了, 中间简化了很多代码, 主要有以下几步
-- **View 的测量**
-  - **调用 measureHierarchy 进行 View 测量**
-  - **测量之后窗体变更则调用 relayoutWindow 重置 Surface**
-- **View 的布局**
-  - 调用 **performLayout** 进行 View 的摆放
-- **View 的绘制**
-  - 调用 **performDraw** 进行 View 的绘制
-
-由于篇幅限制, 这里我们主要学习 View 的测量和布局, 关于 Surface 的重置和 View 的绘制流程都较为复杂, 我们放到后面进行分析
-
-## 二. View 的测量
-```
-public final class ViewRootImpl implements ViewParent,
-        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
-            
-    private boolean measureHierarchy(final View host, final WindowManager.LayoutParams lp,
-            final Resources res, final int desiredWindowWidth, final int desiredWindowHeight) {
-        
-        int childWidthMeasureSpec;                // 描述 Window 的宽度测量说明书
-        int childHeightMeasureSpec;               // 描述 Window 的高度测量说明书
-        boolean windowSizeMayChange = false;      // 描述 Window 尺寸是否变化
-        boolean goodMeasure = false;              // 判断是否是好的测量
-        
-        // 1. 对 Window 布局参数为 WRAP_CONTENT 的情况进行特殊处理
-        if (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
-            // 则分配一个默认的宽度
-            final DisplayMetrics packageMetrics = res.getDisplayMetrics();
-            // 1.1 从系统文件 config_prefDialogWidth 中读取这个预制的宽度
-            res.getValue(com.android.internal.R.dimen.config_prefDialogWidth, mTmpValue, true);
-            int baseSize = 0;
-            if (mTmpValue.type == TypedValue.TYPE_DIMENSION) {
-                baseSize = (int)mTmpValue.getDimension(packageMetrics);
-            }
-            // 1.2 获取系统提供的宽度成功了, 但期望的窗体宽度比这个大, 则优先使用 baseSize
-            // 若期望的比它小, 则直接使用期望的宽高即可
-            if (baseSize != 0 && desiredWindowWidth > baseSize) {
-                childWidthMeasureSpec = getRootMeasureSpec(baseSize, lp.width);              // 构建宽度测量说明书
-                childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height); // 构建高度测量说明书
-                performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);               // 进行子 View 的测量操作
-                // 1.4 若 DecorView 的状态值中发现大小合适, 说明是好的尺寸
-                if ((host.getMeasuredWidthAndState()&View.MEASURED_STATE_TOO_SMALL) == 0) {
-                    goodMeasure = true;
-                } else {
-                    // 走到这里, 说明上面的测量不太合适, 通过下面的算法, 再次构建 baseSize
-                    baseSize = (baseSize+desiredWindowWidth)/2;
-                    childWidthMeasureSpec = getRootMeasureSpec(baseSize, lp.width);// 构建测量说明书
-                    performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);  // 执行测量操作
-                    // 再次判断是否是好的尺寸
-                    if ((host.getMeasuredWidthAndState()&View.MEASURED_STATE_TOO_SMALL) == 0) {
-                        goodMeasure = true;
+                // 2. 创建服务并且缓存到 Context 对象的缓存池中
+                if (doInitialize) {
+                    T service = null;
+                    // 2.1 将这个服务的新状态初始化为 STATE_NOT_FOUND
+                    int newState = ContextImpl.STATE_NOT_FOUND;
+                    try {
+                        // 2.2 这里调用了注册时重写的 createService, 便可拿到这个实例对象了
+                        service = createService(ctx);
+                        // 2.3 将这个服务的状态初始化为 STATE_READY
+                        newState = ContextImpl.STATE_READY;
+                    } catch (ServiceNotFoundException e) {
+                        ......
+                    } finally {
+                        // 2.4 在 Context 的服务缓存数组中保存这个服务的缓存
+                        synchronized (cache) {
+                            cache[mCacheIndex] = service;
+                            gates[mCacheIndex] = newState;
+                            cache.notifyAll();
+                        }
                     }
+                    return service;
                 }
-            }
-        }
-        // 2. 若非好的测量尺寸
-        if (!goodMeasure) {
-            // 2.1 通过 Window 期望的宽高和布局参数构建测量说明书
-            childWidthMeasureSpec = getRootMeasureSpec(desiredWindowWidth, lp.width);
-            childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);
-            // 2.2 执行测量操作
-            performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
-            if (mWidth != host.getMeasuredWidth() || mHeight != host.getMeasuredHeight()) {
-                windowSizeMayChange = true;
-            }
-        }
-        return windowSizeMayChange;
-                     
-   }
-   
-}
-```
-measureHierarchy 中主要有两步
-- 首先是构建根 View 的测量说明书
-- 然后调用 performMeasure 进行测量分发
-
-其说明书构建过程如下
-```
-public final class ViewRootImpl implements ViewParent,
-        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
-        
-  private static int getRootMeasureSpec(int windowSize, int rootDimension) {
-        int measureSpec;
-        switch (rootDimension) {
-        case ViewGroup.LayoutParams.MATCH_PARENT:
-            // 若为 MATCH_PARENT, 说明书的类型为 MeasureSpec.EXACTLY
-            measureSpec = MeasureSpec.makeMeasureSpec(windowSize, MeasureSpec.EXACTLY);
-            break;
-        case ViewGroup.LayoutParams.WRAP_CONTENT:
-            // 若为 WRAP_CONTENT, 说明书的类型为 MeasureSpec.AT_MOST
-            measureSpec = MeasureSpec.makeMeasureSpec(windowSize, MeasureSpec.AT_MOST);
-            break;
-        default:
-            // 若为精确值, 说明书的类型也为 MeasureSpec.EXACTLY
-            measureSpec = MeasureSpec.makeMeasureSpec(rootDimension, MeasureSpec.EXACTLY);
-            break;
-        }
-        return measureSpec;
-    }
-    
-}
-```
-- 若为 MATCH_PARENT
-  - 测量说明书类型为 MeasureSpec.EXACTLY, 值为窗体的大小
-- 若为 WRAP_CONTENT
-  - 测量说明书类型为 MeasureSpec.AT_MOST, 值为窗体的大小
-- 若设置了精确值
-  - 测量说明书类型为 MeasureSpec.EXACTLY, 值为精确值大小
-
-当窗体的测量说明书已经构建好了, 便调用 performMeasure 真正进行 View 树的测量操作了
-
-### 二) View 树的测量分发
-```
-public final class ViewRootImpl implements ViewParent,
-        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
-            
-    private void performMeasure(int childWidthMeasureSpec, int childHeightMeasureSpec) {
-        ......
-        try {
-            // 对 DecorView 进行测量, 它虽然是 ViewGroup, 但并没有重写 measure 方法, 因此我们直接去 View 中查看
-            mView.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-        } finally {
-            ......
-        }
-    }
-
-}
-
-public class View implements Drawable.Callback, KeyEvent.Callback,
-        AccessibilityEventSource {
-
-    int mOldWidthMeasureSpec = Integer.MIN_VALUE;
-    int mOldHeightMeasureSpec = Integer.MIN_VALUE;
-    private LongSparseLongArray mMeasureCache;
-     
-    public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
-        ......
-        // 1. 构建测量缓存的 key
-        long key = (long) widthMeasureSpec << 32 | (long) heightMeasureSpec & 0xffffffffL;
-        if (mMeasureCache == null) {
-            mMeasureCache = new LongSparseLongArray(2);
-        }
-        // 2. 根据 Flag 判断是否要强制重新布局
-        final boolean forceLayout = (mPrivateFlags & PFLAG_FORCE_LAYOUT) == PFLAG_FORCE_LAYOUT;
-        // 3. 判断是否需要重新测量
-        final boolean specChanged = widthMeasureSpec != mOldWidthMeasureSpec
-                || heightMeasureSpec != mOldHeightMeasureSpec;                      // 3.1 判断测量说明书是否有变化
-        final boolean isSpecExactly = MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY
-                && MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY;   // 3.2 判断是否是精确值测量
-        final boolean matchesSpecSize = getMeasuredWidth() == MeasureSpec.getSize(widthMeasureSpec)
-                && getMeasuredHeight() == MeasureSpec.getSize(heightMeasureSpec);   // 3.3 判断说明书中给予的值与当前 View 已经测量的宽高是否是一致的
-        final boolean needsLayout = specChanged
-                && (sAlwaysRemeasureExactly || !isSpecExactly || !matchesSpecSize); // 3.4 通过上述条件判断是否需要测量
-        // 4. 进行测量操作
-        if (forceLayout || needsLayout) {
-            // 获取缓存的索引
-            int cacheIndex = forceLayout ? -1 : mMeasureCache.indexOfKey(key);
-            if (cacheIndex < 0 || sIgnoreMeasureCache) {
-                // 4.1 执行测量操作
-                onMeasure(widthMeasureSpec, heightMeasureSpec);
-                ......
-            } else {
-                // 4.2 直接从缓存中读取数据, 并且重新赋值
-                long value = mMeasureCache.valueAt(cacheIndex);
-                setMeasuredDimensionRaw((int) (value >> 32), (int) value);
-                ......
-            }
-            ......
-        }
-        // 5. 将最新的测量说明书更新到成员变量
-        mOldWidthMeasureSpec = widthMeasureSpec;
-        mOldHeightMeasureSpec = heightMeasureSpec;
-        // 6. 将 key 与 val 存入缓存
-        // val 的构建: 宽度测量说明书左移 32 位占用 long 类型的高 32 位
-        //             高度测量说明书保存在 long 类型的低 32 位
-        mMeasureCache.put(key, ((long) mMeasuredWidth) << 32 |
-                (long) mMeasuredHeight & 0xffffffffL); // suppress sign extension
-    }
-
-            
-}
-```
-可以看到 View 的 measure 中做了如下的操作
-- 构建当前 View 测量说明书缓存的 key
-  - mMeasureCache 未创建, 先进行创建
-- 根据 Flag 判断是否要强制重新布局
-- **根据一些条件判断是否需要重新测量**
-  - 若无缓存, 则使用 **onMeasure** 执行测量操作
-  - 若存在缓存, 则直接使用缓存中的测量好的数据
-- 将最新的测量说明书更新到成员变量
-- 将 key 与测量的宽高存入缓存
-  - 测量的宽高是将 int 类型合并到了 long 类型中进行存储 
-
-好的, 因为 DecorView 是 FrameLayout 的容器, 我们就以 FrameLayout 举例, 看看一次测量的过程是到底是怎样的
-
-```
-public class FrameLayout extends ViewGroup {
-    
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        ......
-        int maxHeight = 0;
-        int maxWidth = 0;
-        for (int i = 0; i < count; i++) {
-            final View child = getChildAt(i);
-            if (mMeasureAllChildren || child.getVisibility() != GONE) {
-                // 1. 测量子孩子
-                measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
-                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                // 记录测量过程中, 子孩子的最大宽度
-                maxWidth = Math.max(maxWidth,
-                        child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin);
-                // 记录测量过程中, 子孩子的最大高度
-                maxHeight = Math.max(maxHeight,
-                        child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin);
                 ......
             }
         }
-        ......// 对测量出来的子视图大小做一些验证
-        
-        // 2. 根据子视图的大小来确定自己的大小
-        setMeasuredDimension(
-               resolveSizeAndState(maxWidth, widthMeasureSpec, childState),
-                resolveSizeAndState(maxHeight, heightMeasureSpec, childState << MEASURED_HEIGHT_STATE_SHIFT)
-        );
-        ......
+
+        public abstract T createService(ContextImpl ctx) throws ServiceNotFoundException;
     }
+}
+```
+好的, 可以看到非常有趣, 这个 CachedServiceFetcher 的 Cached 的含义, 并非是缓存在 SystemServiceRegistry 中, 而是**缓存 Context 对象的 mServiceCache 中**, 也就是说这个 **WindowManger 并非是进程间唯一**的, 而**可能是 Context 对象中唯一**的(不恶意修改的情况下), 因此我们可以得出如下的结论
+- 通过通过 context.getSystemService(Context.WINDOW_SERVICE) 获取到的对象时 WindowManagerImpl
+  - 它并非系统服务进程提供的 WindowMangerService 代理对象
+- 这个 WindowManagerImpl 并非进程间唯一的, **不同的 Context 通过 getSystemService 获取到的 WindowManagerImpl 实例对象都是不同的**
+
+搞清楚了 Context 获取 WindowManager 的过程, 这里再回过头来看看 WindowManagerImpl.createLocalWindowManager 创建新的实例的用意何在
+
+### 二) 创建本地 WindowManager
+```
+public class Window {
     
-}
-```
-可以看到 FrameLayout 容器的 onMeasyre 设计如下
-- 首先是调用了 measureChildWithMargins 测量子孩子
-- 然后再来确定自身的大小
-
-#### 1. 测量子 View
-我们看看这个确认子 View 大小的过程
-```
-public class ViewGroup extends View {
-
-    protected void measureChildWithMargins(View child,
-            int parentWidthMeasureSpec, int widthUsed,
-            int parentHeightMeasureSpec, int heightUsed) {
-        // 获取子 View 的 LP
-        final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
-        // 1. 构建子视图的测量说明书
-        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
-                mPaddingLeft + mPaddingRight + lp.leftMargin + lp.rightMargin
-                        + widthUsed, lp.width);
-        final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
-                mPaddingTop + mPaddingBottom + lp.topMargin + lp.bottomMargin
-                        + heightUsed, lp.height);
-        // 2. 将 measure 操作分发给子 View 
-        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-    }
-}
-```
-
-好的可以看到测量子 View 的过程中, 主要有两个操作
-- 第一个是构建子 View 的测量参考说明书
-- 第二个便是将测量参考说明书下发给子 view, 让其内部去处理测量操作
-
-下面我们一一查看
-
-##### 1) 构建子 View 测量说明书
-```
-public class View {
-
-    public static int getChildMeasureSpec(int spec, int padding, int childDimension) {
-        // 1. 解析当前容器的测量模式与大小
-        int specMode = MeasureSpec.getMode(spec);
-        int specSize = MeasureSpec.getSize(spec);
-        // 2. 去除 padding, 即获取当前容器可供 View 使用的空间
-        int size = Math.max(0, specSize - padding);
-        // 3. 用于构建子 View 说明书
-        int resultSize = 0;
-        int resultMode = 0;
-        switch (specMode) {
-        // 3.1 当前容器是 match_parent 或者精确值
-        case MeasureSpec.EXACTLY:
-            if (childDimension >= 0) {
-                resultSize = childDimension;
-                resultMode = MeasureSpec.EXACTLY;
-            } else if (childDimension == LayoutParams.MATCH_PARENT) {
-                resultSize = size;
-                resultMode = MeasureSpec.EXACTLY;
-            } else if (childDimension == LayoutParams.WRAP_CONTENT) {
-                resultSize = size;
-                resultMode = MeasureSpec.AT_MOST;
-            }
-            break;
-        // 3.2 当前容器是 wrap_content
-        case MeasureSpec.AT_MOST:
-            if (childDimension >= 0) {
-                resultSize = childDimension;
-                resultMode = MeasureSpec.EXACTLY;
-            } else if (childDimension == LayoutParams.MATCH_PARENT) {
-                resultSize = size;
-                resultMode = MeasureSpec.AT_MOST;
-            } else if (childDimension == LayoutParams.WRAP_CONTENT) {
-                resultSize = size;
-                resultMode = MeasureSpec.AT_MOST;
-            }
-            break;
-        // 3.3 当前容器是尺寸是未指明的(子视图可以随意发挥)
-        case MeasureSpec.UNSPECIFIED:
-            if (childDimension >= 0) {
-                resultSize = childDimension;
-                resultMode = MeasureSpec.EXACTLY;
-            } else if (childDimension == LayoutParams.MATCH_PARENT) {
-                resultSize = View.sUseZeroUnspecifiedMeasureSpec ? 0 : size;
-                resultMode = MeasureSpec.UNSPECIFIED;
-            } else if (childDimension == LayoutParams.WRAP_CONTENT) {
-                resultSize = View.sUseZeroUnspecifiedMeasureSpec ? 0 : size;
-                resultMode = MeasureSpec.UNSPECIFIED;
-            }
-            break;
+    public void setWindowManager(WindowManager wm, IBinder appToken, String appName,
+            boolean hardwareAccelerated) {
+        // 如何获取 WindowManger 这里已经分析过了
+        if (wm == null) {
+            wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
         }
-        // 构建子视图说明书
-        return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
+        // 通过 WindowManager 的实例创建了一个新的 WindowManager 提供给自己使用
+        mWindowManager = ((WindowManagerImpl)wm).createLocalWindowManager(this);
     }
     
 }
-```
-上面终点介绍了子 View 说明书的构建过程, 接下来看看 View 拿到了自己的测量说明书之后, 做了什么操作
 
-##### 2) 测量子 View
-```
-public class View implements Drawable.Callback, KeyEvent.Callback,
-        AccessibilityEventSource {
-
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // 通过测量说明书来构建 View 的宽高, 以宽度举例
-        // 1. 首先获取当前 View 建议的最小宽度
-        // 2. 获取默认的大小
-        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
-                getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
+public final class WindowManagerImpl implements WindowManager {
+    // 管理 Window 真正的实现
+    private final WindowManagerGlobal mGlobal = WindowManagerGlobal.getInstance();
+    // 上下文
+    private final Context mContext;
+    // 描述 WindowManager 要管理的 Window 
+    private final Window mParentWindow;
+    
+    // 调用了该方法重新创建了一个 WindowManager
+    public WindowManagerImpl createLocalWindowManager(Window parentWindow) {
+        // 这里创建时的 Context 沿用了当前对象的成员变量
+        return new WindowManagerImpl(mContext, parentWindow);
     }
 
-    private Drawable mBackground;
-    
-    protected int getSuggestedMinimumWidth() {
-        // 1. 若 View 没有设置背景, 则使用 mMinWidth, 它由解析 "android: minWidth" 标签获取到
-        // 2. 若设置了背景, 则使用 mMinWidth 和背景宽度中最大的
-        return (mBackground == null) ? mMinWidth : max(mMinWidth, mBackground.getMinimumWidth());
+    // Constructor 1
+    public WindowManagerImpl(Context context) {
+        this(context, null);
     }
     
-    public static int getDefaultSize(int size, int measureSpec) {
-        // 先将 result 置为最小的尺寸
-        int result = size;
-        int specMode = MeasureSpec.getMode(measureSpec);
-        int specSize = MeasureSpec.getSize(measureSpec);
-        switch (specMode) {
-        case MeasureSpec.UNSPECIFIED:
-            // UNSPECIFIED 该情况默认是 View 最小的尺寸
-            result = size;
-            break;
-        case MeasureSpec.AT_MOST:
-            // 从 ViewRootImpl.getRootMeasureSpec 方法可知, AT_MOST 对应 wrap_content
-            // View 默认实现中, 并没有对 AT_MOST 做任何处理
-        case MeasureSpec.EXACTLY:
-            // 从 ViewRootImpl.getRootMeasureSpec 说明书构建的过程中可知
-            result = specSize;
-            break;
-        }
-        return result;
+    // Constructor 2
+    private WindowManagerImpl(Context context, Window parentWindow) {
+        mContext = context;
+        mParentWindow = parentWindow;
     }
 
-    protected final void setMeasuredDimension(int measuredWidth, int measuredHeight) {
-        ......
-        setMeasuredDimensionRaw(measuredWidth, measuredHeight);
-    }
-
-    int mMeasuredWidth;
-    int mMeasuredHeight;
-    
-    private void setMeasuredDimensionRaw(int measuredWidth, int measuredHeight) {
-        // 至此便获得了 Measured 的宽高
-        mMeasuredWidth = measuredWidth;
-        mMeasuredHeight = measuredHeight;
-        ......
-    }
 }
 ```
-可以看到在 View 大小的确定中
-- 首先**确定 View 的最小尺寸**
-  - 选择 android:minWidth = "xx" 和 background 中最大的作为最小的尺寸
-- 根据**测量说明书的类型, 确认 View 最终的大小**
-  - **UNSPECIFIED**: 系统的实现为最小的尺寸
-  - **AT_MOST**(wrap_content): View 中没有做任何处理, 它的效果与 EXACTLY 一致
-    - 因此一个 View 想要实现 wrap_content 效果, 需要自己手动重写实现 
-  - **EXACTLY**(match_parent 和 数值): 说明书中的值
+好的, 可以看到 WindowManagerImpl.createLocalWindowManager 对象重新创建了一个 WindowManagerImpl 对象
 
-至此子 View 的测量就完成了, 接下来看看容器根据子 View 确认自身大小的过程
+#### 思考
+这里我们可能会有疑问了**不能直接使用 Context 缓存的 WindowManager 吗? 创建新的 WindowManager 用意何在呢?**
 
-#### 2. 测量容器自身
-先回顾一下 FrameLayout 的 onMeasure 中, 确定自身大小的代码
-```
-public class FrameLayout extends ViewGroup {
-    
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // 记录子 View 的最大宽高
-        int maxHeight = 0;
-        int maxWidth = 0;
-        
-        ......// 进行子 View 的测量
-        
-        // 2. 根据子视图的大小来确定自己的大小
-        setMeasuredDimension(
-               resolveSizeAndState(maxWidth, widthMeasureSpec, childState),
-                resolveSizeAndState(maxHeight, heightMeasureSpec, childState << MEASURED_HEIGHT_STATE_SHIFT)
-        );
-        ......
-    }
-    
-}
-```
-好的, 测量完子 View 之后, 便知道他们之间最大的宽高了, 接下来我们看看 resolveSizeAndState 这个方法, 看看它是如何确认 FrameLayout 的尺寸的
+假设我们使用 Context 缓存的 WindowManager 与我们 Activity 中创建的 Window 绑定, 此时我在这个 Activity 中弹出一个 Dialog, 它也会创建一个 Window, 创建 Dialog 时传入的 Context 显然是我们 Activity, 如果它也使用 Context 缓存的 WindowManager 与其创建的 Window 绑定, 那么会出现如下的情况
 
-```
-public class View implements Drawable.Callback, KeyEvent.Callback,
-        AccessibilityEventSource {
-    
-    public static int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
-        // 1. 获取父容器传递下来的 MeasureSpec
-        // 若为 DecorView 则为 ViewRootImpl 中根据 Window 大小构建的说明书
-        final int specMode = MeasureSpec.getMode(measureSpec);
-        final int specSize = MeasureSpec.getSize(measureSpec);
-        // 2. 确认自身大小
-        final int result;
-        switch (specMode) {
-            // 若为 wrap_content, 则将子 View 的大小截断值说明书的最大值
-            case MeasureSpec.AT_MOST:
-                if (specSize < size) {
-                    result = specSize | MEASURED_STATE_TOO_SMALL;
-                } else {
-                    result = size;
-                }
-                break;
-            // 若为 match_parent 和精确值, 则直接使用说明书中的尺寸
-            case MeasureSpec.EXACTLY:
-                result = specSize;
-                break;
-            // 若为未确认的, 则忽略说明书中的值, 直接使用子 View 测量结果
-            case MeasureSpec.UNSPECIFIED:
-            default:
-                result = size;
-        }
-        // 返回测量尺寸
-        return result | (childMeasuredState & MEASURED_STATE_MASK);
-    }
-                
-}
-```
-好的, 到这里容器的大小就确认好了, 之后便可以通过 getMeasuredWidth 和 getMeasuredHeight 获取测量的宽高了
+![Window 与 WindowManager](https://i.loli.net/2019/12/13/aN8TH3AXYhqkJfU.png)
 
-### 回顾
-View 的测量流程如下
-- 构建 DecorView 的测量说明书
-- 遍历 View 树进行测量(以 FrameLayout 为例)
-  - **测量子 View**
-    - 构建子 View 测量说明书
-    - 分发到子 View 执行测量操作
-      - 确定 View 的最小尺寸
-      - 根据测量说明书的类型, 确认 View 最终的大小
-  - **测量容器自身**
-     - 根据容器的特性进行测量即可    
+可以看到 Activity 中的 Window 虽然指向了 WindowManager, 但 WindowManager 中的 Window 已经是 Dialog 中的 Window 了, Activity 中 Window 调用相应的方法时, 会发现变更的居然是 Dialog 的 Window, 这**显然是不合理的**
 
-## 三. View 的布局
-```
-public final class ViewRootImpl implements ViewParent,
-        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
-   
-    private void performLayout(WindowManager.LayoutParams lp, int desiredWindowWidth,
-            int desiredWindowHeight) {
-        // 这里已经开始执行布局请求了, 因此置为 false
-        mLayoutRequested = false;
-        // 1. 第一阶段, 执行第一次 Layout 操作
-        // 表示当前正在执行 layout 操作
-        mInLayout = true;
-        final View host = mView;
-        ......
-        try {
-            // 1.1  执行 DecorView 的 layout
-            host.layout(0, 0, host.getMeasuredWidth(), host.getMeasuredHeight());
-            // layout 完毕了, 标记为 false
-            mInLayout = false;
-            
-            // 2. 第二阶段, 处理在第一次 layout 的过程中, 请求的调用了 requestLayout 的 view 集合
-            int numViewsRequestingLayout = mLayoutRequesters.size();
-            if (numViewsRequestingLayout > 0) {
-                // 获取有效的请求者
-                ArrayList<View> validLayoutRequesters = getValidLayoutRequesters(mLayoutRequesters, false);
-                if (validLayoutRequesters != null) {
-                    // 表示正在处理第一次 layout 过程中调用 requestLayout 的 view  
-                    mHandlingLayoutInLayoutRequest = true;
-                    int numValidRequests = validLayoutRequesters.size();
-                    // 2.1 调用再次请求 view 的 reqeustLayout 操作, 重新发起 Traversals
-                    for (int i = 0; i < numValidRequests; ++i) {
-                        final View view = validLayoutRequesters.get(i);
-                        view.requestLayout();
-                    }
-                    // 2.2 进行测量操作
-                    measureHierarchy(host, lp, mView.getContext().getResources(),
-                            desiredWindowWidth, desiredWindowHeight);
-                    // 2.3 进行布局操作
-                    mInLayout = true;
-                    host.layout(0, 0, host.getMeasuredWidth(), host.getMeasuredHeight());
-                    // 表示第一次 layout 过程中调用 requestLayout 的 view 已经处理结束了
-                    mHandlingLayoutInLayoutRequest = false;
-
-                    // 3. 第三阶段: 处理在第二次 layout 过程中, 调用了 requestLayout 的 view 集合
-                    validLayoutRequesters = getValidLayoutRequesters(mLayoutRequesters, true);
-                    if (validLayoutRequesters != null) {
-                        final ArrayList<View> finalRequesters = validLayoutRequesters;
-                        getRunQueue().post(new Runnable() {
-                            @Override
-                            public void run() {
-                                // 若在第二次 layout 时, 又有新的请求添加进来, 那么直接 post 到下一帧去执行
-                                int numValidRequests = finalRequesters.size();
-                                for (int i = 0; i < numValidRequests; ++i) {
-                                    final View view = finalRequesters.get(i);
-                                    view.requestLayout();
-                                }
-                            }
-                        });
-                    }
-                }
-
-            }
-        } finally {
-            ......
-        }
-        mInLayout = false;
-    }
-    
-}
-```
-好的, 可以看到 ViewRootImpl.performLayout 主要三个阶段, 注释中也标注的很清楚
-
-接下来我们就分析一下 View 的 layout 过程
-
-```
-public class View {
-    
-    public void layout(int l, int t, int r, int b) {
-        int oldL = mLeft;
-        int oldT = mTop;
-        int oldB = mBottom;
-        int oldR = mRight;
-        // 1. 调用 setFrame 保存其新的坐标位置 
-        boolean changed = isLayoutModeOptical(mParent) ?
-                setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);
-        // 2. 若新的位置比起之前有所变更, 则调用 onLayout 去确定其子 View 的布局
-        if (changed || (mPrivateFlags & PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) {
-            // 调用了 onLayout 操作
-            onLayout(changed, l, t, r, b);
-            ......
-        }
-        ......
-    }
-    
-}
-```
-可以看到主要做了两个操作
-- 更新当前 View 的位置
-- 更新子 View 的位置
-
-### 一) 更新当前 View 的位置
-```
-public class View {
-
-     protected boolean setFrame(int left, int top, int right, int bottom) {
-        boolean changed = false;
-        // 1.1 判断其新的位置与老的位置是否有变更
-        if (mLeft != left || mRight != right || mTop != top || mBottom != bottom) {
-            changed = true;
-            // 1.2 计算之前窗体的尺寸
-            int oldWidth = mRight - mLeft;
-            int oldHeight = mBottom - mTop;
-            int newWidth = right - left;
-            int newHeight = bottom - top;
-            // 判断尺寸是否变更了
-            boolean sizeChanged = (newWidth != oldWidth) || (newHeight != oldHeight);
-            invalidate(sizeChanged);// 若尺寸变更了, 则说明之前绘制的区域一定无效了, 因此调用该方法重新绘制
-            // 1.3 更新当前成员变量的值
-            mLeft = left;
-            mTop = top;
-            mRight = right;
-            mBottom = bottom;
-            // 确定当前 View 渲染器结点的大小(在 View 渲染的过程中介绍)
-            mRenderNode.setLeftTopRightBottom(mLeft, mTop, mRight, mBottom);
-            ......
-        }
-        return changed;
-    }
-    
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-    }
-    
-}
-```
-好的, 可以看到在 layout 中主要做了两个操作
-- 调用 setFrame 来更新当前 View 的坐标值
-- 调用了 onLayout 操作去确定其子视图的位置
-  - 这个方法在 View 中个空实现, 因为 View 的摆放的位置, 是由与其容器的特性相关的
-
-### 二) 更新子 View 的位置
-DecorView 是 FrameLayout, 这里以它来举例, 看看它 onLayout 的实现
-```
-public class FrameLayout extends ViewGroup {
-    
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        layoutChildren(left, top, right, bottom, false /* no force left gravity */);
-    }
-    
-    void layoutChildren(int left, int top, int right, int bottom, boolean forceLeftGravity) {
-        // 1. 获取子孩子的数量
-        final int count = getChildCount();
-        // 2. 计算当前容器的可用空间
-        final int parentLeft = getPaddingLeftWithForeground();
-        final int parentRight = right - left - getPaddingRightWithForeground();
-        final int parentTop = getPaddingTopWithForeground();
-        final int parentBottom = bottom - top - getPaddingBottomWithForeground();
-        // 3. 循环操作子 View
-        for (int i = 0; i < count; i++) {
-            final View child = getChildAt(i);
-            if (child.getVisibility() != GONE) {
-                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                // 3.1 获取子 View 的宽高
-                final int width = child.getMeasuredWidth();
-                final int height = child.getMeasuredHeight();
-                // 3.2 根据 gravity 参数来设置确定子 View 的 left, top 坐标
-                int childLeft;
-                int childTop;
-                ......// 省略了计算坐标的代码
-                // 3.3 确定了子 View 的坐标之后, 将其向下分发
-                child.layout(childLeft, childTop, childLeft + width, childTop + height);
-            }
-        }
-    }
-    
-}
-```
-可以看到, FrameLayout 计算好子视图位置之后, 调用了其 layout 方法, 将新的坐标位置传递给它
+**因此为了保证每一个 Window 都有一个 WindowManager 对其进行管理, WindowManagerImpl 中的将相关变量置为了 final 类型, 每有一个 Window 创建, 便会为其创建一个 WindowManger**
 
 ### 三) 回顾
-layout 的过程比起 measure 是简单很多的
-- 调用 setFrame 来更新当前 View 的坐标值
-- 调用了 onLayout 操作去确定其子视图的位置
+Activity 的 attach 关于 Window 做了如下的事情
+c
+光有 Window 是呈现不了界面的, 还需要与我们 View 关联起来, 因此我们看看 setContentView 为 Window 装在 View 的过程
 
-## 总结
-View 的测量流程如下
-- 构建 DecorView 的测量说明书
-- 遍历 View 树进行测量(以 FrameLayout 为例)
-  - **测量子 View**
-    - 构建子 View 测量说明书
-    - 分发到子 View 执行测量操作
-      - 确定 View 的最小尺寸
-      - 根据测量说明书的类型, 确认 View 最终的大小
-   - **测量容器自身**
-     - 根据容器的特性进行测量即可
-
-View 的布局方式如下
-- 调用 setFrame 来更新当前 View 的坐标值
-- 调用了 onLayout 操作去确定其子视图的位置
-
-至此 View 的 measure 过程就完成了, 其中不乏有很多值得我们思考的细节, 代码中注释的也很详细
-
-## 思考
-在整个策略过程中, 我们发现了一个特殊的说明书类型, 它是 UNSPECIFIED, 其他的 AT_MOST 对应 wrap_content, EXACTLY 对应着 match_parent 和具体的数值, **这个 UNSPECIFIED 设计它的目的是什么, 它的作用又是什么呢?**
-
-### 一) 问题描述
-UNSPECIFIED 这个类型的说明书在 Android 使用的非常少, 有迹可寻的地方是在 ScrollView 中, 我们先看看一个特殊的现象
+## 二. 为 Window 填充 View
+我们知道在 Activity 中调用 setContentView 之后, 页面便会展示我们布局中搭建的视图, 我们就以此为切入点, 看看 Window 是如何关联起 View 的
 ```
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:gravity="center"
-        android:text="TextView"
-        />
-
-</ScrollView>
-```
-这个 xml 文件我们设想的展示效果是 ScrollView 撑满整个屏幕, 然后 TextView 占用 300 dp 的高度, 并且文本是居中显示的, 然而实际上, TextView 仅仅只有一行文字的高度, 如下图所示
-
-![image](71888E47570349D5B55F13D0842C2AFA)
-
-这是为什么呢? 不可思议, 我们去 ScrollView 中看看它做了什么操作
-
-### 二) 问题探究
-#### 1. ScrollView 的测量策略
-```
-public class ScrollView extends FrameLayout {
+public class Activity extends ContextThemeWrapper { 
     
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // 调用了 FrameLayout 的 onMeasure 对子 View 进行测量
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        // 我们的 .xml 文件中, 没有使用 android:fillViewport = true, 因此这里会 return
-        if (!mFillViewport) {
-            return;
+    public void setContentView(@LayoutRes int layoutResID) {
+        // 获取 Activity.attach 中创建的 PhoneWindow 对象, 调用其 setContentView 
+        getWindow().setContentView(layoutResID);
+        ......
+    }
+    
+}
+
+public class PhoneWindow extends Window implements MenuBuilder.Callback {
+    
+    private LayoutInflater mLayoutInflater;
+    ViewGroup mContentParent;
+ 
+     @Override
+    public void setContentView(int layoutResID) {
+        if (mContentParent == null) {
+            // 1. 给 Window 填充 DecorView 
+            installDecor();
+        } else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+            ......
+        }
+
+        if (hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+            ......// 处理 Sence 场景动画
+        } else {
+            // 2. 构建我们搭建的布局填充到 mContentParent 中
+            mLayoutInflater.inflate(layoutResID, mContentParent);
         }
         ......
     }
     
 }
 ```
-可以看到在没有开启 fillViewport 的情况下, 它会调用 FrameLayout 的 onMeasure, 很奇怪我们的 TextView 在 FrameLayout 中展示的效果是没有问题的, 为什么 ScrollView 中出现了偏差呢, 那是因为虽然它没有破坏 FrameLayout onMeasure 的流程, 但它重写了 measureChild 和 measureChildWithMargins, 影响了最终测量的结果
+好的, 可以看到在 PhoneWindow 的 setContentView 中, 做了两件事情
+- 给 **Window 安装 DecorView**
+- 将我们传入的布局填充到 mContentParent 中
 
-我们选择 measureChildWithMargins 看看它内部做了哪些操作
+关于讲我们的 layoutResId 解析成 View 添加到 mContentParent 中的流程就不赘述了、
+
+这里主要看看 Window 是如何安装 DecorView 的
+
+### 一) 安装 DecorView
 ```
-public class ScrollView extends FrameLayout {
+public class PhoneWindow extends Window implements MenuBuilder.Callback {
     
-    @Override
-    protected void measureChildWithMargins(View child, int parentWidthMeasureSpec, int widthUsed,
-            int parentHeightMeasureSpec, int heightUsed) {
-        final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
-        // 构建宽度测量说明书, 没有任何问题
-        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
-                mPaddingLeft + mPaddingRight + lp.leftMargin + lp.rightMargin
-                        + widthUsed, lp.width);
-        // 构建高度测量说明书, 这里有趣了
-        final int usedTotal = mPaddingTop + mPaddingBottom + lp.topMargin + lp.bottomMargin +
-                heightUsed;
-        // 可以看到他将子 View 的说明书类型, 强制传入了 UNSPECIFIED
-        final int childHeightMeasureSpec = MeasureSpec.makeSafeMeasureSpec(
-                Math.max(0, MeasureSpec.getSize(parentHeightMeasureSpec) - usedTotal),
-                MeasureSpec.UNSPECIFIED);
-        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+    private void installDecor() {
+        if (mDecor == null) {
+            // 1. 创建了 DecorView 的对象
+            mDecor = generateDecor(-1);
+        } else {
+            // 若不为null, 则让 DecorView 直接与当前的 Window 对象绑定
+            mDecor.setWindow(this);
+        }
+        // 2. 构建 mContentParent
+        if (mContentParent == null) {
+            mContentParent = generateLayout(mDecor);
+        }
+    }
+}
+```
+安装 DecorView 的过程主要有两步
+- 调用 generateDecor 创建 DecorView 对象
+- 调用 generateLayout 为 DecorView 注入初始布局
+
+### 1. 创建 DecorView
+```
+public class PhoneWindow extends Window implements MenuBuilder.Callback {
+
+    protected DecorView generateDecor(int featureId) {
+        Context context;
+        if (mUseDecorContext) {
+            ...... // 创建 DecorView 的Context
+        } else {
+            context = getContext();
+        }
+        // 1.1 创建了 DecorView, 可以看到 this 为当前 Window 的实例
+        return new DecorView(context, featureId, this, getAttributes());
+    }
+
+}
+```
+这里很简单, 即 new 了一个 DecorView 对象, 下面看看如何为 DecorView 填充布局
+
+### 2. 为 DecorView 填充布局
+```
+public class PhoneWindow extends Window implements MenuBuilder.Callback {
+
+    public static final int ID_ANDROID_CONTENT = com.android.internal.R.id.content;
+    
+    protected ViewGroup generateLayout(DecorView decor) {
+        ......
+        // 1. 找寻 Android 系统提供给 DecorView 的填充布局, 存入 layoutResource 中
+        // 这些布局文件中均有一个 ID 为 ID_ANDROID_CONTENT 的 View
+        int layoutResource;
+        ......
+        
+        // 2. 将 layoutResource 布局文件解析成 View 添加到了 DecorView 之中
+        mDecor.onResourcesLoaded(mLayoutInflater, layoutResource);
+        // 3 通过 findViewById 给 contentParent 赋值
+        ViewGroup contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);
+        
+        ......
+        return contentParent;
+    }
+    
+    public <T extends View> T findViewById(@IdRes int id) {
+        // 通过 DecorView 找寻视图
+        return getDecorView().findViewById(id);
+    }
+}
+
+public class DecorView extends FrameLayout {
+
+   // 若 Window 不需要这个 View, 则为 null
+   DecorCaptionView mDecorCaptionView;
+   ViewGroup mContentRoot;
+   
+   void onResourcesLoaded(LayoutInflater inflater, int layoutResource) {
+        mDecorCaptionView = createDecorCaptionView(inflater);
+        // 1. 根据 layoutResource 创建 root
+        final View root = inflater.inflate(layoutResource, null);
+        if (mDecorCaptionView != null) {
+            ......
+        } else {
+            ......
+            // 2. 添加到 DecorView 中, 作为其子容器
+            addView(root, 0, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+        }
+        // 3. 赋值给成员变量
+        mContentRoot = (ViewGroup) root;
     }
     
 }
 ```
-很有意思, **ScrollView 在测量子孩子的时候, 将其测量说明书强行改写成了 UNSPECIFIED 类型, size 为其最大可用空间**, 因此我们得去 TextView 的 onMeasure 中寻找答案
+可以看到 generateLayout 会为 DecorView 加载一个填充布局, 这个布局由系统提供其内部一定存在一个 R.id.content 的 View, 它便是后续需要保存到 PhoneWindow 中的 mContentParent
 
-#### 2. TextView 的测量策略
-我们回顾一下在 View 测量的过程中, 在面对 UNSPECIFIED 策略说明书时, 它会使用自己最小的高度, 但 TextView 不同, 它重写了 onMeasure, 于是我们去看看 TextView 中做了哪些处理
+ 容器 | childCount | child
+---|-- |---
+Window | 1 |DecorView
+DecorView | 1 | mContentRoot <br> (根据feature拿到的layoutResource  例如: screen_simple.xml)
+**mContentRoot**(以screen_simple.xml为例) | 2 | child1: ViewStub(@+id/action_mode_bar_stub) <br> **child2: FrameLayout(@android:id/content), 它就是mCotnentParent**
 
-```
-public class TextView extends View {
-    
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-        
-        int width;
-        int height;
-        
-        ......
-        // 这里是对高度的测量策略
-        if (heightMode == MeasureSpec.EXACTLY) {
-            // 若为 EXACTLY 的, 则使用策略说明书中分配的
-            height = heightSize;
-            mDesiredHeightAtMeasure = -1;
-        } else {
-            // 1. 若为 AT_MOST/UNSPECIFIED 类型
-            // 获取期望的高度, 很显然是 wrap_content 的效果
-            int desired = getDesiredHeight();
-            height = desired;
+### 二) 回顾
+当我们执行 setContentView 操作时会进行如下操作
+- 给 **Window 安装 DecorView**
+  - 创建 DecorView
+  - 为 DecorView 填充布局 mContentRoot
+  - 将 mContentRoot 中 R.id.content 的 View 保存到 mContentParent
+- 将我们传入的布局填充到 mContentParent 中
+
+![DecorView层级图](https://i.loli.net/2019/12/13/HukWPTldjxz9hbr.png)
+
+## 三. 与 WMS 建立联系
+```java
+public final class ActivityThread extends ClientTransactionHandler {
+
+    @Override
+    public void handleResumeActivity(IBinder token, boolean finalStateRequest, boolean isForward,
+            String reason) {
+        // 执行 Activity 的 onStart 和 onResume 操作
+        final ActivityClientRecord r = performResumeActivity(token, finalStateRequest, reason);
+        final Activity a = r.activity;
+        // mStartedActivity 在这个 Activity 准备跳转到其他页面时, 会被赋值为 true
+        // 若并非需要跳转到其他页面, 则准备进行这个 Activity 的视图的测量、布局和绘制
+        boolean willBeVisible = !a.mStartedActivity;
+        if (r.window == null && !a.mFinished && willBeVisible) {
+            // 获取 Activity 绑定的 Window 
+            r.window = r.activity.getWindow();
+            // 获取 Window 中的 DecorView
+            View decor = r.window.getDecorView();
+            decor.setVisibility(View.INVISIBLE);
+            // 获取 Activity 的 WindowManager
+            ViewManager wm = a.getWindowManager();
+            // 获取 Window 的布局参数
+            WindowManager.LayoutParams l = r.window.getAttributes();
+            ......
+            if (a.mVisibleFromClient) {
+                if (!a.mWindowAdded) {
+                    a.mWindowAdded = true;
+                    // 将这 DecorView 和该 Window 的布局参数传入 WidnowManager.addView 方法
+                    wm.addView(decor, l);
+                } else {
+                    ......
+                }
+            }
+            .......
+        } else if (!willBeVisible) {
             ......
         }
         ......
-        setMeasuredDimension(width, height);
+    }
+}
+```
+可以看到 ActivityThread.handleResumeActivity 在回调了 onStart 和 onResume 之后, 便会处理当前 Window 中的视图
+
+其中最为重要的 wm.addView 这行代码, 它是我们 View 与 WMS 建立连接的关键, 我们看看它的实现
+```java
+public class WindowManagerImpl implements WindowManager {
+    
+    // 桥接对象, 用于转移 WindowManager 中的具体操作
+    private final WindowManagerGlobal mGlobal = WindowManagerGlobal.getInstance();
+    private final Context mContext;
+    private final Window mParentWindow;
+    
+    @Override
+    public void addView(@NonNull View view, @NonNull ViewGroup.LayoutParams params) {
+        ......
+        mGlobal.addView(view, params, mContext.getDisplay(), mParentWindow);
+    }
+}
+
+public final class WindowManagerGlobal {
+    
+    private static WindowManagerGlobal sDefaultWindowManager;
+    
+    // 获取 WindowManagerGlobal 单例
+    // 这种方式显然不够优雅
+    public static WindowManagerGlobal getInstance() {
+        synchronized (WindowManagerGlobal.class) {
+            if (sDefaultWindowManager == null) {
+                sDefaultWindowManager = new WindowManagerGlobal();
+            }
+            return sDefaultWindowManager;
+        }
+    }
+}
+```
+好的, 可以看到 WindowManagerImpl.addView 的操作, 直接转发给了 WindowManagerGlobal
+
+我们知道 WindowManager 是为了管理与之绑定的 Window 的, 那么 **WindowManagerGlobal 顾名思义它是用于管理当前进程中所有的 Window 的**, 从它使用了单例设计模式便可初步印证我们的想法
+
+接下来我们来看看 WindowManagerGlobal 是如何执行 addView 操作的
+```java
+public final class WindowManagerGlobal {
+
+    // 缓存当前进程中所有的正在展示 DecorView
+    private final ArrayList<View> mViews = new ArrayList<View>();
+    // 缓存当前进程中所有真正展示的 DecorView 的管理者
+    private final ArrayList<ViewRootImpl> mRoots = new ArrayList<ViewRootImpl>();
+    // 缓存当前进程中所有 DecorView 的布局参数
+    private final ArrayList<WindowManager.LayoutParams> mParams =
+            new ArrayList<WindowManager.LayoutParams>();
+    
+    public void addView(View view, ViewGroup.LayoutParams params,
+            Display display, Window parentWindow) {
+        ......
+        final WindowManager.LayoutParams wparams = (WindowManager.LayoutParams) params;
+        ......
+        // 声明 ViewRootImpl
+        ViewRootImpl root;
+        View panelParentView = null;
+        synchronized (mLock) {
+            ......// 添加系统属性变更的观察者
+            // 1. 查找当前 View 在 mViews 中的索引值
+            // 这个 Window 是首次 addView 操作, 显然索引为 -1 
+            int index = findViewLocked(view, false);
+            if (index >= 0) {
+                // 1.1 若当前 View 已经被添加到解绑结合中, 则执行 ViewRootImpl 的 doDie 操作
+                if (mDyingViews.contains(view)) {
+                    mRoots.get(index).doDie();
+                } else {
+                    // 1.2 这是一个非常常见的异常, 表示这个 DecorView 被重新添加了
+                    throw new IllegalStateException("View " + view
+                            + " has already been added to the window manager.");
+                }
+            }
+            // 2. 判断当前 Window 是否为 SUB_WINDOW 类型
+            if (wparams.type >= WindowManager.LayoutParams.FIRST_SUB_WINDOW &&
+                    wparams.type <= WindowManager.LayoutParams.LAST_SUB_WINDOW) {
+                // 若是子 Window, 找寻它父 Window 的 DecorView
+                final int count = mViews.size();
+                for (int i = 0; i < count; i++) {
+                    // 通过 wparams 的 token 进行比较
+                    // 可以看到找到之后并没有立即 break, 它会找到集合中最后一个匹配的 View
+                    // 因为最晚添加的 View 才有可能是它的直接父容器
+                    if (mRoots.get(i).mWindow.asBinder() == wparams.token) {
+                        panelParentView = mViews.get(i);
+                    }
+                }
+            }
+            // 3. 构建了 ViewRootImpl 对象
+            root = new ViewRootImpl(view.getContext(), display);
+            // 给 DecorView 设置 Window 的布局参数
+            view.setLayoutParams(wparams);
+            // 4. 添加到缓存中
+            mViews.add(view);
+            mRoots.add(root);
+            mParams.add(wparams);
+            try {
+                // 5. 给 ViewRootImpl 设置这个 DecorView
+                root.setView(view, wparams, panelParentView);
+            } catch (RuntimeException e) {
+                ......
+            }
+        }
+    }
+}
+```
+可以看到 WindowManagerGlobal 的 addView 中做了非常重要的操作
+- 查找传入的 DecorView 是否已经在 mViews 缓存中了
+  - 若在缓存中, 则抛出我们熟知的异常, 不允许二次添加
+- 判断当前 DecorView 的 LayoutParams 是否 SUB_WINDOW 类型
+  - 若为子窗口类型, 则遍历集合查找其父窗口的 DecorView
+- **构建一个 ViewRootImpl** 
+  - 给 DecorView 设置 Window 的布局参数 
+- 将相关对象添加到 WindowManagerGlobal 的缓存集合中
+- **将 DecorView 注入 ViewRootImpl**
+
+从这里可以看到 WindowManager 就是一个壳实现, 其 addView 操作直接转发到了 WindowManagerGlobal 中, 从其内部实现可以得知, **一个 DecorView 对应一个 ViewRootImpl**, 如果说 DecorView 是根 View, 那么 ViewRootImpl 就肩负着 DecorView 与外界的交互的职责, 比如从与 WMS 交互, 与 IMS 交互等等
+
+![DecorView 的映射关系](https://i.loli.net/2019/12/13/5cBtHfpDRbM7IVa.png)
+
+接下来我们从 **ViewRootImpl 的创建**与 **ViewRootImpl.setView** 来分析它的创建和初始化过程
+
+### 一) ViewRootImpl 的创建
+```java
+public final class ViewRootImpl implements ViewParent,
+        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
+
+    final Rect mWinFrame;                 // 描述 ViewRootImpl 窗体的大小   
+    final W mWindow;                      // 描述与需要添加到 WMS 中的窗口的 Binder 实体对象
+    final IWindowSession mWindowSession;  // 描述一个与 WMS 建立的连接
+    final View.AttachInfo mAttachInfo;    // 描述当前窗体中 View 的依附的信息
+    
+    public ViewRootImpl(Context context, Display display) {
+        ......
+        mContext = context;
+        // 1. 与 WMS 交互的 Session
+        mWindowSession = WindowManagerGlobal.getWindowSession();
+        mWinFrame = new Rect();
+        // 2. 描述 WMS 窗体的 Binder 代理对象
+        mWindow = new W(this);
+        ......
+        // 3. 封装依附信息
+        mAttachInfo = new View.AttachInfo(mWindowSession, mWindow, display, this, mHandler, this,
+                context);
+        // 4. 获取渲染编舞者实例对象
+        mChoreographer = Choreographer.getInstance();
+    }
+
+}
+```
+在 ViewRootImpl 的创建流程如下
+- **获取了与 WMS 交互的 WindowSession 对象**
+- **获取 ViewRootImpl 所描述的窗体对应 WMS 的 Binder 代理对象 W**
+- 创建 AttachInfo 对象, 描述当前窗体关联的数据信息
+- **获取 Choreographer 对象, 描述应用进程 UI 渲染的调度器**
+  - 这个对象在 Android 4.1 的时候引入, 配合 VSYNC 信号来, 控制 View 渲染的时机
+
+上面的流程比较清晰, 从其构造可以看出 ViewRootImpl 承担着与 WMS 交互以及 UI 渲染调度的重任
+
+关于 Choreographer 的创建流程, 我们到下一篇文章中重点分析, 这里我们先看看与 WMS 交互的过程
+
+#### 1. IWindowSession 的创建
+```java
+public final class WindowManagerGlobal {
+    
+    private static IWindowManager sWindowManagerService;
+    private static IWindowSession sWindowSession;
+    
+    public static IWindowSession getWindowSession() {
+        synchronized (WindowManagerGlobal.class) {
+            if (sWindowSession == null) {
+                try {
+                    InputMethodManager imm = InputMethodManager.getInstance();
+                    // 1. 获取 WMS 的客户端 Binder 代理对象
+                    IWindowManager windowManager = getWindowManagerService();
+                    // 2. 通过这个代理对象创建一个进程间单例的 IWindowSession Binder 代理对象
+                    // 它描述了当前进程与系统服务进行的 WMS 进行会话的桥梁
+                    sWindowSession = windowManager.openSession(
+                            new IWindowSessionCallback.Stub() {
+                                @Override
+                                public void onAnimatorScaleChanged(float scale) {
+                                    ValueAnimator.setDurationScale(scale);
+                                }
+                            },
+                            imm.getClient(), imm.getInputContext());
+                } catch (RemoteException e) {
+                    throw e.rethrowFromSystemServer();
+                }
+            }
+            return sWindowSession;
+        }
+    }
+    
+    public static IWindowManager getWindowManagerService() {
+        synchronized (WindowManagerGlobal.class) {
+            if (sWindowManagerService == null) {
+                // 获取了系统服务进程的 WindowManagerService 的 Binder 代理对象, 保存在静态变量中
+                sWindowManagerService = IWindowManager.Stub.asInterface(
+                        ServiceManager.getService("window"));
+                ......
+            }
+            return sWindowManagerService;
+        }
+    }
+}
+```
+可以看到这个 IWindowSession 的构建是在 WindowManagerGlobal 中进行的, 它主要做了两部分操作
+- 获取系统服务进程 WindowManagerService 的 Binder 代理对象, 即 WMS
+- 通过 openSession, 返回一个 Session 的 Binder 代理对象给我们客户端使用, 进程间单例
+
+这里我们可能会有疑问 WindowManagerService 和 WindowManager 是什么关系?
+- WindowManager 是在我们的应用进程中对 Window 进行管理的服务, 并且是一一对应的关系, 可以理解为是更高层的抽象实现, 也就是门面
+- 真正用于窗体管理的是在系统服务进程的 WMS, 它是不认是我们上面的 Window 对象的, 因为是跨进程通信, 它所能够识别的窗体是上面我们看到的 W 这个 Binder 实体对象
+
+接下来我们先看看, WMS 是如何通过 openSession 方法建立和应用进程的通信的
+
+```java
+public class WindowManagerService extends IWindowManager.Stub {
+    
+    public IWindowSession openSession(IWindowSessionCallback callback, IInputMethodClient client,
+            IInputContext inputContext) {
+        ......
+        // 可以看到在系统服务进程, 创建了一个 Session 对象返回给客户端
+        Session session = new Session(this, callback, client, inputContext);
+        return session;
+    }
+    
+}
+
+class Session extends IWindowSession.Stub implements IBinder.DeathRecipient {
+    
+    final WindowManagerService mService;
+    final IWindowSessionCallback mCallback;
+    final IInputMethodClient mClient;
+    
+    public Session(WindowManagerService service, IWindowSessionCallback callback,
+            IInputMethodClient client, IInputContext inputContext) {
+        mService = service;
+        mCallback = callback;
+        mClient = client;
     }
     
 }
 ```
-可以看到, TextView 中对于 UNSPECIFIED 类型的高度说明书, 直接使用了 wrap_content 的效果, 这也就很好的解释了, 为什么会呈现出上图中的结果
+可以看到在系统服务进程, WMS 创建了一个 Session 的 Binder 实体对象, 然后就返回给了客户端, 我们拿到这个 Session 对象之后就可以将我们的窗体发送给 WMS 进行统一管理了
 
-### 三) 问题解析
-**通过了对 ScrollView 和 TextView 组合的分析, 我们看到了 UNSPECIFIED 的使用, 不过似乎通过对它的使用, 我们的视图效果却变得更差了, 这个 UNSPECIFIED 存在有什么意义呢?**
+在 ViewRootImpl 的构造方法中我们可以看到, 成员变量 mWindow 是在其构造方法里 new 出来的, 下面看看它的创建
 
-我们知道 MeasureSpec 在整个 View 的测量过程中起到了一个非常重要的作用, 子 View 获取到父容器传递给其的策略说明书后, 就可以进行测量了, 它其中有三个模式, 分别是 EXACTLY, AT_MOST, 我们通常理解为: 
-- EXACTLY: 对应 match_parent 和设置的 dp 值
-- AT_MOST: 对应 wrap_content
+#### 2. W 的创建
+```java
+public final class ViewRootImpl implements ViewParent,
+        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
+            
+    static class W extends IWindow.Stub {
 
-于是 UNSPECIFIED 就找不到映射关系了, 从而产生了对这个类型的存在产生了怀疑, 但其实并非如此, **对于 MeasureSpec 中的 mode, 并非是为了映射 match_parent 和 wrap_content 等 xml 元素而存在的, 它的作用是用来规范子 View 的测量行为**
-- EXACTLY: 指的是子 View 必须**严格按照说明书中 size 的值来设置自己的尺寸**
-- AT_MOST: 指的是子 View 可以**在说明书中 size 之内来设置自己的尺寸**
-- UNSPECIFIED: 指的是子 View 可以**忽略说明书中 size 的大小, 随意的设置自己的尺寸**
+        private final WeakReference<ViewRootImpl> mViewAncestor;
+        private final IWindowSession mWindowSession;
 
-当我们正确的认识了 MeasureSpec 的作用之后, 一切就迎刃而解了, **之前理解的映射关系其实仅仅是 Android Framework 开发工程师遵守 MeasureSpec 中 mode 的约束而产生的**, 若是忽略 mode 的规范, 我们自然是可以随心所欲的吧 UNSPECIFIED 当成 match_parent 的映射, 但这样的自定义组件, 显然是不会受到大众认可的
+        W(ViewRootImpl viewAncestor) {
+            // 保存了 ViewRootImpl 的弱引用
+            mViewAncestor = new WeakReference<ViewRootImpl>(viewAncestor);
+            // 保存了当前进程与 WMS 通信的会话
+            mWindowSession = viewAncestor.mWindowSession;
+        }
+        
+    }
+   
+}
+```
+可以看到它是一个 Binder 实体对象, 它的构造器中保存了这个 ViewRootImpl 的弱引用和 Session 的代理对象, 既然 W 是 Binder 对象, 因此这里我们可以猜测一下, 它可能会在后续通过跨进程通信添加到 WMS 中进行集中管理
 
-**因此 UNSPECIFIED 存在的意义是为了应对 View 的大小不需要受到父容器限制的场景**, ScrollView 中对子 View 使用 UNSPECIFIED 策略模式, 是因为它是可以滚动的, 它不希望子 View 受到当前父容器尺寸的影响, 否则我们何来滚动的效果呢?
+不知道大家有没有发现, 在 ViewRootImpl 中我们几乎看不到的 Window 和 WindowManager 了, 那是因为他们是上层高度抽象出来的壳, 将 DecorView 和相关参数导入 ViewRootImpl 之后, 它们的任务就完成了
+
+#### 3. 回顾
+ViewRootImpl 的创建流程如下
+- 获取进程间单例的 IWindowSession 用于和 WMS 交互
+- 创建一个 IWindow 的 Binder 实体对象 W, 描述当前 View 所在窗体 
+- 获取 Choreographer 示例对象, 用于调度 UI 渲染 
+
+接下来我们看看 ViewRootImpl.setView 与 DecorView 绑定时, 做了哪些操作
+
+### 二) ViewRootImpl 初始化
+```java
+public final class ViewRootImpl implements ViewParent,
+        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
+
+    public void setView(View view, WindowManager.LayoutParams attrs, View panelParentView) {
+        synchronized (this) {
+            if (mView == null) {
+                mView = view;
+                ......
+                if (panelParentView != null) {
+                    // 若存在父窗体, 则保存父窗体的 token
+                    mAttachInfo.mPanelParentWindowToken
+                            = panelParentView.getApplicationWindowToken();
+                }
+                // 执行 View 绘制的三大流程
+                requestLayout();
+                ......
+                try {
+                    ......
+                    // 将窗体信息添加到 WMS 中
+                    res = mWindowSession.addToDisplay(mWindow, mSeq, mWindowAttributes,
+                            getHostVisibility(), mDisplay.getDisplayId(), mWinFrame,
+                            mAttachInfo.mContentInsets, mAttachInfo.mStableInsets,
+                            mAttachInfo.mOutsets, mAttachInfo.mDisplayCutout, mInputChannel);
+                } catch (RemoteException e) {
+                    ......
+                } finally {
+                    ......
+                }
+            }
+        }
+    }
+    
+}
+```
+现在回过头来看看 ViewRootImpl 主要有两个步骤
+- 通过 requestLayout 执行 View 的遍历操作
+- 通过 addToDisplay 通知 WMS 应用进程有一个新的窗体创建了
+
+requestLayout 它会将 View 遍历的操作投放到消息队列中, 也就是说我们的 addToDisplay 会先于 View 的遍历操作执行
+
+关于 requestLayout 我们到后面再单独分析, 这里先看看 addToDisplay 的操作
+
+#### 1. 将窗体添加到 WMS 
+从上面的分析可知, ViewRootImpl 中, 调用了 IWindowSession.addToDisplay 将窗体信息添加到了 WMS 中, 我们看看它是如何实现的
+
+```java
+class Session extends IWindowSession.Stub implements IBinder.DeathRecipient {
+    
+    final WindowManagerService mService;
+
+    @Override
+    public int addToDisplay(IWindow window, int seq, WindowManager.LayoutParams attrs,
+            int viewVisibility, int displayId, Rect outFrame, Rect outContentInsets,
+            Rect outStableInsets, Rect outOutsets,
+            DisplayCutout.ParcelableWrapper outDisplayCutout, InputChannel outInputChannel) {
+        // 简单的进行了转发
+        return mService.addWindow(this, window, seq, attrs, viewVisibility, displayId, outFrame,
+                outContentInsets, outStableInsets, outOutsets, outDisplayCutout, outInputChannel);
+    }
+    
+}
+
+public class WindowManagerService extends IWindowManager.Stub {
+
+    // 在 WMS 的构造函数中赋值, 其实例为 PhoneWindowManager
+    final WindowManagerPolicy mPolicy;
+    final WindowHashMap mWindowMap = new WindowHashMap();
+
+    public int addWindow(Session session, IWindow client, int seq,
+            LayoutParams attrs, int viewVisibility, int displayId, Rect outFrame,
+            Rect outContentInsets, Rect outStableInsets, Rect outOutsets,
+            DisplayCutout.ParcelableWrapper outDisplayCutout, InputChannel outInputChannel) {
+            
+        .......
+        synchronized(mWindowMap) {
+            // 1. 创建一个 DisplayContent, 它用来管理同一个 displayId 下的所有窗体
+            final DisplayContent displayContent = getDisplayContentOrCreate(displayId);
+            ......
+            // 2. 创建一个窗体的描述
+            final WindowState win = new WindowState(this, session, client, token, parentWindow,
+                    appOp[0], seq, attrs, viewVisibility, session.mUid,
+                    session.mCanAddInternalSystemWindow);
+            ......
+            // 3. 准备添加窗体
+            res = mPolicy.prepareAddWindowLw(win, attrs);
+            if (res != WindowManagerGlobal.ADD_OKAY) {
+                return res;
+            }
+            // 4. 给这个窗体描述打开一个输入通道, 用于接收屏幕的点击事件(事件分发)
+            final boolean openInputChannels = (outInputChannel != null
+                    && (attrs.inputFeatures & INPUT_FEATURE_NO_INPUT_CHANNEL) == 0);
+            if  (openInputChannels) {
+                win.openInputChannel(outInputChannel);
+            }
+            if (res != WindowManagerGlobal.ADD_OKAY) {
+                return res;
+            }
+            .......
+            // 5. 会创建一个 SurfaceSession 与 SurfaceFlinger 交互
+            win.attach();
+            
+            // 6. 以客户端的 W 的 Binder 代理对象为 key, 将 win 存入
+            mWindowMap.put(client.asBinder(), win);
+            .......
+            
+            // 7. 确认窗体中可用于布局区域的大小
+            if (mPolicy.getLayoutHintLw(win.mAttrs, taskBounds, displayFrames, outFrame,
+                    outContentInsets, outStableInsets, outOutsets, outDisplayCutout)) {
+                res |= WindowManagerGlobal.ADD_FLAG_ALWAYS_CONSUME_NAV_BAR;
+            }
+        }
+        ......
+        return res;
+    }
+}
+```
+好的, 上面的省略的大量的代码, 保留了此次我们关注的点主要有以下几点
+- **创建一个窗体的描述对象 WindowState, 与应用进程的 IWindow 对应**
+- **调用 WindowState.openInputChannel 创建一对 InputChannel**
+  - 将接收端的 Socket 端口返回给应用进程, 用于接收屏幕的点击事件流
+- **调用 WindowState.attach 方法**
+- **将窗体添加到 mWindowMap 中缓存**
+
+当构建的 WindowState 添加到了 WMS.mWindowMap 中缓存起来之后, 至此应用进程的窗体 IWindow 就与 WMS 联系在一起了, 他们交互的流程图如下所示
+
+好的, 上面的方法中, 有一个非常重要的方法, 叫做 WindowState.attach, 它创建了这个窗体与 SurfaceFliger 交互的桥梁, 这里我们单独分析一下
+
+##### WindowState.attach
+```
+class WindowState extends WindowContainer<WindowState> implements WindowManagerPolicy.WindowState {
+    
+    final Session mSession;
+    
+    void attach() {
+        // 调用了 Session.windowAddedLocked 方法
+        mSession.windowAddedLocked(mAttrs.packageName);
+    }
+    
+}
+
+class Session extends IWindowSession.Stub implements IBinder.DeathRecipient {
+    
+    SurfaceSession mSurfaceSession;
+    private int mNumWindow = 0;
+
+    void windowAddedLocked(String packageName) {
+        mPackageName = packageName;
+        if (mSurfaceSession == null) {
+            // 这里创建了一个 SurfaceSession 对象
+            mSurfaceSession = new SurfaceSession();
+            // 添加到 WMS 的缓存中
+            mService.mSessions.add(this);
+            ......
+        }
+        // 表示这个 Session 对象所管理的进程中, 又多了一个 Window
+        mNumWindow++;
+    }
+    
+}
+```
+好的, 可以看到 WindowState.attach 方法, 会在这个窗体应用进程对应的 Session 中, 创建一个 mSurfaceSession 对象, 然后把它添加到 WMS 的缓存中, 这个 SurfaceSession 承担着与 Session 一样的作用
+- Session 是 IWindowSession 的 Binder 实体对象, 它用与管理一个应用进程与 WMS 进程的交互
+- SurfaceSession 也是如此, 它用来管理一个应用进程与 SurfaceFlinger 的交互
+  - SurfaceFlinger 是专门用来渲染 UI 的进程 
+
+接下来我们就看看这个 SurfaceSession 对象是如何构建的
+
+```
+public final class SurfaceSession {
+    // 描述 SurfaceComposerClient 的句柄
+    private long mNativeClient;
+
+    public SurfaceSession() {
+        // 调用了 nativeCreate 获取了一个句柄值
+        mNativeClient = nativeCreate();
+    }
+    
+    private static native long nativeCreate();
+}
+```
+好的, 可以看到 SurfaceSession 的构造方式非常简单, 它调用 nativeCreate 获取了一个句柄值, 接下来我们看看它在 Native 层的操作
+```
+// frameworks/base/core/jni/android_view_SurfaceSession.cpp
+static jlong nativeCreate(JNIEnv* env, jclass clazz) {
+    // 可以看到创建了一个 SurfaceComposerClient 的 C++ 对象
+    SurfaceComposerClient* client = new SurfaceComposerClient();
+    client->incStrong((void*)nativeCreate);// 增加一个强引用
+    // 返回给 Java 层一个句柄值
+    return reinterpret_cast<jlong>(client);
+}
+```
+很简单, 创建了一个 SurfaceComposerClient C++ 对象, **描述与 SurfaceFlinger 通信的客户端**
+
+#### 2. 回顾
+![ViewRootImpl 与 WMS](https://i.loli.net/2019/12/13/clyOmYMVH3nfxsv.png)
+
+ViewRootImpl 的初始化操作主要如下
+- 通过 requestLayout 将 View 的遍历的操作投放到消息队列
+- 通过 addToDisplay 通知 WMS 有一个新的窗体创建了
+  - 创建 WindowState
+  - 创建 InputChannel
+  - 调用 WindowState.attach, 创建一个 Session 描述当前 Window 与 SurfaceFlinger 的通信
+  - 添加到 mWindowMap 中缓存
+
+## 四. 总结
+### 初始化 Window
+Activity 初始化 Window 的时机在 Activity.attach 方法中
+- 创建 PhoneWindow 实例保存在 Activity 中
+- 为 Window 绑定 WindoManager
+  - 获取 Context 缓存的 WindowManager
+  - 通过 Context 缓存的 WindowManager 创建为当前 PhoneWindow 创建对应的 WindowManagerImpl
+    - 每一个 Window 都有自己对应的 WindowManager 对象 
+
+### 为 Window 填充 View
+为 Window 填充 View 的时机在 setContentView 中
+- 给 **Window 安装 DecorView**
+  - 创建 DecorView
+  - 为 DecorView 填充布局 mContentRoot
+  - 将 mContentRoot 中 R.id.content 的 View 保存到 mContentParent
+- 将我们传入的布局填充到 mContentParent
+
+### 与 WMS 建立联系
+与 WMS 建立联系的时机在 onResume 之后
+- WindowManager.addView, 将 Window 中的 DecorView 缓存到 WindowManagerGlobal
+- 创建 DecorView 的管理实现类 ViewRootImpl
+  - 获取 IWindowSession 用于和 WMS 交互
+  - 创建一个 IWindow 的 Binder 实体对象 W, 描述当前 View 所在窗体 
+  - 获取 Choreographer 示例对象, 用于调度 UI 渲染 
+- 调用 ViewRootImpl.setView 将 DecorView 注入
+  - 通过 requestLayout 将 View 的遍历的操作投放到消息队列
+  - 通过 addToDisplay 通知 WMS 有一个新的窗体创建了
+    - 创建 WindowState
+    - 创建 InputChannel
+    - 调用 WindowState.attach, 创建一个 Session 描述当前 Window 与 SurfaceFlinger 的通信
+    - 添加到 mWindowMap 中缓存
+
+到这里我们的图形渲染的准备工作就完成了 就初始化完成了, 不过此时 View 依然还没有呈现到屏幕上, 需要将 requestLayout 执行完毕, 我们才能看到目标的界面, 后面的流程还非常漫长
