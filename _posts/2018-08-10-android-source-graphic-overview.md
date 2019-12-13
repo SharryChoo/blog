@@ -84,14 +84,13 @@ Android 7.0 之后除了添加 OpenGL ES3.2 的支持, 同时添加了 Vulkan �
 
 ## 三. 学习思路
 ### 生产进程
- - [Window 和 WindowManager 的关系](https://sharrychoo.github.io/blog/android-source/graphic-producer1)
- - [Window 与 View 的关系](https://sharrychoo.github.io/blog/android-source/graphic-producer2)
- - [ViewRootImpl 与 WMS](https://sharrychoo.github.io/blog/android-source/graphic-producer3)
- - [View 的测量](https://sharrychoo.github.io/blog/android-source/graphic-producer4)
- - [窗体的重置](https://sharrychoo.github.io/blog/android-source/graphic-producer5)
- - [View 的布局](https://sharrychoo.github.io/blog/android-source/graphic-producer6)
- - [View 的软件渲染](https://sharrychoo.github.io/blog/android-source/graphic-producer7)
- - [View 的硬件渲染](https://sharrychoo.github.io/blog/android-source/graphic-producer8)
+- [图形渲染的准备](https://sharrychoo.github.io/blog/android-source/graphic-ready)
+  - [Choreographer 的工作机制](https://sharrychoo.github.io/blog/android-source/graphic-choreographer)
+- View 的 Traversals 操作
+  - [测量与布局](https://sharrychoo.github.io/blog/android-source/graphic-view-traversals-measure-layout)
+  - [Surface 的创建](https://sharrychoo.github.io/blog/android-source/graphic-surface-create)
+  - [软件渲染](https://sharrychoo.github.io/blog/android-source/graphic-draw-software)
+  - [硬件渲染](https://sharrychoo.github.io/blog/android-source/graphic-draw-hardware)
 
 ### 消费进程
 - [SurfaceFlinger 的启动](https://sharrychoo.github.io/blog/android-source/surfaceflinger-launch)

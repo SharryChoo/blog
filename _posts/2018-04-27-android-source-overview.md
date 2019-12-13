@@ -112,14 +112,13 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
     - [Service 的绑定](https://sharrychoo.github.io/blog/android-source/service-bind)
 
 ### [三) 图形架构篇](https://sharrychoo.github.io/blog/android-source/graphic-overview)
-- [Window 和 WindowManager 的关系](https://sharrychoo.github.io/blog/android-source/graphic-producer1)
-- [Window 与 View 的关系](https://sharrychoo.github.io/blog/android-source/graphic-producer2)
-- [ViewRootImpl 与 WMS 的通信](https://sharrychoo.github.io/blog/android-source/graphic-producer3)
-- [View 的测量](https://sharrychoo.github.io/blog/android-source/graphic-producer4)
-- [ViewRootImpl 的 Surface 创建](https://sharrychoo.github.io/blog/android-source/graphic-producer5)
-- [View 的布局](https://sharrychoo.github.io/blog/android-source/graphic-producer6)
-- [View 的软件渲染](https://sharrychoo.github.io/blog/android-source/graphic-producer7)
-- [View 的硬件渲染](https://sharrychoo.github.io/blog/android-source/graphic-producer8)
+- [图形渲染的准备](https://sharrychoo.github.io/blog/android-source/graphic-ready)
+  - [Choreographer 的工作机制](https://sharrychoo.github.io/blog/android-source/graphic-choreographer)
+- View 的 Traversals 操作
+  - [测量与布局](https://sharrychoo.github.io/blog/android-source/graphic-view-traversals-measure-layout)
+  - [Surface 的创建](https://sharrychoo.github.io/blog/android-source/graphic-surface-create)
+  - [软件渲染](https://sharrychoo.github.io/blog/android-source/graphic-draw-software)
+  - [硬件渲染](https://sharrychoo.github.io/blog/android-source/graphic-draw-hardware)
 
 ### [四) 资源管理篇](https://sharrychoo.github.io/blog/android-source/resources-overview)
 - [资源打包流程](https://sharrychoo.github.io/blog/android-source/resources-package)
