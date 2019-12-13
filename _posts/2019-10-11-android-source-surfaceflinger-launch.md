@@ -260,6 +260,18 @@ void SurfaceFlinger::init() {
     initializeDisplays();
 
     ......
+    
+    // 6. 创建 StartPropertySetThread 线程
+    if (getHwComposer().hasCapability(
+            HWC2::Capability::PresentFenceIsNotReliable)) {
+        mStartPropertySetThread = new StartPropertySetThread(false);
+    } else {
+        mStartPropertySetThread = new StartPropertySetThread(true);
+    }
+    // 启动 BootAnimation 进程执行开机启动动画
+    if (mStartPropertySetThread->Start() != NO_ERROR) {
+        ......
+    }
 }
 ```
 上述代码即为 SurfaceFlinger 初始化操作的大体流程, 其重点步骤如下
@@ -271,8 +283,11 @@ void SurfaceFlinger::init() {
 - **初始化 HWComposer**
    - 注册 HWComposer 的回调
 - **创建 EventControlThread 用来开关 Vsync 信号**
+- **初始化显示设备**
+- **创建 StartPropertySetThread 线程**
+  - 启动 BootAnimation 进程执行开机启动动画
 
-这里可以看到 SurfaceFlinger 初始化的过程中创建了三个线程, 其中 EventThread 非常重要, 它是 sw-Vsync 的分发者, 我们先看看 EventThread 的创建过程
+这里可以看到 SurfaceFlinger 初始化的过程创建了很多的线程, 其中 EventThread 非常重要, 它是 sw-Vsync 的分发者, 我们先看看 EventThread 的创建过程
 
 ### 一) EventThread 的创建
 ```
@@ -472,11 +487,11 @@ ssize_t DisplayEventReceiver::sendEvents(gui::BitTube* dataChannel,
     return gui::BitTube::sendObjects(dataChannel, events, count);
 }
 ```
-好的, 可以看到 Connection 的最终会将 Vysor/Pending 事件发送到 BitTube 中去, 这到底是何用意呢?
+好的, 可以看到 Connection 的最终会将 Vsync 事件发送到 BitTube 中去, 这到底是何用意呢?
 
 我们带着疑问继续往下探究
 
-### 二) 监听 EventThread
+### 二) MessageQueue.setEventThread
 ```
 void MessageQueue::setEventThread(android::EventThread* eventThread) {
     if (mEventThread == eventThread) {
@@ -485,22 +500,22 @@ void MessageQueue::setEventThread(android::EventThread* eventThread) {
     ......
     // 保存到成员变量
     mEventThread = eventThread;
-    // 1. 创建事件的连接器
+    // 1. 创建与 EventThread 的连接 Connection
     mEvents = eventThread->createEventConnection();
-    // 2. 获取 BitTube 对象
+    // 2. 获取 Connection 内部的 BitTube 对象
     mEvents->stealReceiveChannel(&mEventTube);
-    // 3. 监听 BitTube，一旦有数据到来则调用 cb_eventReceiver
+    // 3. 使用 Looper 监听 BitTube，一旦有数据到来则调用 cb_eventReceiver
     mLooper->addFd(mEventTube.getFd(), 0, Looper::EVENT_INPUT, MessageQueue::cb_eventReceiver,
                    this);
 }
 
 ```
-可以看到 MessageQueue.setEventThread 中
-- 首先会调用 EventThread 的 createEventConnection 函数, 创建一个 Connection 对象
-- 然后调用 stealReceiveChannel 函数获取 Connection 中的 BitTube
-- **最终通过 Looper 监听 BitTube 的文件描述符**
+可以看到 MessageQueue.setEventThread 中做了非常有趣的事情
+- 创建与 EventThread 的连接 Connection
+- 获取 Connection 内部的 BitTube 对象
+- 使用 MessageQueue 中的 mLooper 监听 BitTube，一旦有数据到来则调用 cb_eventReceiver
 
-好的, 到这里我们就知晓之前 为什么 Connection.postEvent 仅仅是将事件发送到 BitTube 中了, 因为 Looper 会监听 BitTube 的文件名描述符, 一旦有数据写入, 则会回调 cb_eventReceiver 函数去进行处理
+好的, 到这里我们就知晓之前 为什么 Connection.postEvent 仅仅是将事件发送到 BitTube 中了, 因为我们 SurfaceFlinger 的 MessageQueue 中的 Looper 会监听 BitTube 的文件名描述符, 一旦有数据写入, 则会回调 cb_eventReceiver 函数去进行处理
 
 接下来看看 Connection 的构建流程
 
@@ -733,8 +748,27 @@ void SurfaceFlinger::onInitializeDisplays() {
 
 到这里 SurfaceFlinger 就初始化好了, 下面回顾一下整体的架构
 
-### 回顾)
-![SurfaceFlinger 初始化相关类](https://i.loli.net/2019/10/23/J7eSPCO3ndb9TYf.png)
+### 五) 回顾
+SurfaceFlinger 的初始化流程如下
+- **创建 APP 的 Vsync 信号处理线程 EventThread-app**
+  - 负责接收 sw-Vsync 并且发送信号给 App 进程的 Choreographer 执行 View 的绘制
+- **创建 SurfaceFlinger 的 Vysnc 信号处理线程 EventThread-sf**
+  - 负责接收 sw-Vsync 并且发送给 SurfaceFlinger 触发图层的合成
+- EventThread 执行过程
+  - 使用 Connection 描述 Vsync 信号的处理者
+  - 有 Vsync 信号时, 会写入 Connection 的 BitTube
+- **MessageQueue 监听 EventThread-sf 线程**
+  - 创建与 EventThread 的连接 Connection
+  - 获取 Connection 内部的 BitTube 对象
+  - **使用 mLooper 监听 BitTube，一旦有数据到来则调用 cb_eventReceiver**
+- **初始化 HWComposer**
+  - onHotplugReceived: 处理热插拔信号
+  - onRefreshReceived: 处理刷新信号
+  - onVsyncReceived: 处理垂直同步信号
+- **创建 EventControlThread 用来开关硬件 Vsync 信号**
+- **初始化显示设备**
+- **创建 StartPropertySetThread 线程**
+  - 启动 BootAnimation 进程执行开机启动动画
 
 ## 三. SurfaceFlinger 的启动
 ```
@@ -753,7 +787,7 @@ void SurfaceFlinger::waitForEvent() {
 好的, 可以看到 SurfaceFlinger 的 run 函数非常简单, 即不断等待 Event 回调的死循环
 
 ## 总结
-![SurfaceFlinger 初始化相关类](https://i.loli.net/2019/10/23/ODuxcyfPS36snCQ.png)
+![SurfaceFlinger 初始化相关类](https://i.loli.net/2019/12/13/cISm1EbwlqLXH8z.png)
 
 这篇文章主要是从广义上了解 SurfaceFlinger 的启动流程, 这里做个简单的总结, Surface 的启动主要有如下几个步骤
 - **SurfaceFlinger 的创建**
@@ -777,20 +811,22 @@ void SurfaceFlinger::waitForEvent() {
     - onHotplugReceived: 处理热插拔信号
     - onRefreshReceived: 处理刷新信号
     - onVsyncReceived: 处理垂直同步信号
-  - **创建 EventControlThread 用来开关 Vsync 信号**
+  - **创建 EventControlThread 用来开关硬件 Vsync 信号**
+  - **初始化显示设备**
+  - **创建 StartPropertySetThread 线程**
+    - 启动 BootAnimation 进程执行开机启动动画
 - **SurfaceFlinger 的发布**
   - 将这个 Binder 本地对象发布到 ServiceManager 进程
 - **SurfaceFlinger 的启动**
   - 死循环, 等待 Looper 唤醒处理任务
 
-简单总结起来, SurfaceFlinger 创建了 4 个非常重要的线程
+简单总结起来, SurfaceFlinger 创建了 5 个线程执行任务
 - **DispSyncThread**: 用于将 DispSync 处理好的 SW-VSYNC 分发给监听者 DisplaySyncSource
 - **EventThread-app**: 维护了与 App 进程的 Connection 连接, 用于接收 DispSyncThread 发送的信号, 并且发送给 App 端, 会触发 Choreographer 执行 View 的绘制流程
 - **EventThread-sf**: 维护了与 SurfaceFlinger 的 Connection, 接收到 VSYNC 后, 会调用 cb_eventReceiver 执行图层的合成操作
 - **EventControlThread**: 用于控制硬件 Vsync 的开关
-
+- **StartPropertySetThread**: 执行属性列表, 会启动 BootAnimation 进程展示开机启动动画
 
 ## 参考文献
-- [Android Project Buffer](https://blog.csdn.net/innost/article/details/8272867)
 - [Android Developer DispSync](https://source.android.google.cn/devices/graphics/implement-vsync)
 - [DispSync 的 SW-Vsync 计算细节](https://www.jianshu.com/p/d3e4b1805c92)

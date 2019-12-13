@@ -6,6 +6,7 @@ tags: AndroidFramework
 ---
 
 ## 前言
+## 前言
 在前面的分析中, 我们了解了 SurfaceFlinger 的启动流程, 得知 SurfaceFlinger 实现了硬件驱动的回调 ComposerCallback
 - onHotplugReceived
 - onRefreshReceived
@@ -59,11 +60,13 @@ void SurfaceFlinger::processDisplayHotplugEventsLocked() {
     mPendingHotplugEvents.clear();
 }
 ```
-processDisplayHotplugEventsLocked 函数中, 首先调用了 HwComposer 的 onHotplug 处理硬件设备的变更, 然后调用了 processDisplayChangesLocked 来处理 Display 的变更
+SurfaceFlinger.processDisplayHotplugEventsLocked 函数中
+- 调用 HwComposer.onHotplug 处理显示设备变更
+- 调用 SurfaceFlinger.processDisplayChangesLocked 处理显示设备变更
 
-接下来我们先分析一下 HwComposer.onHotplug 函数实现
+接下来我们一一分析
 
-## 二. HwComposer 处理热插拔事件
+## 二. HwComposer 处理显示设备变更
 ```
 // frameworks/native/services/surfaceflinger/DisplayHardware/HWComposer.cpp
 void HWComposer::onHotplug(hwc2_display_t displayId, int32_t displayType,
@@ -128,6 +131,7 @@ private:
 
 ## 三. SurfaceFlinger 处理热插拔信号
 ```
+// frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
 DefaultKeyedVector< wp<IBinder>, sp<DisplayDevice> > mDisplays;
 
 void SurfaceFlinger::processDisplayChangesLocked() {
@@ -160,7 +164,7 @@ void SurfaceFlinger::processDisplayChangesLocked() {
                 } else {
                     ......//  
                     hwcId = state.type;
-                    // 2.2 创建屏幕缓冲帧
+                    // 2.2 创建显示设备的消费者
                     dispSurface = new FramebufferSurface(*getBE().mHwc, hwcId, bqConsumer);
                     producer = bqProducer;
                 }
@@ -182,14 +186,13 @@ void SurfaceFlinger::processDisplayChangesLocked() {
 }
 ```
 可以看到 processDisplayChangesLocked 也是从接入和拔出两个操作进行处理, 这里我们主要关心设备添加的过程
-- 为这个显示设备创建一个 生产者-消费者 队列
-- 创建屏幕的帧缓冲 FramebufferSurface
-  - 其内部绑定了一个消费者 IGraphicBufferConsumer
-- 创建了一个新的 DisplayDevice 对象加入缓存
+- **创建显示屏幕的 生产者-消费者 队列**
+- **创建队列的消费者 FramebufferSurface**
+- **创建 DisplayDevice 对象加入缓存**
 
-接下来先看看他是如何创建生产者消费者队列的
+接下来先看看他是如何创建生产者-消费者队列的
 
-### 一) 创建生产者消费者队列
+### 一) 创建显示屏幕的 生产者-消费者 队列
 mCreateBufferQueue 是一个函数操作函数, 它在 SurfaceFlinger 构造时创建
 ```
 SurfaceFlinger::SurfaceFlinger(SurfaceFlinger::SkipInitializationTag)
@@ -254,8 +257,8 @@ private:
 }
 ```
 可以看到 BufferQueueCore 的定义如上述代码所示
-- **其内部持有一个先入先出队列 mQueue, 用于存储生产者投递过来的图像缓冲 Buffer**
-- **mSlots 可以理解为一个 Buffer 的享元复用池**, 在生产端使用, 它允许生产者通过 dequeueBuffer 从中获取一个空闲缓冲, 避免生产者自己开辟缓冲区造成的内存消耗, 
+- **其内部持有一个先入先出队列 mQueue, 用于存储生产者投递过来的图像缓冲 GraphicBuffer**
+- **mSlots 可以理解为一个 Buffer 的享元复用池**, 在生产端使用, 它允许生产者通过 dequeueBuffer 从中获取一个空闲缓冲, 避免生产者自己开辟缓冲区造成的内存消耗
 
 #### 2. [BufferQueueProducer](http://androidxref.com/9.0.0_r3/xref/frameworks/native/include/gui/BufferQueueProducer.h)
 ```
@@ -303,8 +306,9 @@ BufferQueueConsumer 继承自 BnGraphicBufferConsumer, 这是 IGraphicBufferCons
 
 好的, 这里主要是为了理清各个类的职责, 关于他们具体的实现到后面的章节进行重点分析
 
-### 二) 创建屏幕帧缓冲 [FramebufferSurface](http://androidxref.com/9.0.0_r3/xref/frameworks/native/services/surfaceflinger/DisplayHardware/FramebufferSurface.h)
+### 二) 创建队列的消费者 [FramebufferSurface](http://androidxref.com/9.0.0_r3/xref/frameworks/native/services/surfaceflinger/DisplayHardware/FramebufferSurface.h)
 ```
+/frameworks/native/services/surfaceflinger/DisplayHardware/FramebufferSurface.cpp
 FramebufferSurface::FramebufferSurface(HWComposer& hwc, int disp,
         const sp<IGraphicBufferConsumer>& consumer) :
     // 继承自 ConsumerBase
@@ -324,14 +328,20 @@ FramebufferSurface::FramebufferSurface(HWComposer& hwc, int disp,
     mConsumer->setConsumerUsageBits(GRALLOC_USAGE_HW_FB |
                                        GRALLOC_USAGE_HW_RENDER |
                                        GRALLOC_USAGE_HW_COMPOSER);
+    // 1. 设置默认 Buffer 的大小
     const auto& activeConfig = mHwc.getActiveConfig(disp);
     mConsumer->setDefaultBufferSize(activeConfig->getWidth(),
             activeConfig->getHeight());
+    // 2. 设置最大可请求的 Buffer 数量
     mConsumer->setMaxAcquiredBufferCount(
             SurfaceFlinger::maxFrameBufferAcquiredBuffers - 1);
 }
+
+// frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+maxFrameBufferAcquiredBuffers = getInt64< ISurfaceFlingerConfigs,
+            &ISurfaceFlingerConfigs::maxFrameBufferAcquiredBuffers>(2);
 ```
-从 FramebufferSurface 的构造中可知, 它继承自 ConsumerBase; 与 Surface 相对的, 它持有屏幕 GraphicQueue 的消费者端, 用于处理 Surface 的合成操作
+**从 FramebufferSurface 的构造中可知, 它是 GraphicQueue 的消费者端**
 
 接下来看看 DisplayDevice 的创建
 
@@ -351,15 +361,14 @@ sp<DisplayDevice> SurfaceFlinger::setupNewDisplayDeviceInternal(
     HdrCapabilities hdrCapabilities;
     getHwComposer().getHdrCapabilities(hwcId, &hdrCapabilities);
     
-    // 1 创建 NativeWindowSurface
+    // 1. 创建显示设备的生产者 NativeWindowSurface
     auto nativeWindowSurface = mCreateNativeWindowSurface(producer);
-    // 1.1 获取 NativeWindow
     auto nativeWindow = nativeWindowSurface->getNativeWindow();
 
-    // 2. 创建显示器渲染器 RE::Surface(GL 渲染器) 
+    // 2. 创建 GL 渲染工具
     std::unique_ptr<RE::Surface> renderSurface = getRenderEngine().createSurface();
     ......
-    // 2.1 创建 EGLSurface (让 EGLSurface 绑定 nativeWindow 中的缓冲区)
+    // 2.1 创建 EGLSurface (让 EGLSurface 绑定 Surface 中的缓冲区)
     renderSurface->setNativeWindow(nativeWindow.get());
     ......
     
@@ -375,10 +384,9 @@ sp<DisplayDevice> SurfaceFlinger::setupNewDisplayDeviceInternal(
 }
 ```
 setupNewDisplayDeviceInternal 的主要步骤如下
-- 创建 NativeWindowSurface
-  - 获取 NativeWindow 
-- 创建显示器的渲染器 RE::Surface
-  - 调用渲染器的 setNativeWindow, 创建 EGLSurface(即 OpenGL 渲染管线的输出缓冲区)
+- 创建 NativeWindowSurface, 即屏幕显示数据的生产者
+- 创建显示器的 GL 渲染器 RE::Surface
+  - 其 EGLSurface 绑定了 Surface 中的缓冲区
 - 将相关参数封装到 DisplayDevice 中
 
 #### 1. NativeWindowSurface 的创建
@@ -488,22 +496,38 @@ private:
 ```
 从这里可以看出 **DisplayDevice 其实可以理解为显示屏幕的上下文**, 它内部维护了这块显示设备与外界交互的数据
 
-### 回顾
-![SurfaceFlinger 相关结构依赖图](https://i.loli.net/2019/10/23/givOdDpkmfeHIh8.png)
+### 四) 回顾
+![SurfaceFlinger 相关结构依赖图](https://i.loli.net/2019/12/13/2wOzjgBHVo38EJf.png)
+
+SurfaceFlinger 处理新增显示屏的流程如下
+- 创建屏幕的生产者-消费者队列
+- 创建屏幕的消费者 FramebufferSurface
+- 创建屏幕的对象 DisplayDevice
+  - 创建屏幕生产者 NativeWindowSurface
+  - 创建显示器的 GL 渲染器 RE::Surface
+    - 其 EGLSurface 绑定了生产者中的缓冲区
+  - 将相关数据封装到 DisplayDevice 中
 
 ## 总结
-当硬件驱动出现热插拔时, 会触发 SurfaceFinger 的 onHotplugReceived 函数, 由它进行分发处理, 当有显示器连接时, 其操作如下
-- HwComposer.onHotplug 变更底层的 Display 状态
-- processDisplayChangesLocked 操作的上层代码, 创建与这块屏幕相关的上下文参数
-  - 创建 FramebufferSurface, 用于处理所有 Surface 的合成操作  
-  - 创建 RE::Surface: OpenGL 渲染器, 用于辅助 FramebufferSurface 合成图层
-  - 创建一个 DisplayDevice 对象描述显示设备, 保存与之相关的上下文参数
- 
-简单的说: **当有显示器接入时, SurfaceFlinger 会创建这个显示器的上下文 DisplayDevice, 保证它能够进行正常的与上层和底层进行交互**
-- 与上层交互的关键
-  - BufferQueueCore
-  - IGraphicBufferProducer
-  - IGraphicBufferConsumer
-- 与底层交互: HwComposer
+当硬件驱动出现热插拔信号时, 会回调 SurfaceFinger 的 onHotplugReceived 函数, 主要处理流程如下
+- **HwComposer 处理显示设备变更**
+  - HwComposer.onHotplug 会调用 mHwcDevice 来更新显示器设备的状态
+- **SurfaceFlinger 处理新增显示屏的流程如下**
+  - 创建屏幕的生产者-消费者队列 BufferQueueCore
+  - 创建屏幕的消费者 FramebufferSurface
+  - 创建屏幕的对象 DisplayDevice
+    - 创建屏幕生产者 NativeWindowSurface
+    - 创建显示器的 GL 渲染器 RE::Surface
+      - 其 EGLSurface 绑定了生产者中的缓冲区
+    - 将相关数据封装到 DisplayDevice 中
 
-到这里我们已经看到了我们在应用层看到的 BufferQueue 和生产者消费者对象了, 这是一件非常令人振奋的消息, 不过还没有理清 SurfaceFlinger 是如何进行绘制的, 还需要在后面的文章中慢慢探索
+![屏幕渲染图示](https://i.loli.net/2019/12/13/mMuEUNZyKavVT8P.png)
+
+到这里我们已经看到了一块显示屏幕有一个自己的生产者消费者队列
+- **生产者为 NativeWindowSurface** 
+  - RE::Surface 它是一个 EGL 的工具类
+    - 其内部的 EGLSurface 绑定了生产者 NativeWindowSurface 中的缓冲区
+    - 通过 EGL 的渲染之后的图像数据会存储到 EGLSurface 绑定的缓冲区中
+    - 通过 eglSwapBuffer, 将生产好的数据推送到屏幕的 Buffer 队列
+- **消费者为 FramebufferSurface**
+  - 它负责从屏幕 Buffer 队列中取数据, 将其推送给硬件屏幕呈现出来

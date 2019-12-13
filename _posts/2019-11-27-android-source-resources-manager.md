@@ -5,7 +5,6 @@ key: android-source-resources-manager
 tags: AndroidFramework
 ---
 
-
 ## 前言
 前面我们学习 App 资源的打包流程, 知晓了 resources.arsc 的结构组成, 我们在开发过程中想要访问资源需要通过如下的方式进行
 
