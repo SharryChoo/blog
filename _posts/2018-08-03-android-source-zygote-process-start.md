@@ -34,18 +34,18 @@ service zygote /system/bin/app_process -Xzygote /system/bin --zygote --start-sys
   - 这个 Socket 的用于执行进程间的通信
   - 访问权限为 660 root system, 即所有用户都可以对它进行读写
 
-好的, 我们关注到,  Zygote 的入口在 **/system/bing/app_process** 目录中, 接下来分析它的启动流程
+我们关注到 Zygote 的入口在 **/system/bing/app_process** 目录中, 接下来分析它的启动流程
 
 ## 启动流程
 **/system/bing/app_process** 目录下的 Zygote 进程入口 main 函数在 app_main.cpp 中
-### 一) app_main.cpp 的 main 函数
 ```
 // frameworks/base/cmds/app_process/app_main.cpp
 int main(int argc, char* const argv[])
 {
+    // 创建一个 AppRuntime 对象
     AppRuntime runtime(argv[0], computeArgBlockSize(argc, argv));
     if (zygote) {
-        // 若是 zygote 则调用了 AppRuntime 的 start 方法, AppRuntime 继承 AndroidRuntime
+        // 调用了 AppRuntime 的 start 方法, AppRuntime 继承 AndroidRuntime
         runtime.start("com.android.internal.os.ZygoteInit", args, zygote);
     } else if (className) {
         ......
@@ -54,7 +54,10 @@ int main(int argc, char* const argv[])
     }
 }
 ```
-可见 app_main.cpp 中的 main 方法, 将 Zygote 的启动分发给了 AndroidRuntime.start 中, 我们接着往下分析
+可见 app_main.cpp 中的 main 方法, 将 Zygote 的启动分发给了 AppRuntime.start 中
+
+### 一) Native 层启动
+**AppRuntime 继承自 AndroidRuntime, 其 start 函数在父类中实现**, 接下来我们看看 AndroidRuntime 中 start 函数的实现
 ```
 // frameworks/base/core/jni/AndroidRuntime.cpp
 void AndroidRuntime::start(const char* className, const Vector<String8>& options, bool zygote)
@@ -106,7 +109,7 @@ void AndroidRuntime::start(const char* className, const Vector<String8>& options
 }
 ```
 好的, 可以看到 Zygote 进程的启动调用了 AppRuntime.start 方法这个, 这个方法做了如下几件事情
-- 创建 ART 虚拟机
+- **创建 ART 虚拟机**
 - 构建用于调用 java main() 方法的字符串数组
   - 将 ZygoteInit 的全限定类名导入
   - 将 options 中的参数导入
@@ -114,9 +117,8 @@ void AndroidRuntime::start(const char* className, const Vector<String8>& options
 
 好的, 至此 Zygote 进程的启动工作就转移到了 Java 中了, 我们看看 ZygoteInit 中做了什么
 
-### 二) ZygoteInit 的 main 方法
+### 二) Java 层启动
 ```
-// frameworks/base/core/java/com/android/internal/os/ZygoteInit.java
 public class ZygoteInit {
     
     public static void main(String argv[]) {
@@ -134,19 +136,30 @@ public class ZygoteInit {
                 // 若 argv 中包含 "start-system-server" 表示紧接着启动 SystemService 进程
                 if ("start-system-server".equals(argv[i])) {
                     startSystemServer = true;
-                } else if ("--enable-lazy-preload".equals(argv[i])) {
+                } 
+                // 表示需要预加载资源
+                else if ("--enable-lazy-preload".equals(argv[i])) {
                     enableLazyPreload = true;
-                } else if (argv[i].startsWith(ABI_LIST_ARG)) {
-                    abiList = argv[i].substring(ABI_LIST_ARG.length());
-                } else if (argv[i].startsWith(SOCKET_NAME_ARG)) {
-                    socketName = argv[i].substring(SOCKET_NAME_ARG.length());
-                } else {
-                    throw new RuntimeException("Unknown command line argument: " + argv[i]);
-                }
+                } ......
             }
-            // 1. 注册 Zygote 进程的 Socket, 用于监听是否有 fork 请求
+            
+            if (!enableLazyPreload) {
+                ......
+                // 1. 预加载资源
+                preload(bootTimingsTraceLog);
+                ......
+            } else {
+                ......
+            }
+
+            // Do an initial gc to clean up after startup
+            bootTimingsTraceLog.traceBegin("PostZygoteInitGC");
+            gcAndFinalize();
+            
+            // 2. 创建 Zygote 进程的 Socket 对象, 用于监听是否有 fork 请求
             zygoteServer.registerServerSocketFromEnv(socketName);
-            // 2. 创建 SystemService 系统服务进程
+            
+            // 3. 创建 SystemService 系统服务进程
             if (startSystemServer) {
                 Runnable r = forkSystemServer(abiList, socketName, zygoteServer);
                 // r == null 说明当前是 Zygote 进程执行该 main 方法
@@ -156,7 +169,7 @@ public class ZygoteInit {
                     return++;++
                 }
             }
-            // 3. 开启 Zygote 进程的死循环, 其他进程发送的进程创建请求
+            // 4. 开启 Zygote 进程的死循环, 其他进程发送的进程创建请求
             caller = zygoteServer.runSelectLoop(abiList);
         } catch (Throwable ex) {
             ......
@@ -170,23 +183,50 @@ public class ZygoteInit {
 }
 ```
 可见 ZygoteInit 的 main 方法主要做了如下几件事情
-- 调用 ZygoteServer.registerServerSocketFromEnv() 方法, 注册 Zygote 进程的 Socket, 用于监听是否有 fork 请求
-  - 该 Socket 负责与其他进程通信, 如: 接收 AMS 的进程创建请求 
--  调用 ZygoteInit.forkSystemServer() 创建 SystemService 系统服务进程
-- 调用 ZygoteServer.runSelectLoop() 开启 Zygote 进程的死循环, 其他进程发送的进程创建请求
+- 预加载资源
+- 创建 Zygote 进程的 Socket
+  - 用于后续监听是否有 fork 请求
+- 创建 SystemService 系统服务进程
+- 启动死循环, 其他进程发送的进程创建请求
 
 接下来逐一分析
 
-#### 1. 创建 Zygote 进程的 Socket
+#### 1. 预加载资源
+```
+public class ZygoteInit {
+    
+    static void preload(TimingsTraceLog bootTimingsTraceLog) {
+        ......
+        // 预加载 Class
+        preloadClasses();
+        // 预加载系统资源 framework-res.apk
+        preloadResources();
+        // 预加载 App 进程的 HAL 
+        nativePreloadAppProcessHALs();
+        // 预加载 OpenGL
+        preloadOpenGL();
+        // 预加载共享库, android, jnigraphics...
+        preloadSharedLibraries();
+        // 预加载文本资源
+        preloadTextResources();
+        // 准备 WebView 的工厂
+        WebViewFactory.prepareWebViewInZygote();
+        ......
+    }
+    
+}
+```
+可以看到 Zygote 预加载了一些应用进程常用的数据, 如此一来 fork 之后就应用进程就可以直接使用创建好的资源了
+
+下面看看 Zygote 的 Socket 创建
+
+#### 2. 创建 Zygote 进程的 Socket
 ```
 // frameworks/base/core/java/com/android/internal/os/ZygoteServer.java
 class ZygoteServer {
 
     private static final String ANDROID_SOCKET_PREFIX = "ANDROID_SOCKET_";
     
-    /**
-     * Listening socket that accepts new server connections.
-     */
     private LocalServerSocket mServerSocket;
    
     void registerServerSocketFromEnv(String socketName) {
@@ -216,9 +256,9 @@ class ZygoteServer {
     
 }
 ```
-好的可以看到创建 Zygote 进程的 Socket 最终 new 了一个 LocalServerSocket, 并将它保存在 ZygoteServer 的成员变量 mServerSocket 中, 用于监听该端口的 Socket 请求<br>
+好的可以看到创建 Zygote 进程创建了一个名为 ANDROID_SOCKET_zygote 的 Socket 对象, 通过对 Socket 端口的监听, 就可以及时响应进程的 fork 请求了
 
-#### 2. 启动 SystemService 进程
+#### 3. 启动 SystemService 进程
 ```
 // frameworks/base/core/java/com/android/internal/os/ZygoteInit.java
 public class ZygoteInit {
@@ -271,9 +311,9 @@ public class ZygoteInit {
 - 首先会通过 Zygote.forkSystemServer 方法孵化出来
 - 然后调用 handleSystemServerProcess 处理 SystemServer 的启动
 
-这不是本次分析的重点, 我们接着往下看
+关于 SystemServer 的启动我们到后面的文章再重点分析
 
-#### 3. Zygote 进程的循环等待其他进程的连接请求
+#### 4. Zygote 进程的循环等待其他进程的连接请求
 ```
 // frameworks/base/core/java/com/android/internal/os/ZygoteServer.java
 class ZygoteServer {
@@ -346,16 +386,14 @@ class ZygoteServer {
 - **i > 0**: 执行子进程孵化
    - 调用 ZygoteConnection.processOneCommand 孵化进程   
 
-### 回顾
-![Zygote 启动流程图](https://i.loli.net/2019/10/19/vEPkoZRIGQhr19j.png)
-
 ## 总结
-至此 Zygote 的进程启动分析就结束了, 从 ZygoteInit.main 中可以很清晰的看到 Zygote 进程的职责, 这里总结一下
-- Zygote 是在 init 进程启动过程中启动的
-- 调用 app_main.cpp 的 main 函数
-- 调用 ZygoteInit 的 main 方法
-
-**Zygote 进程的职责如下**
-- 创建 Android 虚拟机 Dalvik/ART
-- 孵化 SystemServer 进程
-- 通过监听 Socket 端口, 处理进程的 fork 请求
+Zygote 是在 init 进程启动过程中启动的, 启动之后会调用 app_main.cpp 的 main 函数, 主要有两个方面的初始化
+- Native 层调用 AndroidRuntime::start
+  - **启动 ART 虚拟机**
+- Java 层调用 ZygoteInit 的 main 方法
+  - **预加载资源**
+  - **创建 Socket**
+    - 用于后续监听是否有 fork 请求
+  - **创建 SystemService 系统服务进程**
+  - **启动死循环**
+    - 监听 Socket 端口, 响应进程创建请求
