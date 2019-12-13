@@ -88,9 +88,8 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 - [Init 进程的启动](https://sharrychoo.github.io/blog/android-source/init-process-start)
 - [ServiceManager 启动](https://sharrychoo.github.io/blog/android-source/servicemanager-process-start)
 - [SurfaceFlinger 的启动](https://sharrychoo.github.io/blog/android-source/surfaceflinger-launch)
-   - [SurfaceFlinger Hotplug 的处理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-hotplug)
-   - [SurfaceFlinger 对 Vsync 信号护理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-vsync)
-   - [SurfaceFlinger 渲染图层](https://sharrychoo.github.io/blog/android-source/surfaceflinger-composer)
+   - [SurfaceFlinger Hotplug 信号处理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-hotplug)
+   - [SurfaceFlinger Vsync 信号处理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-vsync-dispatch)
 - [Zygote 进程的启动](https://sharrychoo.github.io/blog/android-source/zygote-process-start)
 - [SystemServer 进程的启动](https://sharrychoo.github.io/blog/android-source/systemserver-process-start)
   - [AMS 的启动](https://sharrychoo.github.io/blog/android-source/ams-start)
@@ -122,11 +121,10 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 - [View 的软件渲染](https://sharrychoo.github.io/blog/android-source/graphic-producer7)
 - [View 的硬件渲染](https://sharrychoo.github.io/blog/android-source/graphic-producer8)
 
-### 四) 资源管理篇
-待补充: 可查看 yjy 的博客
-- [Android 重学系列 资源管理系统 资源的初始化加载(上)](https://www.jianshu.com/p/817a787910f2)
-- [Android 重学系列 资源管理系统 资源的初始化加载(下)](https://www.jianshu.com/p/02a2539890dc)
-- [Android 重学系列 资源的查找](https://www.jianshu.com/p/b153d63d60b3)
+### [四) 资源管理篇](https://sharrychoo.github.io/blog/android-source/resources-overview)
+- [资源打包流程](https://sharrychoo.github.io/blog/android-source/resources-package)
+- [资源的管理者的创建](https://sharrychoo.github.io/blog/android-source/resources-manager)
+- [资源的查找与打开](https://sharrychoo.github.io/blog/android-source/resources-find-and-open)
 
 ## 三. 学习资料
 - [<<Android 系统源代码情景分析(第三版)>>](http://product.dangdang.com/25173853.html)

@@ -24,7 +24,7 @@ Android 的图形渲染是一个生产者消费者模型, Android 图形渲染�
 
 ### 一) 图像生产者
 生产者为 Media Player 视频解码器, OpenGL ES 等产生的图像缓存数据, 他们通过 BufferData 的形式传递到缓冲队列中
-- OpenGL ES: 通过渲染管线之后, 将数据输出到 EGLDisplay 上
+- OpenGL ES: 通过渲染管线之后, 将数据输出到 EGLSurface 中绑定的 GraphicBuffer 中
 - Media Player: 解码视频数据, 获取到 YUV 视频帧
 - Camera Preview: 获取预览数据, 输出到 SurfaceTexture 上
 
@@ -96,5 +96,4 @@ Android 7.0 之后除了添加 OpenGL ES3.2 的支持, 同时添加了 Vulkan �
 ### 消费进程
 - [SurfaceFlinger 的启动](https://sharrychoo.github.io/blog/android-source/surfaceflinger-launch)
 - [SurfaceFlinger Hotplug 的处理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-hotplug)
-- [SurfaceFlinger 对 Vsync 信号护理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-vsync)
-- [SurfaceFlinger 渲染图层](https://sharrychoo.github.io/blog/android-source/surfaceflinger-composer)
+- [SurfaceFlinger Vsync 信号处理](https://sharrychoo.github.io/blog/android-source/surfaceflinger-vsync-dispatch)
