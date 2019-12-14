@@ -28,7 +28,7 @@ tags: PerformanceOptimization
 
 答案是否定的, 刷新率的提高, 意味着每一帧动画之间的时间间隔缩小了, 每一帧动画之间的差异会随之缩小, 因此每一帧之间的色彩差异也会缩小, 因此过渡的会更加顺滑
 
-虽然每秒 24 帧、 60  帧 和 90 帧动画, 都能够带来流畅的体验, 但帧率更高的流畅度也就更高, 操作起来就更加丝滑
+虽然每秒 60 帧 和 90 帧动画, 都能够带来流畅的体验, 但帧率更高的流畅度也就更高, 操作起来就更加丝滑
 
 ## 二. 产生原因
 卡顿产生的原因有很多, 一般有如下几个方面的原因
@@ -50,7 +50,7 @@ tags: PerformanceOptimization
 
 若一帧的准备时长超过了 16.67 ms 则意味着出现了丢帧, 因此我们可以设置一个阈值, 比如说 300 ms, 当一帧的准备时长超过了 300 ms, 则说明出现连续丢帧了, 因此**丢帧的监控可以转化为每帧准备时长的监控**
 
-4.1 之后帧的准备操作是在 Choreographer 收到 SurfaceFlinger 发送的 VSYNC 之后在主线程消息队列中执行的([关于 Choreographer 工作机制可以查看这篇文章](https://sharrychoo.github.io/blog/android-source/graphic-choreographer), **因此我们也可以通过监控主线程消息执行耗时来监控卡顿**
+4.1 之后帧的准备操作是在 Choreographer 收到 SurfaceFlinger 发送的 VSYNC 之后在主线程消息队列中执行的([关于 Choreographer 工作机制可以查看这篇文章](https://sharrychoo.github.io/blog/android-source/graphic-choreographer)), **因此我们也可以通过监控主线程消息执行耗时来监控卡顿**
 
 ### 一) 工具监控
 #### [1. systrace](https://source.android.com/devices/tech/debug/systrace?hl=zh-cn)
