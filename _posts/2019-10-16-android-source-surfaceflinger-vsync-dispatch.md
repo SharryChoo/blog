@@ -374,7 +374,7 @@ void MessageQueue::Handler::dispatchRefresh() {
 好的可以看到 INVALIDATE 消息, 首先会调用 handleMessageInvalidate, 判断是否需要重新刷新界面, 若需要则会调用 signalRefresh 进行数据重绘
 
 ### 三) 回顾
-![VSYNC 信号转化](9E5F55AA32384A7A8577DFFD1C5FAA86)
+![VSYNC 信号转化](https://i.loli.net/2019/12/14/O9Ff3jHtL4D5KgS.png)
 
 Vsync 的信号分发流程如下
 - DispSync 处理 HW-VSYNC 
@@ -527,9 +527,9 @@ status_t ConsumerBase::acquireBufferLocked(BufferItem *item,
 可以看到, 这里调用了 mConsumer 的 acquireBuffer 获取到了 BufferItem 对象, 它就是用来描述一个新的待渲染数据 
 
 ### 二) 回顾
-![Layer 获取 GraphicBuffer](AE7FCEE7E9BA4804A37B2C040FB7A98B)
+INVALIDATE 会触发所有 Layer 的 latch 函数, 尝试去从自己的 Buffer 队列中锁定一块新的 GraphicBuffer
 
-INVALIDATE 会触发所有 Layer 的 latch 函数, 尝试去从自己的 Buffer 队列中锁定一块新的 GraphicBuffer, 有了新的 GraphicBuffer 之后, 下面需要做的便是 REFRESH 触发 Layer 进行合成了
+有了新的 GraphicBuffer 之后, 下面需要做的便是 REFRESH 触发 Layer 进行合成了
 
 ## 三. 处理 REFRESH 消息
 好的, 可以看到这发送了一条 MessageQueue::REFRESH 消息, 下面我们看看 onMessageReceived 对 MessageQueue::REFRESH 的处理
@@ -927,7 +927,7 @@ status_t FramebufferSurface::nextBuffer(uint32_t& outSlot,
     - 调用了 FramebufferSurface 的 advanceFrame, 将缓冲推给 HAL 进行展示
 
 ## 总结
-![SurfaceFlinger 渲染流程](B133BA92B0FE46049DB738D48937D877)
+![SurfaceFlinger 渲染流程](https://i.loli.net/2019/12/14/3oW1BfFqnzKm9bc.png)
 
 通过本片的分析, 我们得知 SurfaceFlinger 的渲染操作主要有如下几步
 - Vsync 的信号分发
