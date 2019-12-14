@@ -478,8 +478,8 @@ Top 10 Bitmaps:
 - 若是因为内存占用过高导致卡顿, 我们需要分析内存使用情况, 进而优化内存从而解决卡顿问题
 - ......
 
-文字就先写到这里, 后面若是有时间会对每一项展开分析
+不过有的时候发现问题可能会比解决问题更加困难, 关于每一项的优化方案, 后面有时间再补充吧 
 
 ## 参考
-- [帧率统计](https://www.cnblogs.com/cloudiest/p/8485711.html)
+- [CPU 占用率](http://www.samirchen.com/linux-cpu-performance/)
 - [Matrix 卡顿监控](https://github.com/Tencent/matrix/wiki/Matrix-Android-TraceCanary)

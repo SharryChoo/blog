@@ -1,5 +1,8 @@
 ---
 title: Android 内存监控 —— LeakCanary 检测内存泄漏
+permalink: android-performance-opt/memory-leak-monitor
+key: android-performance-opt-memory-leak-monitor
+tags: PerformanceOptimization
 tags: PerformanceOptimization
 ---
 
