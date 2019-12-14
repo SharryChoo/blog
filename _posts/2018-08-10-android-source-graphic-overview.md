@@ -8,10 +8,10 @@ tags: AndroidFramework
 ## 前言
 Android 的图像处理架构是非常庞大且复杂的, 其核心的设计思想为**生产者-消费者**模式
 
-![图像渲染流程](https://i.loli.net/2019/10/23/RCDYFaq8UArdzNg.png)
+![SurfaceFlinger 渲染流程](https://i.loli.net/2019/12/14/3oW1BfFqnzKm9bc.png)
 
 - **生产端**
-  -  Surface 是渲染数据的载体,  Surface 代表 BufferQueue 的生产者
+  -  Surface 是渲染数据的载体, Surface 代表 BufferQueue 的生产者
 - **消费端**
   - SurfaceFlinger 作为负责绘制应用 UI 的核心, 运行在单独的进程中, 用于处理 Surface 的合成, 是图形架构的消费者
 
