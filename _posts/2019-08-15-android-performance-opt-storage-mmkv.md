@@ -1,5 +1,5 @@
 ---
-title: Android 性能优化 —— MMKV 优化轻量级数据存储
+title: Android 性能优化 —— MMKV 优化轻量级存储
 permalink: android-performance-opt/storage-mmkv
 key: android-performance-opt-storage-mmkv
 tags: PerformanceOptimization
