@@ -349,7 +349,7 @@ status_t DisplayEventDispatcher::initialize() {
 可以看到这里其初始化操作, 即让 Looper 监听了 Socket 读端的文件描述符, 当有 VSYNC 信号时, 会调用发送 EVENT_INPUT 到 handleEvent 函数中处理
 
 ### 四) 回顾
-![VSYNC 信号接收流程图](5157E0ED7A7B412794141A7E39BCBA99)
+![VSYNC 信号接收流程图](https://i.loli.net/2019/12/16/rda5z1IBSY9M4Cu.png)
 
 整个 Choreographer 的创建流程如下所示
 - **创建 FrameHandler 处理任务**
