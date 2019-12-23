@@ -6,12 +6,12 @@ tags: NDK
 ---
 
 ## 前言
-我们知道 Glide 的图片框架是可以非常方便的加载 GIF 图的, 笔者在监控项目内存使用的过程中, 发现 Gif 图过大时其内存消耗比较严重, 动画播放有稍有卡顿
-
-本文主体主要分为三个方面
-- Glide 加载 Gif 的原理
-- 造成卡顿的原因
-- GIF 加载的优化实战
+我们知道 Glide 的图片框架是可以直接加载 GIF 图的, 笔者在监控项目内存使用的过程中, 发现 Gif 图过大时其内存消耗比较严重, 动画播放时伴随着稍许卡顿
+ 
+这里我们系统的探究一下 Glide 的 GIF 加载原理和优化措施, 主要内容如下
+- Glide 的 Gif 播放原理
+- Glide 加载 GIF 卡顿探究
+- Gif 加载的优化
 
 <!--more-->
 
@@ -523,7 +523,7 @@ class GifFrameLoader {
 
 Glide 在使用 StandardGifDecoder 的过程中使用了很多缓存的技术, 在这里 BitmapPool 的作用就突出的淋漓尽致了, 但这并不意味着它是完美的, 仍然存在着如下的隐患
 
-## 二. GIF 卡顿探究
+## 二. Glide 加载 GIF 卡顿探究
 ### 一) 绘制耗时
 **GifFrameLoader 它是在当前帧绘制完成之后再调用 loadNextFrame 来获取下一帧要绘制的 Bitmap 数据的**, 这意味着绘制当前帧和获取下一帧是串行的, 当获取的 Bitmap 比较耗时, 超过了 Gif 的 delay, 那么就会造成当前的时刻 > targetTime(这一帧要绘制的时刻), 如此便会造成 Gif 播放的卡顿
 
@@ -536,7 +536,7 @@ Glide 在使用 StandardGifDecoder 的过程中使用了很多缓存的技术, �
 ### 三) 解决方案
 关于上述两点, Google 源码已经给出了很好的解决方案了, 它使用 Native 的 [GIFLIB](https://sourceforge.net/projects/giflib/) 引擎和 Java 层的 [FrameSequenceDrawable](http://androidxref.com/9.0.0_r3/xref/frameworks/ex/framesequence/src/android/support/rastermill/FrameSequenceDrawable.java) 双缓冲机制解决了这个问题
 
-下面看看其相关的实现
+下面看看具体的优化策略
 
 ## 三. Gif 加载的优化
 ### 一) [GIFLIB](https://sourceforge.net/projects/giflib/) 的编译
