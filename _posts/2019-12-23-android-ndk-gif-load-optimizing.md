@@ -764,9 +764,9 @@ Width=306, Height=640, IsOpaque=true, FrameCount=122, LooperCount=0, Duration=85
 ### 回顾
 可以看到**比起 Glide 原生加载方式, 我们的 Giflib + FrameSequenceDrawable 要更省内存**, 其主要区别在于  Graphic 内存的消耗
 
-虽然 Glide 的 StandardGifDecoder 使用 BitmapPool 作为 Bitmap 复用支撑, 但是当加载的 GIF 图较大时, 超过了 BitmapPool 剩余可用大小还是会直接创建 Bitmap 的, 这个问题在 Gif 尺寸较大时会暴露的更加明显
+虽然 Glide 的 StandardGifDecoder 使用 BitmapPool 作为 Bitmap 复用支撑, 但是当加载的 GIF 图较大时, 超过了 BitmapPool 剩余可用大小还是会直接创建 Bitmap 的, **因此这个问题在 Gif 尺寸较大时会暴露的更加明显**
 
-**使用 GIFLIB + 双缓冲的实现, 无论在什么情况下都只会创建两个 Bitmap, 因此它整体的内存消耗要小得多**
+**使用 GIFLIB + 双缓冲的实现, 无论在什么情况下都只会创建两个 Bitmap, 因此它的内存消耗是非常稳定的**
 
 ## 总结
 **Glide 加载 Gif 的流程**
