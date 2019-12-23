@@ -15,6 +15,8 @@ tags: NDK
 - JPEG 压缩编码性能比较
 - Android JPEG 压缩的优化
 
+<!--more-->
+
 ## 一. 编译 libjpeg-turbo
 ### 操作系统 
 MacOS Mojave version 10.14.5
@@ -123,21 +125,21 @@ libjpeg-turbo 支持的编码算法如下
   - 未优化的霍夫曼
 - 算术编码
 
-**我们将压缩质量设置 5, 看看他们在空间和时间两个个维度上的表现**
+**我们将压缩质量设置 50, 看看他们在空间和时间两个个维度上的表现**
 
 ### 空间与时间
 ```
-Origin file length is 8284kb
+Origin file length is 6607kb
 // 未优化的霍夫曼编码
-libjpeg-turbo compressed file length is 433kb, cost time is 456ms
+SCompressor compressed file length is 808kb, cost time is 731ms
 // 优化的霍夫曼编码
-libjpeg-turbo compressed file length is 260kb, cost time is 499ms
+SCompressor compressed file length is 729kb, cost time is 783ms
 // 算术编码
-libjpeg-turbo compressed file length is 148kb, cost time is 459ms
+SCompressor compressed file length is 653kb, cost time is 809ms
 ```
 - 压缩率上
-  - **优化的霍夫曼编码比未优化的高 30%**
-  - **算术编码比优化的霍夫曼编码高 40%**
+  - **优化的霍夫曼编码比未优化的高 10%**
+  - **算术编码比优化的霍夫曼编码高 10%**
 - 时间消耗上, 优化的霍夫曼编码稍慢
 
 ### 问题探究
@@ -192,13 +194,12 @@ cinfo.optimize_coding = TRUE;
 // 在 Android 7.0 以上并且未开启算术编码, 使用 skia 实现
 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !request.isArithmeticCoding) {
     skiaCompress(request, downsampledBitmap, outputFile);
-} 
+}
 // 在 Android 7.0 以下, 或开启了算术编码时使用我们自己的 libjpeg-turbo 实现
 else {
     libjpegTurboCompress(request, downsampledBitmap, outputFile);
 }
 ```
-
 
 ## 总结
 通过本次的学习与实践, 很好的利用了 libjpeg-turbo 解决了 Android JPEG 压缩率低的问题, 现如今手机的性能日益强劲, 采用了时间换空间的思路, 使用毫秒级的时间差异去换取更好的压缩率, 能够加快图片在网络上的传输, 个人认为还是非常值得的
