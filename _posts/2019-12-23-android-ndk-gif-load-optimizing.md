@@ -1,5 +1,5 @@
 ---
-title: Android NDK —— GIF 加载的优化
+title: Android NDK —— GIFLIB 优化 Glide GIF 的加载
 permalink: android-ndk/gif-load-optimizing
 key: android-ndk-gif-load-optimizing
 tags: NDK
