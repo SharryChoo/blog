@@ -15,7 +15,6 @@ article_header:
 - Name: Sharry Choo
 - Habits: Smart device、Music、Book、Calligraphy、Basketball
 - Focus：Audio&Video、Computer Vision
-- Favorite Proverbs： 遗憾丛生才是生活.
 - [Book List](https://sharrychoo.github.io/blog/book-list/overview)
 
 ---
