@@ -20,6 +20,7 @@ tags: AndroidFramework
 也就是说通过**非系统软件商店的安装要多一步通过 Session 提前拷贝的过程**, 这里我们为了更全面了解应用安装, 选择有 Session 通信的进行分析
 
 <!--more-->
+
 ## 一. Session 发起
 当我们下载了一个 apk, 点击进行安装时, 会跳转到 [PackageInstallerActivity](http://androidxref.com/9.0.0_r3/xref/packages/apps/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java) 这个 Activity, 厂商可以为这个 Activity 进行定制和修改, 不过万变不离其宗, 我们看看它是如何安装一个 apk 的
 
@@ -338,8 +339,18 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
         ......
         final boolean wasSealed;
         synchronized (mLock) {
+            wasSealed = mSealed;
+            if (!mSealed) {
+                try {
+                    // 1. 将 PackageInstaller 重命名为 "base.apk"
+                    sealAndValidateLocked();
+                } catch (IOException e) {
+                    ......
+                }
+            }
             ......
             mCommitted = true;
+            // 发送一个 MSG_COMMIT 到 Handler 的消息队列中执行
             mHandler.obtainMessage(MSG_COMMIT).sendToTarget();
         }
         ......
@@ -369,16 +380,20 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
     private void commitLocked()
             throws PackageManagerException {
             
-        // 解压 Native 库到 "data/app/vmdl${sessionId}.tmp/lib/" 目录下暂存
+        // 2. 解压 Native 库到 "data/app/vmdl${sessionId}.tmp/lib/" 目录下暂存
         extractNativeLibraries(mResolvedStageDir, params.abiOverride, mayInheritNativeLibs());
         ......
-        // 请求 PKMS.installStage 执行安装操作
+        // 3. 请求 PKMS.installStage 执行安装操作
         mPm.installStage(mPackageName, stageDir, localObserver, params,
                 mInstallerPackageName, mInstallerUid, user, mSigningDetails);
     }
 }
 ```
-这里笔者省略的大量的代码, 可以看到 PackageInstallerSession 的 commit 操作, 最终会调用到 PKMS 的 installStage 发起这次应用安装的请求
+可以看到 PackageInstallerSession 的 commit 操作如下
+- 调用 sealAndValidateLocked 对拷贝过来的安装包进行验证
+  - 将  "data/app/vmdl${sessionId}.tmp/PackageInstaller" 重命名为 "data/app/vmdl${sessionId}.tmp/base.apk"
+- 解压 Native 库
+- 调用 PKMS.installStage 发起这次应用安装的请求
 
 到这里应用安装前的准备就执行完毕了, 下面做个简单的回顾
 
@@ -391,8 +406,10 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
   - 创建服务进程的 PackageInstallerSession 对象
 - 将安装包拷贝到 "data/app/vmdl${sessionId}.tmp/PackageInstaller" 位置下暂存
 - 提交安装任务
-  - 解压 Native 库到 "data/app/vmdl${sessionId}.tmp/lib/" 目录下暂存 
-  - 调用 PKMS.installStage 执行安装操作
+  - 调用 sealAndValidateLocked 对拷贝过来的安装包进行验证
+    - **将 "data/app/vmdl${sessionId}.tmp/PackageInstaller" 重命名为 "data/app/vmdl${sessionId}.tmp/base.apk"**
+  - 解压 Native 库
+  - 调用 PKMS.installStage 发起这次应用安装的请求
 
 ## 二. PKMS 安装应用
 ```
@@ -845,12 +862,14 @@ installPackageLI 非常复杂, 这里进行了大量的删减, 其主要流程�
 - 获取 SessionId 描述一个安装任务
   - 分配 SessionId
   - 创建临时目录 stageDir
-    - **"data/app/vmdl{sessionId}.tmp"**
+    - "data/app/vmdl{sessionId}.tmp"
   - 创建服务进程的 PackageInstallerSession 对象
-- 将安装包拷贝到 **"data/app/vmdl${sessionId}.tmp/PackageInstaller"** 位置下暂存
+- 将安装包拷贝到 "data/app/vmdl${sessionId}.tmp/PackageInstaller" 位置下暂存
 - 提交安装任务
-  - 解压 Native 库到 **"data/app/vmdl${sessionId}.tmp/lib/"** 目录下暂存 
-  - 调用 **PKMS.installStage** 执行安装操作
+  - 调用 sealAndValidateLocked 对拷贝过来的安装包进行验证
+    - **将 "data/app/vmdl${sessionId}.tmp/PackageInstaller" 重命名为 "data/app/vmdl${sessionId}.tmp/base.apk"**
+  - 解压 Native 库
+  - 调用 PKMS.installStage 发起这次应用安装的请求
 
 ### PKMS 安装应用程序
 - **连接远程应用安装服务 DefaultContainerService**
@@ -862,15 +881,16 @@ installPackageLI 非常复杂, 这里进行了大量的删减, 其主要流程�
       - 创建拷贝的目录 "data/app/vmdl${sessionId}.tmp/"
       - 实现一个获取文件描述符的工厂方法, 也是一个 Binder 对象
       - 调用了 IMediaContainerService 的 copyPackage, 在远程服务中执行 apk 拷贝操作
-        - 拷贝到 "data/app/vmdl${sessionId}.tmp/base.apk" 中
+        - 拷贝到 **"data/app/vmdl${sessionId}.tmp/base.apk"** 中
       - 解压 Native 库文件
   - 安装应用程序
     - 调用了 PackageParser.Package 解析 base.apk 安装包文件
+      - 即将 apk 中的信息发布到 PKMS 
     - 解析 apk 的 dex 文件
     - 调用 InstallArgs.doRename 更换目录名称
       - 更名前: "data/app/vmdl${sessionId}.tmp/"
       - 更名后: "data/app/${PackageName}${Base64 随机码}/"
     - 优化 dex 文件
- 
+
 ## 参考文献
 - https://blog.csdn.net/c_z_w/article/details/79785108
