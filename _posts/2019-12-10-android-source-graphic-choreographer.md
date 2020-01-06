@@ -369,9 +369,154 @@ status_t DisplayEventDispatcher::initialize() {
   - 2: Traversals 的 Callback
   - 3: Commit 的 Callback
 
-好的, 接下来我们看看一个 VSYNC 信号到来时, handleEvent 是如何进行分发处理的
+到这里我们知晓了 VSYNC 信号是如何从 SurfaceFlinger 进程的 EventThread 分发到我们的应用进程的了, 下面看看绘制的调度流程
 
-## 二. VSYNC 的分发
+## 二. 绘制调度
+在刷新率为 60Hz 的屏幕上, 虽然 16.67 ms 会产生一个 VSYNC 信号, 但它并不是主动推送给我们应用进程的, 否则若是我们应用进程处于后台却一直响应 VSYNC 信号, 会增加额外的功耗
+
+因此只有当 Choreographer 收到了一个绘制的请求添加到了 CallbackQueue, 才会触发 VSYNC 的请求, 因此 Choreographer 的调度分为
+- VSYNC 的请求
+- VSYNC 的分发
+- VSYNC 的处理
+
+下面我们逐一分析
+
+### 一) VSYNC 信号的请求
+```java
+public final class Choreographer {
+    
+    public void postCallback(int callbackType, Runnable action, Object token) {
+        postCallbackDelayed(callbackType, action, token, 0);
+    }
+
+    @TestApi
+    public void postCallbackDelayed(int callbackType,
+            Runnable action, Object token, long delayMillis) {
+        ......
+        postCallbackDelayedInternal(callbackType, action, token, delayMillis);
+    }
+
+    private void postCallbackDelayedInternal(int callbackType,
+            Object action, Object token, long delayMillis) {
+        ......
+        synchronized (mLock) {
+            final long now = SystemClock.uptimeMillis();
+            final long dueTime = now + delayMillis;
+            // 1. 添加到指定类型的 CallbackQueue 中
+            mCallbackQueues[callbackType].addCallbackLocked(dueTime, action, token);
+            // 2. 请求 VSYNC 信号
+            // 2.1 若需要现在执行, 则立即请求 VSYNC 信号
+            if (dueTime <= now) {
+                scheduleFrameLocked(now);
+            } 
+            // 2.2 投递到 MessageQueue 中, 到 dueTime 时刻再请求 VSYNC 信号
+            else {
+                Message msg = mHandler.obtainMessage(MSG_DO_SCHEDULE_CALLBACK, action);
+                msg.arg1 = callbackType;
+                msg.setAsynchronous(true);
+                mHandler.sendMessageAtTime(msg, dueTime);
+            }
+        }
+    }
+    
+}
+```
+可以看到当我们向 Choreographer 的消息队列中投递消息的时候, 会进行两步操作
+- 投递到 callbackType 对应的 CallbackQueue 中
+- 请求一个 VSYNC 信号
+  - 若需要现在执行, 则立即调用 scheduleFrameLocked 请求
+  - 若不必现在执行, 通过 MessageQueue 到指定时刻执行, 最终还是会调用 scheduleFrameLocked
+
+下面我们看看 scheduleFrameLocked 是如何安排这一帧的准备的
+
+```java
+public final class Choreographer {
+
+    private void scheduleFrameLocked(long now) {
+        if (!mFrameScheduled) {
+            mFrameScheduled = true;
+            // 1. 支持 VSYNC
+            if (USE_VSYNC) {
+                // 1.1 若是执行在 Choreographer Looper 的线程, 则立即执行
+                if (isRunningOnLooperThreadLocked()) {
+                    scheduleVsyncLocked();
+                } else {
+                    // 1.2 否则, 投递到 Looper 的消息队列中执行
+                    Message msg = mHandler.obtainMessage(MSG_DO_SCHEDULE_VSYNC);
+                    msg.setAsynchronous(true);
+                    mHandler.sendMessageAtFrontOfQueue(msg);
+                }
+            } 
+            // 2. 若不支持 VSYNC
+            else {
+                // 则手动计算下一帧的准备的时间
+                final long nextFrameTime = Math.max(
+                        mLastFrameTimeNanos / TimeUtils.NANOS_PER_MS + sFrameDelay, now);
+                ......
+                // 发送 MSG_DO_FRAME 执行帧的准备
+                Message msg = mHandler.obtainMessage(MSG_DO_FRAME);
+                msg.setAsynchronous(true);
+                mHandler.sendMessageAtTime(msg, nextFrameTime);
+            }
+        }
+    }
+    
+    private void scheduleVsyncLocked() {
+        mDisplayEventReceiver.scheduleVsync();
+    }
+    
+}
+```
+可以看到, 这里也分为两种情况, 若是支持 VSYNC, 则调用 DisplayEventReceiver.scheduleVsync 请求一个 VSYNC 信号, 若不支持则进行手动计算
+```
+// 下一帧的的执行时间 = Math.max(上一帧执行时间 + 帧间隔, 当前时间)
+long nextFrameTime = Math.max(mLastFrameTimeNanos / TimeUtils.NANOS_PER_MS + sFrameDelay, now);
+```
+
+下面看看 DisplayEventReceiver 它是如何请求 VSYNC 的
+
+#### DisplayEventReceiver 请求 VSYNC
+```java
+public abstract class DisplayEventReceiver {
+
+    public void scheduleVsync() {
+        if (mReceiverPtr == 0) {
+            Log.w(TAG, "Attempted to schedule a vertical sync pulse but the display event "
+                    + "receiver has already been disposed.");
+        } else {
+            nativeScheduleVsync(mReceiverPtr);
+        }
+    }
+    
+    private static native void nativeScheduleVsync(long receiverPtr);
+
+}
+```
+下面看看 Native 层如何处理的
+```
+// frameworks/base/libs/androidfw/DisplayEventDispatcher.cpp
+status_t DisplayEventDispatcher::scheduleVsync() {
+    if (!mWaitingForVsync) {
+        ......
+        // 向 SurfaceFlinger 请求一个 VSYNC 信号
+        status_t status = mReceiver.requestNextVsync();
+        // 
+        mWaitingForVsync = true;
+    }
+    return OK;
+}
+
+// frameworks/native/libs/gui/DisplayEventReceiver.cpp
+status_t DisplayEventReceiver::requestNextVsync() {
+    // 即通过 Socket 请求一个 VSYNC 信号
+    mEventConnection->requestNextVsync();
+}
+```
+可以看到 native 层最终会通过 Socket 向 SurfaceFlinger 的 EventThread-app 请求下一个 VSYNC
+
+在上面 Choreographer 创建的过程中, 我们知道 DisplayEventDispatcher 会通过 Looper 中的 epoll 监听 Socket 端口, 当 VSYNC 到来时, 会回调 handleEvent 处理这个 VSYNC 信号, 下面我们看看具体的处理过程
+
+### 二) VSYNC 的分发处理
 ```
 // frameworks/base/libs/androidfw/DisplayEventDispatcher.cpp
 int DisplayEventDispatcher::handleEvent(int, int events, void*) {
@@ -390,7 +535,7 @@ int DisplayEventDispatcher::handleEvent(int, int events, void*) {
 ```
 handleEvent 内部实现非常清晰, 首先通过 processPendingEvents 从 Socket 端口中读取信号保存到传出参数中, 然后调用 dispatchVsync 对读取到的 VSYNC 信号进行分发处理, 下面我们逐一查看
 
-### 一) 从 Socket 端口读取信号
+#### 从 Socket 端口读取信号
 ```
 // frameworks/base/libs/androidfw/DisplayEventDispatcher.cpp
 
@@ -443,7 +588,7 @@ bool DisplayEventDispatcher::processPendingEvents(
 
 既然获取到了 VSYNC 信号, 下面我们看看 dispatchVsync 的分发实现
 
-### 二) VSYNC 的分发
+### 三) VSYNC 的分发
 ```
 // frameworks/base/libs/androidfw/DisplayEventDispatcher.cpp
 void NativeDisplayEventReceiver::dispatchVsync(nsecs_t timestamp, int32_t id, uint32_t count) {
@@ -526,7 +671,7 @@ public final class Choreographer {
 MessageQueue 被异步消息唤醒之后, 会调用 doFrame 继续执行应用进程的帧的准备操作
 
 #### 准备帧数据
-```java
+```
 public final class Choreographer {
     
     // 丢帧上报上限为 30 帧
@@ -657,12 +802,18 @@ public final class Choreographer {
 - 释放 CallbackRecord 资源
 
 ### 三) 回顾
-VSYNC 的分发主要如下
-- 事件的获取
+渲染的调度流程如下
+- **将应用的绘制请求投递到 callbackType 对应的 CallbackQueue 中**
+- **请求一个 VSYNC 信号**
+  - 若需要现在执行, 则立即调用 scheduleFrameLocked 请求
+    - 通过 Socket 向 SurfaceFlinger 的 EventThread-app 请求下一个 VSYNC
+  - 若不必现在执行, 通过 MessageQueue 到指定时刻执行, 最终还是会调用 scheduleFrameLocked
+- **VSYNC 信号的获取**
+  - 当 VSYNC 到来时, Looper 中监听 Socket 端口的 epoll 会回调 handleEvent 获取 VSYCN 信号
   - 从 Socket 端口读取事件, 一次性最多读取 100 个事件
   - 对于 HOTPLUG 事件, 立即调用 dispatchHotplug 处理
-  - 对于 VSYNC 事件, 保留最后一个调用 dispatchVsync 处理
-- 事件的分发
+  - 对于 VSYNC 事件, 保留最后一个调用 **dispatchVsync** 处理
+- **VSYNC 信号的分发**
   - FrameDisplayEventReceiver 在 onVsync 中通过发送异步消息唤醒 MessageQueue 
   - 执行 doFrame 准备帧数据
     - 计算丢帧数
@@ -693,12 +844,18 @@ VSYNC 的分发主要如下
   - 2: Traversals 的 Callback
   - 3: Commit 的 Callback
 
-VSYNC 的分发主要如下
-- **事件的获取**
+渲染的调度流程如下
+- **将应用的绘制请求投递到 callbackType 对应的 CallbackQueue 中**
+- **请求一个 VSYNC 信号**
+  - 若需要现在执行, 则立即调用 scheduleFrameLocked 请求
+    - 通过 Socket 向 SurfaceFlinger 的 EventThread-app 请求下一个 VSYNC
+  - 若不必现在执行, 通过 MessageQueue 到指定时刻执行, 最终还是会调用 scheduleFrameLocked
+- **VSYNC 信号的获取**
+  - 当 VSYNC 到来时, Looper 中监听 Socket 端口的 epoll 会回调 handleEvent 获取 VSYCN 信号
   - 从 Socket 端口读取事件, 一次性最多读取 100 个事件
   - 对于 HOTPLUG 事件, 立即调用 dispatchHotplug 处理
-  - 对于 VSYNC 事件, 保留最后一个调用 dispatchVsync 处理
-- **事件的分发**
+  - 对于 VSYNC 事件, 保留最后一个调用 **dispatchVsync** 处理
+- **VSYNC 信号的分发**
   - FrameDisplayEventReceiver 在 onVsync 中通过发送异步消息唤醒 MessageQueue 
   - 执行 doFrame 准备帧数据
     - 计算丢帧数
@@ -708,7 +865,6 @@ VSYNC 的分发主要如下
       - View 绘制的流程滞后
       - Commit 事件优先级最低
 
-分析了 Choreographer 源码之后, 不禁感叹其实现真是太巧妙了, 它配合 VSYNC 很大程度上解决了 Android 系统的卡顿问题, 笔者总结下来有如下三点
+分析了 Choreographer 源码之后, 不禁感叹其实现真是太巧妙了, 它配合 VSYNC 很大程度上解决了 Android 系统的卡顿问题
 - **通过接收 SurfaceFlinger 发出的 VSYNC 信号, 将 UI 渲染任务同步到 VSYNC 信号的时间线上, 更加有规律的调度 CPU 进行 UI 渲染**
-- **帧准备的操作通过异步消息来强制唤醒 MessageQueue Native 层在 EventFd 上的睡眠操作, 保证帧准备操作的能够及时响应**
 - **CallbackQueue 的执行顺序优先照顾了触摸和动画, 将最笨重的 View 绘制三大流程放到了后面, 优先照顾了用户操作的跟手性和动画的流畅度**
