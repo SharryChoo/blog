@@ -526,7 +526,7 @@ public final class Choreographer {
 MessageQueue 被异步消息唤醒之后, 会调用 doFrame 继续执行应用进程的帧的准备操作
 
 #### 准备帧数据
-```
+```java
 public final class Choreographer {
     
     // 丢帧上报上限为 30 帧
@@ -546,7 +546,7 @@ public final class Choreographer {
             startNanos = System.nanoTime();
             
             // 1.1 计算丢帧数量
-            // 计算这个 VSYNC 到来与处理的时间差
+            // 计算当前 doFrame 执行时间, 和这个 VSYNC 到来的时间差
             final long jitterNanos = startNanos - frameTimeNanos;
             if (jitterNanos >= mFrameIntervalNanos) {
                 // 1.2 计算丢帧数量
@@ -599,16 +599,20 @@ public final class Choreographer {
 doFrame 方法非常有趣, 它主要处理两个方面的事务
 - 更新待准备帧信息
   - 计算与上一帧的差值
-  - 丢帧数 = 与上一帧的差值 / 帧间隔
+  - **丢帧数 = (当前执行时间 - VSYNC 到来时间) / 帧间隔**
 - 根据优先级执行 CallbackQueue
   - 输入流事件最优先执行
   - 动画事件次优先
   - View 绘制的流程滞后
   - Commit 最后
 
-**从更新待准备帧信息中我们可以看到丢帧了数的计算方式, 单位时间的丢帧数是用来衡量页面流畅度的指标, 这种方式在监控主线程卡顿中常被用到**
+**从更新待准备帧信息中我们可以看到丢帧了数的计算方式**
+```
+丢帧数 = (当前执行时间 - VSYNC 到来时间) / 帧间隔
+```
+单位时间的丢帧数是用来衡量页面流畅度的指标, 这种方式在监控主线程卡顿中常被用到
 
-CallbackQueue 的执行执行如下所示
+下面看看 CallbackQueue 的执行
 ```
 public final class Choreographer {
 
