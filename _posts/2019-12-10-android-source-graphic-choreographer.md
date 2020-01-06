@@ -671,7 +671,7 @@ public final class Choreographer {
 MessageQueue 被异步消息唤醒之后, 会调用 doFrame 继续执行应用进程的帧的准备操作
 
 #### 准备帧数据
-```
+```java
 public final class Choreographer {
     
     // 丢帧上报上限为 30 帧
@@ -758,7 +758,7 @@ doFrame 方法非常有趣, 它主要处理两个方面的事务
 单位时间的丢帧数是用来衡量页面流畅度的指标, 这种方式在监控主线程卡顿中常被用到
 
 下面看看 CallbackQueue 的执行
-```
+```java
 public final class Choreographer {
 
     void doCallbacks(int callbackType, long frameTimeNanos) {
