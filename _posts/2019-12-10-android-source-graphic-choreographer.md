@@ -801,28 +801,6 @@ public final class Choreographer {
 - 执行 CallbackQueue 中的每一个 CallbackRecord 的 run 方法
 - 释放 CallbackRecord 资源
 
-### 三) 回顾
-渲染的调度流程如下
-- **将应用的绘制请求投递到 callbackType 对应的 CallbackQueue 中**
-- **请求一个 VSYNC 信号**
-  - 若需要现在执行, 则立即调用 scheduleFrameLocked 请求
-    - 通过 Socket 向 SurfaceFlinger 的 EventThread-app 请求下一个 VSYNC
-  - 若不必现在执行, 通过 MessageQueue 到指定时刻执行, 最终还是会调用 scheduleFrameLocked
-- **VSYNC 信号的获取**
-  - 当 VSYNC 到来时, Looper 中监听 Socket 端口的 epoll 会回调 handleEvent 获取 VSYCN 信号
-  - 从 Socket 端口读取事件, 一次性最多读取 100 个事件
-  - 对于 HOTPLUG 事件, 立即调用 dispatchHotplug 处理
-  - 对于 VSYNC 事件, 保留最后一个调用 **dispatchVsync** 处理
-- **VSYNC 信号的分发**
-  - FrameDisplayEventReceiver 在 onVsync 中通过发送异步消息唤醒 MessageQueue 
-  - 执行 doFrame 准备帧数据
-    - 计算丢帧数
-    - 按照优先级执行渲染操作
-      - 输入流事件最优先执行
-      - 动画事件次优先
-      - View 绘制的流程滞后
-      - Commit 事件优先级最低
-
 帧数据准备完毕之后会推入当前 ViewRootImpl 中 Surface 的 GraphicBuffer 中, SurfaceFlinger 也会根据 VSYNC 信号对将 Buffer 合成后输出到屏幕上, 至此 Choreographer 的工作机制就分析完毕了
 
 ## 总结
@@ -857,13 +835,7 @@ public final class Choreographer {
   - 对于 VSYNC 事件, 保留最后一个调用 **dispatchVsync** 处理
 - **VSYNC 信号的分发**
   - FrameDisplayEventReceiver 在 onVsync 中通过发送异步消息唤醒 MessageQueue 
-  - 执行 doFrame 准备帧数据
-    - 计算丢帧数
-    - 按照优先级执行渲染操作
-      - 输入流事件最优先执行
-      - 动画事件次优先
-      - View 绘制的流程滞后
-      - Commit 事件优先级最低
+  - 执行 doFrame 准备帧数据, 按照 CallbackQueue 优先级执行
 
 分析了 Choreographer 源码之后, 不禁感叹其实现真是太巧妙了, 它配合 VSYNC 很大程度上解决了 Android 系统的卡顿问题
 - **通过接收 SurfaceFlinger 发出的 VSYNC 信号, 将 UI 渲染任务同步到 VSYNC 信号的时间线上, 更加有规律的调度 CPU 进行 UI 渲染**
