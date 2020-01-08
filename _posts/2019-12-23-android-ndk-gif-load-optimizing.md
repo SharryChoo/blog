@@ -521,24 +521,22 @@ class GifFrameLoader {
     - 回调 GifDrawable 绘制获取到的 Bitmap
     - 调用 loadNextFrame 继续加载下一帧动画的 Bitmap
 
+#### 思考
 Glide 在使用 StandardGifDecoder 的过程中使用了很多缓存的技术, 在这里 BitmapPool 的作用就突出的淋漓尽致了, 但这并不意味着它是完美的, 仍然存在着如下的隐患
-
-## 二. Glide 加载 GIF 卡顿探究
-### 一) 绘制耗时
-**GifFrameLoader 它是在当前帧绘制完成之后再调用 loadNextFrame 来获取下一帧要绘制的 Bitmap 数据的**, 这意味着绘制当前帧和获取下一帧是串行的, 当获取的 Bitmap 比较耗时, 超过了 Gif 的 delay, 那么就会造成当前的时刻 > targetTime(这一帧要绘制的时刻), 如此便会造成 Gif 播放的卡顿
 
 ![绘制耗时](https://i.loli.net/2019/12/23/oQx7pj9kMLF8N3s.png)
 
-### 二) 内存负担重
-当 Gif 过大时, BitmapPool 无法取到 Bitmap 复用的作用, 会不断的创建新的 Bitmap
-- Android 7.0 之后像素数据分配到 native 层还好, 在 Android 7.0 之前, 像素数据分配在 java 层来说, 这是灾难性的
+- **构建当前帧数据与准备下一帧是串行的**
+  - 若是准备时长超过了 Gif 的 duration, 就会造成播放卡顿, CPU 使用率低, 可能会卡顿
+- **内存消耗高**
+  - StandardGifDecoder 只会保存上一帧的数据, 每次获取当前帧都会从 BitmapPool 中获取新的 Bitmap, 将数据拷贝进去之后再返回
+  - 也就是说加载一张 Gif 图,  Glide 至少需要两个 Bitmap,  BitmapPool 紧张时会创建更多
 
-### 三) 解决方案
 关于上述两点, Google 源码已经给出了很好的解决方案了, 它使用 Native 的 [GIFLIB](https://sourceforge.net/projects/giflib/) 引擎和 Java 层的 [FrameSequenceDrawable](http://androidxref.com/9.0.0_r3/xref/frameworks/ex/framesequence/src/android/support/rastermill/FrameSequenceDrawable.java) 双缓冲机制解决了这个问题
 
-下面看看具体的优化策略
+下面看看具体的优化措施
 
-## 三. Gif 加载的优化
+## 二. Gif 加载的优化
 ### 一) [GIFLIB](https://sourceforge.net/projects/giflib/) 的编译
 ![源码下载](https://i.loli.net/2019/12/23/pGdljLND5fkeqI3.png)
 
@@ -773,9 +771,8 @@ Width=306, Height=640, IsOpaque=true, FrameCount=122, LooperCount=0, Duration=85
 - 构建 Gif 的解码器
   - 实现类为 StandardGifDecoder
 - StandardGifDecoder 解码 Gif 帧
-  - 将当前帧的数据写入 dest 数组
-  - 更新上一帧 Bitmap
-  - 创建 Bitmap 返回到外界使用
+  - 更新上一帧的 Bitmap 数据和上一帧的 int[] 数组
+  - 从复用池中获取的 Bitmap, 将数据拷贝后提供给外界使用
 - GifDrawable 播放 Gif 动画, 核心是使用 GifFrameLoader 调度动画的播放
   - 通过 StandardGifDecoder 获取下一帧动画的 Bitmap
   - 根据下一帧的间隔, 延时投递到主线程的消息队列中执行渲染
@@ -783,14 +780,17 @@ Width=306, Height=640, IsOpaque=true, FrameCount=122, LooperCount=0, Duration=85
     - 调用 loadNextFrame 继续加载下一帧动画的 Bitmap
 
 **Glide 加载 Gif 的隐患**
-- 绘制当前帧与绘制下一帧是线性的
-  - CPU 使用率低, 可能会卡顿
-- Graphic 内存负担重
-  - 当 Gif 过大时, BitmapPool 无法取到 Bitmap 复用的作用, 会不断的创建新的 Bitmap
-  - Android 7.0 之后像素数据分配到 native 层还好, 在 Android 7.0 之前, 像素数据分配在 java 层来说, 这是灾难性的
+- 构建当前帧数据与准备下一帧是串行的
+  - 若是准备时长超过了 Gif 的 duration, 就会造成播放卡顿, CPU 使用率低, 可能会卡顿
+- 内存消耗高
+  - StandardGifDecoder 只会保存上一帧的数据, 每次获取当前帧都会从 BitmapPool 中获取新的 Bitmap, 将数据拷贝进去之后再返回
+  - 也就是说加载一张 Gif 图,  Glide 至少需要两个 Bitmap,  BitmapPool 紧张时会创建更多
 
 **优化策略**
 - Giflib 在 native 层解码 GIF
 - FrameSequenceDrawable 使用双缓冲绘制 GIF 动画
+  - 仅需要两个 Bitmap
 
-笔者这里将上述的实现整理成了 [GlideDecoderSample](https://github.com/SharryChoo/GifDecoderSample/tree/master), 在 Google 的 FrameSequenceDrawable 的基础上添加了 Downsample 的功能, 可以集成到 Glide 中优化 GIF 加载
+笔者这里将上述的实现整理成了 [GlideDecoderSample](https://github.com/SharryChoo/GifDecoderSample/tree/master), 
+在 Google 的 FrameSequenceDrawable 的基础上添加了 Downsample 的功能, 可以集成到 Glide 中优化 GIF 加载Choo/GifDecoderSample/tree/master), 
+在 Google 的 FrameSequenceDrawable 的基础上添加了 Downsample 的功能, 可以集成到 Glide 中优化 GIF 加载
