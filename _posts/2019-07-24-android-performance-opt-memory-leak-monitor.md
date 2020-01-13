@@ -565,10 +565,124 @@ final class ShortestPathFinder {
 我们知道我们的泄漏对象可能和多个 GC Roots 有关联, LeakCanary 的做法是命中一条就结束搜索, 为什么不搜索出所有的引用链呢?
 - 其实也不难理解, 因为修复了这条链, 若存在其他引用链会在下一次泄漏时找出来, 一次性探测出全部要遍历图的各个顶点, 导致算法耗时过长
 
+
+## 三. 误判的改进
+LeakCanary 虽然实现巧妙, 但并不是完美的, 在使用的过程中, 常会出现误判的情况, 这里就看看误判的原因和改进策略
+
+### 一) 误判
+- VM 并没有提供强制触发 GC 的 API，通过 System.gc() 或 Runtime.getRuntime().gc() 只能 **“建议”** 系统进行 GC，如果系统忽略了我们的 GC 请求，可回收的对象就不会被加入 ReferenceQueue
+- 将可回收对象加入 ReferenceQueue 需要等待一段时间，LeakCanary 采用延时 100ms 的做法加以规避，但似乎并不绝对管用
+- 监测逻辑是异步的，如果判断 Activity 是否可回收时某个 Activity 正好还被某个方法的局部变量持有，就会引起误判
+
+### 二) 改进
+- **增加一个一定能被回收的“哨兵”对象，用来确认系统确实进行了 GC**
+- **直接通过 WeakReference.get() 来判断对象是否已被回收，避免因 GC 后加入引用队列存在延时导致误判**
+- **若发现某个 Activity 无法被回收，再重复判断 3 次，以防在判断时该 Activity 被局部变量持有导致误判**
+
+#### 1. 代码实现
+```
+public final class RefWatcher {
+    
+    /**
+     * Sharry modified.
+     */
+    private final static int THRESHOLD = 3;
+    private final ConcurrentLinkedQueue<KeyedWeakReference> mPendingDetectQueue = new ConcurrentLinkedQueue<>();
+
+    @SuppressWarnings("ReferenceEquality")
+        // Explicitly checking for named null.
+    Retryable.Result ensureGone(final KeyedWeakReference newReference, final long watchStartNanoTime) {
+        // 1. 将要检测的对象添加到待检测队列
+        mPendingDetectQueue.offer(newReference);
+        // 2. 尝试 GC
+        if (debuggerControl.isDebuggerAttached()) {
+            // The debugger can create false leaks.
+            return Retryable.Result.RETRY;
+        }
+        // 创建哨兵对象
+        WeakReference<Object> sentryObj = new WeakReference<>(new Object());
+        // 执行 GC, 会执行延时 100 ms, 确认让被 GC 对象的弱引用添加到引用队列
+        long gcStartNanoTime = System.nanoTime();
+        long watchDurationMs = NANOSECONDS.toMillis(gcStartNanoTime - watchStartNanoTime);
+        gcTrigger.runGc();
+        // 判断是否真正发生 GC 了
+        if (sentryObj.get() != null) {
+            Log.i(TAG, "GC has been ignore. detect next time.");
+            // GC has been ignore.
+            return Retryable.Result.RETRY;
+        } else {
+            Log.i(TAG, "GC occurred.");
+        }
+        // 3. 遍历待检测的弱引用队列
+        Iterator<KeyedWeakReference> iterator = mPendingDetectQueue.iterator();
+        while (iterator.hasNext()) {
+            KeyedWeakReference reference = iterator.next();
+            // 已经被 GC 了
+            if (gone(reference)) {
+                // 已经被 GC 了, 从待检测项中移除
+                iterator.remove();
+                Log.i(TAG, reference.name + " is released.");
+                continue;
+            }
+            // 采用分代回收思想, 被 GC 了 3 次还没有被回收, 则确定为泄漏
+            if (reference.gcCount.incrementAndGet() < THRESHOLD) {
+                Log.i(TAG, reference.name + " maybe leaked. gc count is " + reference.gcCount.get());
+                continue;
+            } else {
+                Log.w(TAG, reference.name + " ensure leaked. do heap analyzing.");
+            }
+            // Dump 堆映像, 分析内存泄漏
+            long startDumpHeap = System.nanoTime();
+            long gcDurationMs = NANOSECONDS.toMillis(startDumpHeap - gcStartNanoTime);
+            File heapDumpFile = heapDumper.dumpHeap();
+            if (heapDumpFile == null) {
+                // Could not dump the heap.
+                continue;
+            }
+            long heapDumpDurationMs = NANOSECONDS.toMillis(System.nanoTime() - startDumpHeap);
+            HeapDump heapDump = heapDumpBuilder.heapDumpFile(heapDumpFile).referenceKey(reference.key)
+                    .referenceName(reference.name)
+                    .watchDurationMs(watchDurationMs)
+                    .gcDurationMs(gcDurationMs)
+                    .heapDumpDurationMs(heapDumpDurationMs)
+                    .build();
+            heapdumpListener.analyze(heapDump);
+            // 进行分析了, 从待检测项中移除
+            iterator.remove();
+        }
+        return Retryable.Result.DONE;
+    }
+
+    private boolean gone(KeyedWeakReference reference) {
+        return reference.get() == null;
+    }
+    
+}
+```
+
+#### 2. 日志打印
+```
+I/RefWatcher: GC occurred.
+I/RefWatcher: Main2Activity maybe leaked. gc count is 1
+I/RefWatcher: GC occurred.
+I/RefWatcher: Main2Activity maybe leaked. gc count is 2
+I/RefWatcher: GC occurred.
+W/RefWatcher: Main2Activity ensure leaked. do heap analyzing.
+......
+```
+可以看到每一个泄漏项的确认, 都会经过三次 GC 确认, 通过这样的方式, 让项目中的 LeakCanary 误报的情况大大降低了
+
+### 三) 其他
+在这方面 Matrix 的 ResourceCanary 做的更多, 为了提升日志分析, 对 Hprof 文件的进行了裁剪
+
+Hprof 文件的大小一般约为 Dump 时的内存占用大小，就微信而言 Dump 出来的 Hprof 大小通常为 150MB～200MB 之间，如果不做任何处理直接将此 Hprof 文件上传到服务端，一方面会消耗大量带宽资源，另一方面服务端将 Hprof 文件长期存档时也会占用服务器的存储空间。
+
+通过分析 Hprof 文件格式可知，Hprof 文件中 buffer 区存放了所有对象的数据，包括字符串数据、所有的数组等，而我们的分析过程却只需要用到部分字符串数据和 Bitmap 的 buffer 数组，其余的 buffer 数据都可以直接剔除，这样处理之后的 Hprof 文件通常能比原始文件小 1/10 以上。
+
 ## 总结
 - 内存泄漏的检测
   - **它利用了 WeakReference 的特性, 即被弱引用的对象, 在 GC 发生时, 便会被回收**
-  - 为 WeakReference 添加 ReferenceQueue, 对象被 GC 之后会添加到引用队列中
+  - 为 WeakReference 添加 ReferenceQueue, 对象被 GC 之后弱引用对象会添加到引用队列中
   - 若我们分析的对象没有被 GC, 那么说明发生了内存泄漏
 - 泄漏引用链的分析与查找
   - 通过 Debug.dumpHprofData(heapDumpFile.getAbsolutePath()); 获取 HPROF 内存镜像
@@ -576,25 +690,15 @@ final class ShortestPathFinder {
     - 解析 HPROF 文件数据到 Snapshot 对象中
     - 获取 Snapshot 中的 GC Roots
     - 使用图的广度优先搜索算法, 找寻 GC Roots 到泄漏对象的一条引用链
+- 误判的改进
+  - VM 并没有提供强制触发 GC 的 API，通过 System.gc() 或 Runtime.getRuntime().gc() 只能 **“建议”** 系统进行 GC，如果系统忽略了我们的 GC 请求，可回收的对象就不会被加入 ReferenceQueue
+    - **增加一个一定能被回收的“哨兵”对象，用来确认系统确实进行了 GC**
+  - 将可回收对象加入 ReferenceQueue 需要等待一段时间，LeakCanary 采用延时 100ms 的做法加以规避，但似乎并不绝对管用
+    - **直接通过 WeakReference.get() 来判断对象是否已被回收，避免因 GC 后加入引用队列存在延时导致误判**
+  - 监测逻辑是异步的，如果判断 Activity 是否可回收时某个 Activity 正好还被某个方法的局部变量持有，就会引起误判
+    - **若发现某个 Activity 无法被回收，再重复判断 3 次，以防在判断时该 Activity 被局部变量持有导致误判**
 
-### 不足与改进
-参考自 Matrix 的 ResourceCanary
-#### Hprof 文件过大, 分析时间过长
-Hprof 文件的大小一般约为 Dump 时的内存占用大小，就微信而言 Dump 出来的 Hprof 大小通常为 150MB～200MB 之间，如果不做任何处理直接将此 Hprof 文件上传到服务端，一方面会消耗大量带宽资源，另一方面服务端将 Hprof 文件长期存档时也会占用服务器的存储空间。
-
-通过分析 Hprof 文件格式可知，Hprof 文件中 buffer 区存放了所有对象的数据，包括字符串数据、所有的数组等，而我们的分析过程却只需要用到部分字符串数据和 Bitmap 的 buffer 数组，其余的 buffer 数据都可以直接剔除，这样处理之后的 Hprof 文件通常能比原始文件小 1/10 以上。
-
-#### 存在漏判的情况
-- VM 并没有提供强制触发 GC 的 API，通过 System.gc() 或 Runtime.getRuntime().gc() 只能 **“建议”** 系统进行 GC，如果系统忽略了我们的 GC 请求，可回收的对象就不会被加入 ReferenceQueue
-- 将可回收对象加入 ReferenceQueue 需要等待一段时间，LeakCanary 采用延时 100ms 的做法加以规避，但似乎并不绝对管用
-- 监测逻辑是异步的，如果判断 Activity 是否可回收时某个 Activity 正好还被某个方法的局部变量持有，就会引起误判
-- 若反复进入泄漏的 Activity，LeakCanary 会重复提示该 Activity 已泄漏
-
-优化方案如下
-- **增加一个一定能被回收的“哨兵”对象，用来确认系统确实进行了 GC**
-- **直接通过 WeakReference.get() 来判断对象是否已被回收，避免因 GC 后加入引用队列存在延时导致误判**
-- 若发现某个 Activity 无法被回收，再重复判断 3 次，且要求从该 Activity 被记录起有 2 个以上的 Activity 被创建才认为是泄漏，以防在判断时该 Activity 被局部变量持有导致误判
-- 对已判断为泄漏的 Activity，记录其类名，避免重复提示该Activity已泄漏
+LeakCanary 误判改进的 [Sample](https://github.com/SharryChoo/LeakCanarySample) 
 
 ## 参考文献
 - https://square.github.io/leakcanary/
