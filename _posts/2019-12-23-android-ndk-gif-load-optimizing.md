@@ -742,8 +742,6 @@ public class FrameSequenceDrawable extends Drawable implements Animatable, Runna
 由于篇幅的原因, 这里就不贴出代码实现了, 若是感兴趣可以尝试自行实现, 文末会给出相关的 Demo
 
 ### 三) 对比
-![Sample](https://raw.githubusercontent.com/SharryChoo/SAlbum/release/assert/SharedElement.gif)
-
 ```
 // GIF 的参数如下
 Width=306, Height=640, IsOpaque=true, FrameCount=122, LooperCount=0, Duration=8540ms
@@ -759,7 +757,7 @@ Width=306, Height=640, IsOpaque=true, FrameCount=122, LooperCount=0, Duration=85
 
 ![加载后](https://i.loli.net/2019/12/23/OqbpYnH1EVR9Irm.png)
 
-### 回顾
+### 四) 回顾
 可以看到**比起 Glide 原生加载方式, 我们的 Giflib + FrameSequenceDrawable 要更省内存**, 其主要区别在于  Graphic 内存的消耗
 
 虽然 Glide 的 StandardGifDecoder 使用 BitmapPool 作为 Bitmap 复用支撑, 但是当加载的 GIF 图较大时, 超过了 BitmapPool 剩余可用大小还是会直接创建 Bitmap 的, **因此这个问题在 Gif 尺寸较大时会暴露的更加明显**
@@ -767,7 +765,7 @@ Width=306, Height=640, IsOpaque=true, FrameCount=122, LooperCount=0, Duration=85
 **使用 GIFLIB + 双缓冲的实现, 无论在什么情况下都只会创建两个 Bitmap, 因此它的内存消耗是非常稳定的**
 
 ## 总结
-**Glide 加载 Gif 的流程**
+### Glide 加载 Gif 的流程
 - 构建 Gif 的解码器
   - 实现类为 StandardGifDecoder
 - StandardGifDecoder 解码 Gif 帧
@@ -778,19 +776,18 @@ Width=306, Height=640, IsOpaque=true, FrameCount=122, LooperCount=0, Duration=85
   - 根据下一帧的间隔, 延时投递到主线程的消息队列中执行渲染
     - 回调 GifDrawable 绘制获取到的 Bitmap
     - 调用 loadNextFrame 继续加载下一帧动画的 Bitmap
-
-**Glide 加载 Gif 的隐患**
+ 
+### Glide 加载 Gif 的隐患
 - 构建当前帧数据与准备下一帧是串行的
   - 若是准备时长超过了 Gif 的 duration, 就会造成播放卡顿, CPU 使用率低, 可能会卡顿
 - 内存消耗高
   - StandardGifDecoder 只会保存上一帧的数据, 每次获取当前帧都会从 BitmapPool 中获取新的 Bitmap, 将数据拷贝进去之后再返回
   - 也就是说加载一张 Gif 图,  Glide 至少需要两个 Bitmap,  BitmapPool 紧张时会创建更多
 
-**优化策略**
+### 优化策略
 - Giflib 在 native 层解码 GIF
 - FrameSequenceDrawable 使用双缓冲绘制 GIF 动画
   - 仅需要两个 Bitmap
 
-笔者这里将上述的实现整理成了 [GlideDecoderSample](https://github.com/SharryChoo/GifDecoderSample/tree/master), 
-在 Google 的 FrameSequenceDrawable 的基础上添加了 Downsample 的功能, 可以集成到 Glide 中优化 GIF 加载Choo/GifDecoderSample/tree/master), 
-在 Google 的 FrameSequenceDrawable 的基础上添加了 Downsample 的功能, 可以集成到 Glide 中优化 GIF 加载
+笔者这里在 Google 的 FrameSequenceDrawable 的基础上添加了 Downsample 的功能, 并提供了集成到 Glide 使用的示例
+- Sample [GlideDecoderSample](https://github.com/SharryChoo/GifDecoderSample/tree/master)
