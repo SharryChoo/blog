@@ -31,10 +31,38 @@ android-source:
         url:    /android-source/dc-ashmem
   - title: 开机启动
     children:
-      - title:  Configuration
-        url:    /docs/en/configuration
-      - title:  Navigation
-        url:    /docs/en/navigation
+      - title:  概览
+        url:    /android-source/process-start-overview
+      - title:  Init 进程的启动
+        url:    /android-source/init-process-start
+      - title:  ServiceManager 进程的启动
+        url:    /android-source/servicemanager-process-start
+      - title:  SurfaceFlinger 的启动
+        url:    /android-source/surfaceflinger-launch
+      - title:  SurfaceFlinger 对 Hotplug 事件的处理
+        url:    /android-source/surfaceflinger-hotplug
+      - title:  SurfaceFlinger Vsync 信号处理
+        url:    /android-source/surfaceflinger-vsync-dispatch
+      - title:  Zygote 进程的启动
+        url:    /android-source/zygote-process-start
+      - title:  SystemServer 进程的启动
+        url:    /android-source/systemserver-process-start
+      - title:  AMS 的启动
+        url:    /android-source/ams-start
+      - title:  PKMS 的启动 之 备份文件的解析
+        url:    /android-source/pkms-launch1
+      - title:  PKMS 的启动 之 应用目录的扫描
+        url:    /android-source/pkms-launch2
+      - title:  PKMS 之 应用的安装流程
+        url:    /android-source/pkms-install
+      - title:  IMS 的启动
+        url:    /android-source/ims-launch
+      - title:  IMS 的事件分发
+        url:    /android-source/ims-dispatch
+      - title:  View 的事件分发
+        url:    /android-source/view-dispatch
+      - title:  IMS 的 ANR 产生流程
+        url:    /android-source/ims-anr
   - title: 资源管理
     children:
       - title:  Configuration

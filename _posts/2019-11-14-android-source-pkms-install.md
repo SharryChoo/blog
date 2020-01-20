@@ -1,5 +1,5 @@
 ---
-title: Android 系统架构 —— PMS 之 应用的安装流程
+title: Android 系统架构 —— PKMS 之 应用的安装流程
 permalink: android-source/pkms-install
 key: android-source-pkms-install
 tags: AndroidFramework
