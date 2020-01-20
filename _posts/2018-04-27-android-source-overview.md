@@ -2,8 +2,8 @@
 title: Android 系统架构 —— 概览
 permalink: android-source/overview
 key: android-source-overview
-tags: AndroidFramework
 show_date: false
+tags: AndroidFramework
 sidebar:
   nav: android-source
 ---

@@ -3,6 +3,8 @@ title: Android 系统架构 —— IMS 的启动
 permalink: android-source/ims-launch
 key: android-source-ims-launch
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

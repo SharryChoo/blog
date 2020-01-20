@@ -3,6 +3,8 @@ title: Android 系统架构 —— Choreographer 的工作机制
 permalink: android-source/graphic-choreographer
 key: android-source-graphic-choreographer
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

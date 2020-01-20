@@ -3,6 +3,8 @@ title: Android 系统架构 —— Activity 的启动 之 请求方的暂停
 permalink: android-source/activity-launch1
 key: android-source-activity-launch1
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 ## 前言
 在 SystemServer 进程启动的的学习中, 我们知道当所有的服务都准备好了之后, AMS 的 systemReady 会启动 Launcher 这个应用程序

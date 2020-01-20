@@ -3,6 +3,8 @@ title: Android 系统架构 —— Surface 的创建
 permalink: android-source/graphic-surface-create
 key: android-source-graphic-surface-create
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

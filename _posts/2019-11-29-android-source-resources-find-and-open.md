@@ -3,6 +3,8 @@ title: Android 系统架构 —— 资源的查找与打开
 permalink: android-source/resources-find-and-open
 key: android-source-resources-find-and-open
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

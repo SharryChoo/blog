@@ -3,6 +3,8 @@ title: Android 系统架构 —— SystemServer 进程的启动
 permalink: android-source/systemserver-process-start
 key: android-source-systemserver-process-start
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

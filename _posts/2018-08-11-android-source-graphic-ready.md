@@ -3,6 +3,8 @@ title: Android 系统架构 —— 图形渲染的准备
 permalink: android-source/graphic-ready
 key: android-source-graphic-view-ready
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 ## 前言
 我们平时开发的过程中最常打交道的是 View 和 Window, 他们是能够呈现视图的关键所在, 这里我们以 Activity 的启动为例, 从如下三个方面来了解一下图形渲染的准备过程

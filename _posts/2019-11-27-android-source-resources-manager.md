@@ -3,6 +3,8 @@ title: Android 系统架构 —— 资源管理的创建
 permalink: android-source/resources-manager
 key: android-source-resources-manager
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

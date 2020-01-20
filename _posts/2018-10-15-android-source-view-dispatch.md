@@ -3,6 +3,8 @@ title: Android 系统架构 —— View 的事件分发
 permalink: android-source/view-dispatch
 key: android-source-view-dispatch
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

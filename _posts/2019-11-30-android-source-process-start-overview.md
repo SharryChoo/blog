@@ -5,6 +5,8 @@ key: android-source-init-process-overview
 tags: AndroidFramework
 sidebar:
   nav: android-source
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

@@ -3,6 +3,8 @@ title: Android 系统架构 —— WMS 的启动
 permalink: android-source/wms-start
 key: android-source-wms-start
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 ## 前言
 之前的文章介绍了 IMS 的启动过程, 也了解了 IMS 的事件分发与窗体是息息相关的, 这里我们就来学习一下 WMS 的启动流程

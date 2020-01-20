@@ -3,6 +3,8 @@ title: Android 系统架构 —— SurfaceFlinger VSYNC 信号处理
 permalink: android-source/surfaceflinger-vsync-dispatch
 key: android-source-surfaceflinger-vsync-dispatch
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

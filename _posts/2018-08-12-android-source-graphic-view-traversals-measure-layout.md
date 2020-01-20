@@ -3,6 +3,8 @@ title: Android 系统架构 —— View 的测量与布局
 permalink: android-source/graphic-view-traversals-measure-layout
 key: android-source-graphic-view-traversals-measure-layout
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 ## 前言
 通过图像渲染的准备的学习, 我们知道在 onResume 之后我们的 ViewRootImpl 会通过 addToDisplay 与 WMS 建立联系, 之后就会执行 requestLayout 发送的消息执行 View 的遍历操作

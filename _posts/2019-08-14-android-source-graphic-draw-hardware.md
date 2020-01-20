@@ -3,6 +3,8 @@ title: Android 系统架构 —— View 的硬件渲染
 permalink: android-source/graphic-draw-hardware
 key: android-source-graphic-draw-hardware
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

@@ -3,6 +3,8 @@ title: Android 系统架构 —— 资源管理框架导读
 permalink: android-source/resources-overview
 key: android-source-resources-overview
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

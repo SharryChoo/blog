@@ -3,6 +3,8 @@ title: Android 系统架构 —— Activity 的启动 之 应用进程的启动
 permalink: android-source/activity-launch2
 key: android-source-activity-launch2
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

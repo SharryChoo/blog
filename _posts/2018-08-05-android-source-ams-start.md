@@ -3,6 +3,8 @@ title: Android 系统架构 —— AMS 的启动
 permalink: android-source/ams-start
 key: android-source-ams-start
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

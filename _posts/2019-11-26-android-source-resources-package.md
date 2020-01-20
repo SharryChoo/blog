@@ -3,6 +3,8 @@ title: Android 系统架构 —— 资源的打包流程
 permalink: android-source/resources-package
 key: android-source-resources-package
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言
