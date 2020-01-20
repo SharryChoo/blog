@@ -1,5 +1,5 @@
 ---
-title: Android 系统架构 —— 概览
+title: Android 系统架构 —— 导读
 permalink: android-source/overview
 key: android-source-overview
 show_date: false
