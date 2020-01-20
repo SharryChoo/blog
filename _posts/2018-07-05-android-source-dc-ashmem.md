@@ -15,8 +15,6 @@ Ashmen(Anonymous Shared Memory) 匿名共享内存是 Android 的 Linux 内核�
 - open 系统调用
 - mmap 系统调用
 
-<!--more-->
-
 ## 一. 驱动程序的初始化
 Ashmem 驱动程序的初始化工作在 Linux 内核中 **ashmem_init** 函数中执行, 下面看看它的实现
 ```
@@ -189,14 +187,95 @@ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
 
 好的, 可以看到这里的 ashmem_mmap 的操作完成后, 用户空间就可以通过往文件中读写, 从而将数据写到共享内存文件中了
 
+## 四. 使用案例
+### 一) Native 层使用
+参考 MMKV 的 [MemoryFile](https://github.com/Tencent/MMKV/blob/master/Android/MMKV/mmkv/src/main/cpp/MmapedFile.cpp)
+```
+#pragma mark - ashmem
+#include "native-bridge.h"
+#include <dlfcn.h>
+
+#define ASHMEM_NAME_LEN 256
+#define __ASHMEMIOC 0x77
+#define ASHMEM_SET_NAME _IOW(__ASHMEMIOC, 1, char[ASHMEM_NAME_LEN])
+#define ASHMEM_GET_NAME _IOR(__ASHMEMIOC, 2, char[ASHMEM_NAME_LEN])
+#define ASHMEM_SET_SIZE _IOW(__ASHMEMIOC, 3, size_t)
+#define ASHMEM_GET_SIZE _IO(__ASHMEMIOC, 4)
+
+void *loadLibrary() {
+    auto name = "libandroid.so";
+    static auto handle = dlopen(name, RTLD_LAZY | RTLD_LOCAL);
+    if (handle == RTLD_DEFAULT) {
+        MMKVError("unable to load library %s", name);
+    }
+    return handle;
+}
+
+typedef int (*AShmem_create_t)(const char *name, size_t size);
+
+int ASharedMemory_create(const char *name, size_t size) {
+    int fd = -1;
+    // Android 8.0 以上使用 libandroid.so 的 ASharedMemory_create 创建
+    if (g_android_api >= __ANDROID_API_O__) {
+        static auto handle = loadLibrary();
+        static AShmem_create_t funcPtr =
+            (handle != nullptr)
+                ? reinterpret_cast<AShmem_create_t>(dlsym(handle, "ASharedMemory_create"))
+                : nullptr;
+        if (funcPtr) {
+            fd = funcPtr(name, size);
+            if (fd < 0) {
+                MMKVError("fail to ASharedMemory_create %s with size %zu, errno:%s", name, size,
+                          strerror(errno));
+            }
+        } else {
+            MMKVWarning("fail to locate ASharedMemory_create() from loading libandroid.so");
+        }
+    }
+    // Android 8.0 以下, 直接操作 "dev/ashmem" 驱动文件
+    if (fd < 0) {
+        fd = open(ASHMEM_NAME_DEF, O_RDWR);
+        if (fd < 0) {
+            MMKVError("fail to open ashmem:%s, %s", name, strerror(errno));
+        } else {
+            // 设置共享内存区域的名称
+            if (ioctl(fd, ASHMEM_SET_NAME, name) != 0) {
+                MMKVError("fail to set ashmem name:%s, %s", name, strerror(errno));
+            } 
+            // 设置共享内存区域的大小
+            else if (ioctl(fd, ASHMEM_SET_SIZE, size) != 0) {
+                MMKVError("fail to set ashmem:%s, size %zu, %s", name, size, strerror(errno));
+            }
+        }
+    }
+    return fd;
+}
+```
+因为文件是对多个进程是共享的, 只要两个进程都通过 mmap 映射这个文件, 那么两个进程就可以通过共享内存进行通信了
+
+### 二) Java 层使用
+```
+// 创建 10 MB 的 Ashmem 共享内存
+val memoryFile = MemoryFile("test shared memory", 10 * 1024 * 1024)
+
+// 反射获取实现对象 mSharedMemory, 继承自 Parcelable
+val sharedMemory = reflectObject(memoryFile, "mSharedMemory")
+
+// 通过 Binder 驱动, 将 mSharedMemory 发送到另一个进程即可使用
+```
+Java 层的使用比较简单, Ashmem 的封装类为 SharedMemory, API 27 之前, 我们无法直接使用, 而是需要通过 MemoryFile 创建, 
+
 ## 总结
 Ashmem 与 Binder 一样, 都是以驱动的形式存在于 Linux 内核中的, Linux 对上层提供服务的方式, 都是通过文件 api, 因此在 Linux 内核中 Ahsmem 文件系统的 api, 即可完成相应的操作
 - init
-  - 创建了用于分配小物理内存的 kmem_cache, 方便后续进行 ashmem_area 结构体的内存分配
+  - 创建了用于分配小内存的 kmem_cache, 方便后续进行 ashmem_area 结构体的内存分配
 - open
-  - 打开驱动设备文件, 将 ashmem_area 保存到文件的 private 中 
+  - 打开驱动设备文件, 创建 ashmem_area 描述一块匿名共享内存，将其保存到共享内存驱动 fd 的 private 中 
+- ioctl
+  - ASHMEM_SET_NAME: 为这块匿名共享内存设置文件名
+    - 只能在 mmap 之前调用
+  - ASHMEM_SET_SIZE: 为这块匿名共享内存设置文件大小
+    - 只能在 mmap 之前调用 
 - mmap
   - 创建一个基于内存文件系统的共享内存文件 vmfile
   - 将这个 vmfile 文件映射到用户空间的虚拟地址上
-
-**因为文件是对多个进程是共享的, 只要两个进程都通过 mmap 映射这个文件, 那么两个进程就可以通过共享内存进行通信了**
