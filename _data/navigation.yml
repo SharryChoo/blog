@@ -12,11 +12,14 @@ header:
 
 android-source:
   - title:      概览
-    url:        /android-source/overview
-  - title:      数据通信
-    url:        /android-source/dc-overview
     children:
-      - title:  Handler
+      - title:  概览
+        url:    /android-source/overview
+  - title:      数据通信
+    children:
+      - title:  概览
+        url:    /android-source/dc-overview
+      - title:  Handler 消息机制
         url:    /android-source/dc-handler
       - title:  Binder 通信实例
         url:    /android-source/dc-binder1
