@@ -10,28 +10,11 @@ header:
   - title: GitHub
     url: https://github.com/SharryChoo
 
+
 android-source:
-  - title: 数据通信
+  - title:      数据通信
     children:
       - title:  Handler
-        url:    /docs/en/quick-start
-      - title:  Structure
-        url:    /docs/en/structure
-  - title: 开机启动
-    children:
-      - title:  Configuration
-        url:    /docs/en/configuration
-      - title:  Navigation
-        url:    /docs/en/navigation
-  - title: 资源管理
-    children:
-      - title:  Configuration
-        url:    /docs/en/configuration
-  - title: 资源管理
-    children:
-      - title:  Configuration
-        url:    /docs/en/configuration
-  - title: 渲染机制
-    children:
-      - title:  Configuration
-        url:    /docs/en/configuration
+        url:    /docs/zh/quick-start
+      - title:  Binder
+        url:    /docs/zh/update-from-1-to-2
