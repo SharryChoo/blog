@@ -4,6 +4,8 @@ permalink: android-source/overview
 key: android-source-overview
 tags: AndroidFramework
 show_date: false
+sidebar:
+  nav: android-source
 ---
 
 ## 前言
