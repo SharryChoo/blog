@@ -265,7 +265,7 @@ val sharedMemory = reflectObject(memoryFile, "mSharedMemory")
 
 // 通过 Binder 驱动, 将 mSharedMemory 发送到另一个进程即可使用
 ```
-Java 层的使用比较简单, Ashmem 的封装类为 SharedMemory, API 27 之前, 我们无法直接使用, 而是需要通过 MemoryFile 创建, 
+Java 层的使用比较简单, Ashmem 的封装类为 SharedMemory, API 27 之前, 我们无法直接使用, 而是需要通过 MemoryFile 创建, 为了更好的保证兼容性, 我们可以屏蔽版本差异对其进行封装, 这里就不展开讨论了, 感兴趣可以自行实现看看
 
 ## 总结
 Ashmem 与 Binder 一样, 都是以驱动的形式存在于 Linux 内核中的, Linux 对上层提供服务的方式, 都是通过文件 api, 因此在 Linux 内核中 Ahsmem 文件系统的 api, 即可完成相应的操作
