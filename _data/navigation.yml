@@ -15,7 +15,7 @@ android-source:
     children:
       - title:  概览
         url:    /android-source/overview
-  - title:      数据通信
+  - title:      数据通信篇
     children:
       - title:  概览
         url:    /android-source/dc-overview
@@ -29,7 +29,7 @@ android-source:
         url:    /android-source/dc-binder4
       - title:  Ashmem 共享内存
         url:    /android-source/dc-ashmem
-  - title: 开机启动
+  - title: 开机启动篇
     children:
       - title:  概览
         url:    /android-source/process-start-overview
@@ -63,15 +63,11 @@ android-source:
         url:    /android-source/view-dispatch
       - title:  IMS 的 ANR 产生流程
         url:    /android-source/ims-anr
-  - title: 资源管理
+  - title: 资源管理篇
     children:
       - title:  Configuration
         url:    /docs/en/configuration
-  - title: 资源管理
-    children:
-      - title:  Configuration
-        url:    /docs/en/configuration
-  - title: 渲染机制
+  - title: 图形渲染篇
     children:
       - title:  Configuration
         url:    /docs/en/configuration
