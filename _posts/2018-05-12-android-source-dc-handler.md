@@ -3,6 +3,8 @@ title: Android 系统架构 —— Handler 消息机制
 permalink: android-source/dc-handler
 key: android-source-dc-handler
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

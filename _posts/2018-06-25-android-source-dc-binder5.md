@@ -3,6 +3,8 @@ title: Android 系统架构 —— Binder 进程间通信的流程
 permalink: android-source/dc-binder5
 key: android-source-dc-binder5
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

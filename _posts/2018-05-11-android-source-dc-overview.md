@@ -3,6 +3,8 @@ title: Android 系统架构 —— 数据通信篇 概览
 permalink: android-source/dc-overview
 key: android-source-dc-overview
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言

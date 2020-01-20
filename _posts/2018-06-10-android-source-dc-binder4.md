@@ -3,6 +3,8 @@ title: Android 系统架构 —— Binder 驱动
 permalink: android-source/dc-binder4
 key: android-source-dc-binder4
 tags: AndroidFramework
+sidebar:
+  nav: android-source
 ---
 
 ## 前言
