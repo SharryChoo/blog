@@ -67,9 +67,7 @@ Linux 内核层主要管理底层驱动程序, 用于和设备硬件直接交互
 
 ### [一) 数据通信篇](https://sharrychoo.github.io/blog/android-source/dc-overview)
 #### 1. Handler 线程间通信
-- [Looper 的创建与启动](https://sharrychoo.github.io/blog/android-source/dc-handler1)
-- [消息的发送与处理](https://sharrychoo.github.io/blog/android-source/dc-handler2)
-- [MessageQueue 同步屏障技术](https://sharrychoo.github.io/blog/android-source/dc-handler3)
+- [Handler 消息机制](https://sharrychoo.github.io/blog/android-source/dc-handler)
 
 #### 2. Binder 驱动
 - 应用层
