@@ -24,10 +24,14 @@ android-source:
       - title:  Navigation
         url:    /docs/en/navigation
   - title: 资源管理
-      children:
+    children:
       - title:  Configuration
         url:    /docs/en/configuration
   - title: 资源管理
-      children:
+    children:
+      - title:  Configuration
+        url:    /docs/en/configuration
   - title: 渲染机制
-      children:
+    children:
+      - title:  Configuration
+        url:    /docs/en/configuration
