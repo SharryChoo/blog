@@ -1,7 +1,6 @@
 ---
 title: 2019 十月份个人作战会议
 permalink: life-note/2019-11-09
-key: life-note-2019-11-09
 tags: LifeNote
 ---
 ## 前言

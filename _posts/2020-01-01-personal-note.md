@@ -1,7 +1,6 @@
 ---
 title: 2019 年度个人作战会议
 permalink: life-note/2020-01-01
-key: life-note-2020-01-01
 tags: LifeNote
 ---
 
