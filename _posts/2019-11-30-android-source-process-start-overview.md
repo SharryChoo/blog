@@ -22,6 +22,8 @@ Android 的系统是基于 Linux 的, 因此它的启动与 Linux 是相似的, 
   - **2 号进程**
     - 为内核进程, 负责内核态所有进程的管理和调度, 是所有 Linux 内核进程的祖先
 
+<!--more-->
+
 ## 一. init 进程
 ![启动进程树](https://i.loli.net/2019/10/19/abnUSCpxGR7m6zZ.png)
 
