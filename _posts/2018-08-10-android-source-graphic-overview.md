@@ -71,6 +71,7 @@ Android CPU 渲染引擎框架为 **[Skia](https://skia.org/)**, 它是一款在
 市面上最常用于图形运算的引擎莫过于 [OpenGL](https://developer.android.com/guide/topics/graphics/opengl) 了, Android 系统架构中的外部链接库中有 OpenGL ES 的依赖, 并且提供了应用层的 API, 用于做高性能的 2D/3D 图形渲染, Android 中对 OpenGL 的支持如下
 
 ##### 1) OpenGL 版本支持
+
 Android 版本 | OpenGL ES 支持
 ---|---
 Android 1.0 | OpenGL ES 1.0、1.1
@@ -80,6 +81,7 @@ Android 5.0 | OpenGL ES 3.1
 Android 7.0 | OpenGL ES 3.2
 
 ##### 2) OpenGL API 支持
+
 Canvas | First supported API level
 ---|---
 drawBitmapMesh() (colors array) |	18
@@ -126,6 +128,7 @@ Local matrix on ComposeShader	| 18
 Android 7.0 之后除了添加 OpenGL ES3.2 的支持, 同时添加了 Vulkan 图像引擎, Vulkan 是用于高性能 3D 图形的低开销、跨平台 API, 它与 OpenGL 不同, 它被添加到 Android 运行时库中, 目前支持面稍窄
 
 ## 三. 图形渲染原理
+
 ![图像渲染流程](B15104AAEE9D439BA2FF937BBE559798)
 
 其核心的设计思想为**生产者-消费者**模型
