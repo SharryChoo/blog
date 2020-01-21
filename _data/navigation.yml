@@ -63,11 +63,41 @@ android-source:
         url:    /android-source/view-dispatch
       - title:  IMS 的 ANR 产生流程
         url:    /android-source/ims-anr
+      - title:  WMS 的启动
+        url:    /android-source/wms-start
+      - title:  Activity 的启动 之 请求方的暂停
+        url:    /android-source/activity-launch1
+      - title:  Activity 的启动 之 应用进程的启动
+        url:    /android-source/activity-launch2
+      - title:  Activity 的启动 之 目标的启动
+        url:    /android-source/activity-launch3
+      - title:  Service 的启动
+        url:    /android-source/service-launch
+      - title:  Service 的绑定
+        url:    /android-source/service-bind
   - title: 资源管理篇
     children:
-      - title:  Configuration
-        url:    /docs/en/configuration
+      - title:  概览
+        url:    /android-source/resources-overview
+      - title:  资源打包流程
+        url:    /android-source/resources-package
+      - title:  资源管理者的创建
+        url:    /android-source/resources-manager
+      - title:  资源的查找与打开
+        url:    /android-source/resources-find-and-open
   - title: 图形渲染篇
     children:
-      - title:  Configuration
-        url:    /docs/en/configuration
+      - title:  概览
+        url:    /android-source/graphic-overview
+      - title:  图形渲染的准备
+        url:    /android-source/graphic-ready
+      - title:  Choreographer 的工作机制
+        url:    /android-source/graphic-choreographer
+      - title:  View 的测量与布局
+        url:    /android-source/graphic-view-traversals-measure-layout
+      - title:   Surface 的创建
+        url:    /android-source/graphic-surface-create
+      - title:  View 的软件渲染
+        url:    /android-source/graphic-draw-software
+      - title:  View 的硬件渲染
+        url:    /android-source/graphic-draw-hardware
