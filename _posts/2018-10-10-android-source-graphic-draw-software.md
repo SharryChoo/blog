@@ -9,6 +9,9 @@ sidebar:
 
 ## 前言
 通过之前的分析可知, view 的绘制流程发生在 ViewRootImpl 的 performTraversals 中, 我们这次主要分析 View 的渲染
+
+<!--more-->
+
 ```
 public final class ViewRootImpl implements ViewParent,
         View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {

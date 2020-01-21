@@ -11,6 +11,8 @@ sidebar:
 
 这里我们就 requestLayout 入手分析 View 的变量
 
+<!--more-->
+
 ## 一. requestLayout
 ```
 public final class ViewRootImpl implements ViewParent,

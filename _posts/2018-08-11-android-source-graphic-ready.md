@@ -14,6 +14,8 @@ sidebar:
 
 下面我们一一分析
 
+<!--more-->
+
 ## 一. Window 的创建与初始化
 ```
 public final class ActivityThread extends ClientTransactionHandler {

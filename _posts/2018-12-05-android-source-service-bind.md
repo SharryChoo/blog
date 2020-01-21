@@ -10,6 +10,7 @@ sidebar:
 上面一篇文章我们了解了 Service 的启动流程, 这里我们分析一下 Service 的绑定流程
 
 <!--more-->
+
 ```
 // 发起端
 class ClientActivity extends AppCompatActivity {

@@ -15,6 +15,8 @@ sidebar:
 
 这里我们主要分析一下对 onVsyncReceived 函数对垂直同步信号 [Vsync](https://blog.csdn.net/zhaizu/article/details/51882768)(屏幕刷新一次之后便会产生一个 Vsync 信号) 的处理
 
+<!--more-->
+
 ```
 void SurfaceFlinger::onVsyncReceived(int32_t sequenceId,
         hwc2_display_t displayId, int64_t timestamp) {

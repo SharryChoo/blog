@@ -23,6 +23,8 @@ Android 7.0 阶段 | 引入了  Vulkan 的硬件渲染引擎
 
 通过对 OpenCV 和 OpenGL 的学习, 让我们对图像图形学有了一定的了解, 这里再回过头来看看 Android 的图形架构的硬件绘制部分就比较轻松了, 这里我们以 Android 9.0 源码为例, 揭开 5.0 阶段之后硬件渲染的机制, 以及 RenderNode 和 RenderThread 的神秘面纱 
 
+<!--more-->
+
 ## 一. ThreadedRenderer 的创建
 关于硬件绘制的开启, 这需要从 ViewRootImpl 的创建说起
 

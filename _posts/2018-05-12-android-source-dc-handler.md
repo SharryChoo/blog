@@ -9,6 +9,9 @@ sidebar:
 
 ## 前言
 我们知道, 应用进程主线程初始化的入口是在 ActivityThread.main() 中, 我们看看他是如何构建消息队列的
+
+<!--more-->
+
 ```
 public class ActivityThread {
 

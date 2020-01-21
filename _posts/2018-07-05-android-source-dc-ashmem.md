@@ -17,6 +17,8 @@ Ashmen(Anonymous Shared Memory) 匿名共享内存是 Android 的 Linux 内核�
 - open 系统调用
 - mmap 系统调用
 
+<!--more-->
+
 ## 一. 驱动程序的初始化
 Ashmem 驱动程序的初始化工作在 Linux 内核中 **ashmem_init** 函数中执行, 下面看看它的实现
 ```
