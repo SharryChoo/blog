@@ -20,7 +20,7 @@ article_header:
 ---
 
 ## 联系
-- Email: SharryChooCHN@Gmail.com
+- Email: sharrychoochn@gmail.com
 - GitHub: [https://github.com/SharryChoo](https://github.com/SharryChoo)
 - Twitter: [https://twitter.com/SharryChoo](https://twitter.com/SharryChoo)
 - Instagram: [https://www.instagram.com/sharrychoochn/?hl=zh-cn](https://www.instagram.com/sharrychoochn/?hl=zh-cn)
