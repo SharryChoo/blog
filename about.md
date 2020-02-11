@@ -15,7 +15,7 @@ article_header:
 - 姓名: Sharry Choo
 - 爱好: 阅读、运动（篮球）、摄影、声乐（唱歌/尤克里里半吊子水平）
 - 关注领域：音视频、计算机视觉、Android、摄影
-- [书单](https://sharrychoo.github.io/blog/book-list/overview)
+- [书单](https://sharrychoo.github.io/blog/book-list/overview)：主要涉猎散文小说、心理学、哲学、历史等
 - 博客: 主要记录 技术知识 和 生活感悟
 - 目标: **何时能够成功、这份努力是否有回报、他人的评价，请不必太多在意；专注于内心的积累，做一个宁静而坚忍，温柔又平和的自己。**
 
