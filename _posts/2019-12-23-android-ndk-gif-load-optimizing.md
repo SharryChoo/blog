@@ -790,4 +790,4 @@ Width=306, Height=640, IsOpaque=true, FrameCount=122, LooperCount=0, Duration=85
   - 仅需要两个 Bitmap
 
 笔者这里在 Google 的 FrameSequenceDrawable 的基础上添加了 Downsample 的功能, 并提供了集成到 Glide 使用的示例
-- Sample [GlideDecoderSample](https://github.com/SharryChoo/GifDecoderSample/tree/master)
+- Sample [GiflibSample](https://github.com/SharryChoo/GiflibSample)
