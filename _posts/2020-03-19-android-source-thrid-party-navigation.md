@@ -14,6 +14,7 @@ tags: AndroidJetpack
 关于 Navigation 的用法说明, 可以参考 [Android Developer 文档](https://developer.android.google.cn/guide/navigation/navigation-getting-started), Google 还提供一个学习的 [sample](https://github.com/android/sunflower/tree/master/app)
 
 <!--more-->
+
 ### 作用
 体验下来之后, Navigation 可以帮助我们解决的问题如下
 - 通过 id 进行 Activity/Fragment 的跳转
