@@ -1,5 +1,5 @@
 ---
-title: Jetpack —— Navigation 导航组件
+title: Facebook —— Fresco 一次加载流程
 permalink: android-source-third-party/fresco-once-sequence
 key: android-source-third-party-fresco-once-sequence
 tags: AndroidSource
@@ -11,6 +11,8 @@ tags: AndroidSource
 - Fresco 初始化
 - SimpleDraweeView 的创建
 - 数据的加载
+
+<!--more-->
 
 ## 一. Fresco 初始化
 
