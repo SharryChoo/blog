@@ -2,7 +2,7 @@
 title: Jetpack —— Navigation 导航组件
 permalink: android-source-third-party/jetpack-navigation
 key: android-source-third-party-jetpack-navigation
-tags: AndroidJetpack
+tags: AndroidSource
 ---
 
 ## 前言
@@ -154,7 +154,7 @@ NavController 的从命名上来看是导航控制器, 也确实如此, 其内�
 在它的构造函数中可以看到, 它分别添加了 NavGraphNavigator 和 ActivityNavigator 两个 Navigator, 在加上之前看到的 FragmentNavigator 一共出现了三个导航器, 它们负责具体业务场景的导航实现, 我们在使用到时再具体分析
 
 ### 二) 回顾
-![导航结构依赖](https://user-gold-cdn.xitu.io/2020/3/19/170f1741c8a4b5d0?w=682&h=507&f=png&s=36575)
+![导航结构依赖](https://i.loli.net/2020/03/27/MsxANURgwGSFzmJ.png)
 
 到这里可以看到它的 Navigation 的结构设计就比较清晰了
 - NavController: 为上层提供使用接口, 提供导航服务和栈的维护
@@ -647,7 +647,7 @@ public abstract class OnBackPressedCallback {
 
 下面我们就看看 Activity 是如何把返回事件分发到 NavController.mOnBackPressedCallback 的
 
-![分发与回调的依赖图](https://user-gold-cdn.xitu.io/2020/3/19/170f173ea1e413ff?w=2048&h=1048&f=png&s=128043)
+![分发与回调的依赖图](https://i.loli.net/2020/03/27/yJbK7d3TCU6WIif.png)
 
 ### 二) 返回事件分发流程
 ```
@@ -742,7 +742,7 @@ OnBackPressedCallback 的 handleOnBackPressed 的实现, 我们在 NavController
 
 ## 总结
 ### 导航初始化
-![导航结构依赖](https://user-gold-cdn.xitu.io/2020/3/19/170f1741c8a4b5d0?w=682&h=507&f=png&s=36575)
+![导航结构依赖](https://i.loli.net/2020/03/27/MsxANURgwGSFzmJ.png)
 
 Navigation 各个组件的功能如下所示
 - NavController: 为上层提供使用接口, 提供导航服务和栈的维护
@@ -768,7 +768,7 @@ Navigation 各个组件的功能如下所示
   - 若存在 newDest 则说明是 Fragment 类型的导航操作, 添加到 mBackStack 栈中维护
 
 ### 返回事件的分发
-![分发与回调的依赖图](https://user-gold-cdn.xitu.io/2020/3/19/170f173ea1e413ff?w=2048&h=1048&f=png&s=128043)
+![分发与回调的依赖图](https://i.loli.net/2020/03/27/yJbK7d3TCU6WIif.png)
 
 导航事件的分发, 由 ComponentActivity 中的 OnBackPressedDispatcher 提供支持
 - 监听器回调的注册
