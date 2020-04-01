@@ -1309,8 +1309,265 @@ Drawee 的数据加载主要步骤如下
       - 为生产者注入 Consumer, 生产的结果通过 Consumer 对外抛出
     - 为 DataSource 注入观察者, 用于监听数据加载状态
 
+## 三. 生产者构建流程
+
+```java
+public class ProducerSequenceFactory {
+
+  // 获取 Decode Image 的生产者序列
+  public Producer<CloseableReference<CloseableImage>> getDecodedImageProducerSequence(
+      ImageRequest imageRequest) {
+    // 1. 获取图片解码生产序列
+    Producer<CloseableReference<CloseableImage>> pipelineSequence =
+        getBasicDecodedImageSequence(imageRequest);
+
+    // 2. 获取后处理序列
+    if (imageRequest.getPostprocessor() != null) {
+      pipelineSequence = getPostprocessorSequence(pipelineSequence);
+    }
+
+    // 3. 获取 Bitmap 准备序列
+    if (mUseBitmapPrepareToDraw) {
+      pipelineSequence = getBitmapPrepareSequence(pipelineSequence);
+    }
+    
+    return pipelineSequence;
+  }
+
+}
+```
+
+上面的代码即生产者序列的构建流程, 主要有如下的几个类型
+
+- 获取基础图片解码序列
+- 获取后处理序列
+- 获取 Bitmap 准备序列
+
+这里我们主要 focus 基础图片的解码序列的构建
+
+```java
+public class ProducerSequenceFactory {
+
+  private Producer<CloseableReference<CloseableImage>> getBasicDecodedImageSequence(
+      ImageRequest imageRequest) {
+      
+    try {
+      ......
+      Uri uri = imageRequest.getSourceUri();
+      ......
+      // 根据请求类型, 获取对应的生产序列
+      switch (imageRequest.getSourceUriType()) {
+        // 从网络获取数据资源的生产序列
+        case SOURCE_TYPE_NETWORK:
+          return getNetworkFetchSequence();
+        // 从本地视频文件获取资源的生产序列
+        case SOURCE_TYPE_LOCAL_VIDEO_FILE:
+          return getLocalVideoFileFetchSequence();
+        // 本地图片文件
+        case SOURCE_TYPE_LOCAL_IMAGE_FILE:
+          return getLocalImageFileFetchSequence();
+        // ContentUri
+        case SOURCE_TYPE_LOCAL_CONTENT:
+          if (MediaUtils.isVideo(mContentResolver.getType(uri))) {
+            return getLocalVideoFileFetchSequence();
+          }
+          return getLocalContentUriFetchSequence();
+        // asset 文件
+        case SOURCE_TYPE_LOCAL_ASSET:
+          return getLocalAssetFetchSequence();
+        // resource 文件
+        case SOURCE_TYPE_LOCAL_RESOURCE:
+          return getLocalResourceFetchSequence();
+        // Qualified 资源文件
+        case SOURCE_TYPE_QUALIFIED_RESOURCE:
+          return getQualifiedResourceFetchSequence();
+        // 从缓存中获取
+        case SOURCE_TYPE_DATA:
+          return getDataFetchSequence();
+        default:
+          throw new IllegalArgumentException(
+              "Unsupported uri scheme! Uri is: " + getShortenedUriString(uri));
+      }
+    }
+    ......
+  }
+}
+```
+
+getBasicDecodedImageSequence 主要是根据 ImageRequest 中的 URI 创建对应的生产序列, 这里我们选取流程最长的 getNetworkFetchSequence 来分析这一次构建流程
+
+```java
+public class ProducerSequenceFactory {
+    
+  @VisibleForTesting Producer<CloseableReference<CloseableImage>> mNetworkFetchSequence;
+
+  private synchronized Producer<CloseableReference<CloseableImage>> getNetworkFetchSequence() {
+    ......
+    if (mNetworkFetchSequence == null) {
+      ......
+      // 1. 调用 getCommonNetworkFetchToEncodedMemorySequence 构建生产序列
+      // 2. 调用 newBitmapCacheGetToDecodeSequence 构建最终的 mNetworkFetchSequence 序列
+      mNetworkFetchSequence =
+          newBitmapCacheGetToDecodeSequence(getCommonNetworkFetchToEncodedMemorySequence());
+      ......
+    }
+    ......
+    return mNetworkFetchSequence;
+  }
+
+}
+```
+
+#### 一) getCommonNetworkFetchToEncodedMemorySequence
+
+```java
+public class ProducerSequenceFactory {
+  
+  private Producer<EncodedImage> mCommonNetworkFetchToEncodedMemorySequence;
+  
+  /** multiplex -> encoded cache -> disk cache -> (webp transcode) -> network fetch. */
+  private synchronized Producer<EncodedImage> getCommonNetworkFetchToEncodedMemorySequence() {
+    ......
+    if (mCommonNetworkFetchToEncodedMemorySequence == null) {
+      ......
+      // 1. 创建 NetworkFetchProducer 生产者
+      // 2. 调用 newEncodedCacheMultiplexToTranscodeSequence 创建缓存相关生产序列
+      Producer<EncodedImage> inputProducer =
+          newEncodedCacheMultiplexToTranscodeSequence(
+              mProducerFactory.newNetworkFetchProducer(mNetworkFetcher));
+      // 3. 创建 AddImageTransformMetaDataProducer 生产者
+      mCommonNetworkFetchToEncodedMemorySequence =
+          ProducerFactory.newAddImageTransformMetaDataProducer(inputProducer);
+      // 4. 创建 ResizeAndRotateProducer 生产者
+      mCommonNetworkFetchToEncodedMemorySequence =
+          mProducerFactory.newResizeAndRotateProducer(
+              mCommonNetworkFetchToEncodedMemorySequence,
+              mResizeAndRotateEnabledForNetwork && !mDownsampleEnabled,
+              mImageTranscoderFactory);
+      ......
+    }
+    ......
+    // 返回这个构建好的 mCommonNetworkFetchToEncodedMemorySequence
+    return mCommonNetworkFetchToEncodedMemorySequence;
+  }
+  
+  private Producer<EncodedImage> newEncodedCacheMultiplexToTranscodeSequence(
+      Producer<EncodedImage> inputProducer) {
+    // 2.1 根据是否支持 Webp, 构建 Webp 的解码生产者
+    if (WebpSupportStatus.sIsWebpSupportRequired &&
+        (!mWebpSupportEnabled || WebpSupportStatus.sWebpBitmapFactory == null)) {
+      inputProducer = mProducerFactory.newWebpTranscodeProducer(inputProducer);
+    }
+    // 2.2 构建磁盘生产者序列
+    if (mDiskCacheEnabled) {
+      inputProducer = newDiskCacheSequence(inputProducer);
+    }
+    // 2.3 创建内存缓存生产者
+    EncodedMemoryCacheProducer encodedMemoryCacheProducer =
+        mProducerFactory.newEncodedMemoryCacheProducer(inputProducer);
+    // 2.4 创建解码缓存的 Key 的生产者
+    return mProducerFactory.newEncodedCacheKeyMultiplexProducer(encodedMemoryCacheProducer);
+  }
+  
+  private Producer<EncodedImage> newDiskCacheSequence(Producer<EncodedImage> inputProducer) {
+    // 2.2.1 创建 DiskCacheWriteProducer
+    Producer<EncodedImage> cacheWriteProducer;
+    ......
+    if (mPartialImageCachingEnabled) {
+      Producer<EncodedImage> partialDiskCacheProducer =
+          mProducerFactory.newPartialDiskCacheProducer(inputProducer);
+      cacheWriteProducer = mProducerFactory.newDiskCacheWriteProducer(partialDiskCacheProducer);
+    } else {
+      cacheWriteProducer = mProducerFactory.newDiskCacheWriteProducer(inputProducer);
+    }
+    // 2.2.2 创建 DiskCacheReadProducer
+    DiskCacheReadProducer result = mProducerFactory.newDiskCacheReadProducer(cacheWriteProducer);
+    ......
+    return result;
+  }
+}
+```
+
+可以看到 getCommonNetworkFetchToEncodedMemorySequence 中创建了非常多的生产者, 看似比较混乱, 其实还是比较清晰的, 主要如下
+
+- 创建 NetworkFetchProducer 生产者
+- 根据是否支持 Webp, 创建 Webp 的解码生产者 WebpTranscodeProducer
+- 创建磁盘缓存生产序列
+  - 创建 DiskCacheWriteProducer
+  - 创建 DiskCacheReadProducer
+- 创建编码数据的内存缓存序列
+  - 创建 EncodedMemoryCacheProducer
+  - 创建 EncodedCacheKeyMultiplexProducer
+- 创建 AddImageTransformMetaDataProducer
+- 创建 ResizeAndRotateProducer
+
+### 二) newBitmapCacheGetToDecodeSequence
+
+```java
+public class ProducerSequenceFactory {
+  
+  private Producer<CloseableReference<CloseableImage>> newBitmapCacheGetToDecodeSequence(
+      Producer<EncodedImage> inputProducer) {
+    ......
+    // 1. 创建 DecodeProducer 解码生产者
+    DecodeProducer decodeProducer = mProducerFactory.newDecodeProducer(inputProducer);
+    // 2. 创建 Bitmap 缓存生产序列
+    Producer<CloseableReference<CloseableImage>> result =
+        newBitmapCacheGetToBitmapCacheSequence(decodeProducer);
+    return result;
+  }
+  
+  private Producer<CloseableReference<CloseableImage>> newBitmapCacheGetToBitmapCacheSequence(
+      Producer<CloseableReference<CloseableImage>> inputProducer) {
+    // 2.1 创建 BitmapMemoryCacheProducer 
+    BitmapMemoryCacheProducer bitmapMemoryCacheProducer =
+        mProducerFactory.newBitmapMemoryCacheProducer(inputProducer);
+    // 2.2 创建 BitmapMemoryCacheKeyMultiplexProducer
+    BitmapMemoryCacheKeyMultiplexProducer bitmapKeyMultiplexProducer =
+        mProducerFactory.newBitmapMemoryCacheKeyMultiplexProducer(bitmapMemoryCacheProducer);
+    // 2.3 创建 ThreadHandoffProducer
+    ThreadHandoffProducer<CloseableReference<CloseableImage>> threadHandoffProducer =
+        mProducerFactory.newBackgroundThreadHandoffProducer(
+            bitmapKeyMultiplexProducer,
+            mThreadHandoffProducerQueue);
+    // 2.4 创建 BitmapMemoryCacheGetProducer 生产者
+    return mProducerFactory.newBitmapMemoryCacheGetProducer(threadHandoffProducer);
+  }
+  
+}
+```
+
+newBitmapCacheGetToDecodeSequence 主要是构建解码和 Bitmap 内存缓存相关的生产者
+- 创建 DecodeProducer 解码生产者
+- 创建 Bitmap 缓存生产者
+  - 创建 BitmapMemoryCacheProducer 
+  - 创建 BitmapMemoryCacheKeyMultiplexProducer
+  - 创建 ThreadHandoffProducer
+  - 创建 BitmapMemoryCacheGetProducer 生产者
+
+### 三)  回顾
+一次请求所构建的生产者责任链序列如下
+- 网络缓存相关 
+  - **NetworkFetchProducer**: 从网络上获取数据源
+- 转码服务
+  - **WebpTranscodeProducer**: 将 webp 转码为 jpeg/png
+- 磁盘缓存
+  - **DiskCacheWriteProducer**: 将数据写入磁盘缓存
+  - **DiskCacheReadProducer**: 从磁盘缓存中读数据
+- 编码内存缓存
+  - **EncodedMemoryCacheProducer**: 读/写 图片编码后数据的内存缓存
+  - **EncodedCacheKeyMultiplexProducer**: 合并相同的编码内存请求
+- **AddImageTransformMetaDataProducer**: 获取图片的 MetaData
+- **ResizeAndRotateProducer**: 图片的旋转与缩放
+- **DecodeProducer**: 负责图片的解码
+- Bitmap 内存缓存
+  - **BitmapMemoryCacheProducer**: 读/写 Bitmap 内存缓存
+  - **BitmapMemoryCacheKeyMultiplexProducer**: 合并相同的 Bitmap 内存缓存请求
+  - **ThreadHandoffProducer**: 线程切换
+  - **BitmapMemoryCacheGetProducer**: 读 Bitmap 内存缓存
+
 ## 总结
-![整体结构图](https://i.loli.net/2020/03/27/z3yHU6PET5O7Iv2.png)
+![整体结构图](https://i.loli.net/2020/04/01/ChPy7LmIMEgs96H.png)
 
 ### 初始化
 Fresco 的初始化流程主要如下
@@ -1322,11 +1579,10 @@ Fresco 的初始化流程主要如下
   - 为 SimpleDraweeView 注入 Supplier, 方便 SimpleDraweeView 构建 DraweeControllerBuilder.
 
 ### SimpleDraweeView 的创建
-
 SimpleDraweeView 的创建流程如下
 
 - 创建 DraweeHolder
-  - 持有 DraweeHierarchy
+  - 持有 DraweeHierarchy 
 - 创建 GenericDraweeHierarchy
   - RootDrawable
     - RoundedDrawable
@@ -1345,7 +1601,6 @@ SimpleDraweeView 的创建流程如下
 - 将 GenericDraweeHierarchy 注入 Holder 中暂存
 
 ### 数据加载
-
 Drawee 的数据加载主要步骤如下
 
 - PipelineDraweeController 创建
@@ -1363,6 +1618,27 @@ Drawee 的数据加载主要步骤如下
       - 为生产者注入 Consumer, 生产的结果通过 Consumer 对外抛出
     - 为 DataSource 注入观察者, 用于监听数据加载状态
 
+### 生产责任链的构建
+一次请求所构建的生产者序列如下
+- 网络缓存相关 
+  - **NetworkFetchProducer**: 从网络上获取数据源
+- 转码服务
+  - **WebpTranscodeProducer**: 将 webp 转码为 jpeg/png
+- 磁盘缓存
+  - **DiskCacheWriteProducer**: 将数据写入磁盘缓存
+  - **DiskCacheReadProducer**: 从磁盘缓存中读数据
+- 编码内存缓存
+  - **EncodedMemoryCacheProducer**: 读/写 图片编码后数据的内存缓存
+  - **EncodedCacheKeyMultiplexProducer**: 合并相同的编码内存请求
+- **AddImageTransformMetaDataProducer**: 获取图片的 MetaData
+- **ResizeAndRotateProducer**: 图片的旋转与缩放
+- **DecodeProducer**: 负责图片的解码
+- Bitmap 内存缓存
+  - **BitmapMemoryCacheProducer**: 读/写 Bitmap 内存缓存
+  - **BitmapMemoryCacheKeyMultiplexProducer**: 合并相同的 Bitmap 内存缓存请求
+  - **ThreadHandoffProducer**: 线程切换
+  - **BitmapMemoryCacheGetProducer**: 读 Bitmap 内存缓存
+
 ## 结语
 这里梳理了一遍 Fresco 的加载流程, 能够感受到 Facebook 的工程师设计功底的深厚, 这里简单的记录一下自己的阅读感受
 
@@ -1376,8 +1652,8 @@ Drawee 的数据加载主要步骤如下
 
 从整体设计上来看
 - Fresco
-  - **数据加载模块使用了生产者消费者模型**, **生产者使用装饰器进行独立的增强**, 职责非常清晰, 是值得借鉴和学习的封装思路
+  - **数据加载模块使用了生产者消费者模型构成责任链模式**, 职责非常清晰, 是值得借鉴和学习的封装思路
 - Glide
   - 数据模块使用大量回调, 阅读难度高, 职责有些不够清晰, 有提升空间
 
-Fresco 图片框架中最核心的 Producer 的数据生产本篇中并没有深入探究, 后面可能会再开一个专题进行探究, 对比它与 Glide 的优劣
+这里关于每一个 Producer 的具体实现就不展开分析了, 感兴趣可以根据相关类名查阅
