@@ -3,6 +3,7 @@ layout: articles
 title: Friends
 permalink: /friends.html
 ---
+
 ---
 <div class="item">
     <div class="item__image">
@@ -17,7 +18,7 @@ permalink: /friends.html
             </div>
             <div class="item__description">
                 <p>
-                    A nice Android developer, have awesome skills at Android source and plug-in technology, now focus on Flutter and OpenGL.
+                    熟悉 Android 系统源码, 对图像图形学和 HAL 层的均有不俗的见解
                 </p>
             </div>
         </a>
@@ -40,6 +41,23 @@ permalink: /friends.html
                 <p>
                     A nice Android and Server developer, have unique view of some problems, love to share, now focus on MySQL.
                 </p>
+            </div>
+        </a>
+    </div>
+</div>
+
+
+---
+<div class="card">
+    <div class="card__image">
+        <a href="http://www.whdreamblog.cn/">
+            <img class="image" src="https://i.loli.net/2019/11/08/IGeMbl3r5SOgXw8.jpg"/>
+        </a>
+    </div>
+    <div class="card__content">
+        <a href="https://hningoba.github.io/">
+            <div class="card__header">
+                <h4>hningoba</h4>
             </div>
         </a>
     </div>
