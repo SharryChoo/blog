@@ -4,7 +4,6 @@ title: Friends
 permalink: /friends.html
 ---
 
----
 <div class="item">
     <div class="item__image">
         <a href="https://yjy239.github.io/">
@@ -18,46 +17,28 @@ permalink: /friends.html
             </div>
             <div class="item__description">
                 <p>
-                    熟悉 Android 系统源码, 对图像图形学和 HAL 层的均有不俗的见解
+                    熟悉 Android 系统源码, 对图像图形学和 HAL 层的均有不俗的见解的大佬
                 </p>
             </div>
         </a>
     </div>
 </div>
 
----
 <div class="item">
     <div class="item__image">
-        <a href="http://www.whdreamblog.cn/">
-            <img class="image" src="https://i.loli.net/2019/11/08/IGeMbl3r5SOgXw8.jpg"/>
+        <a href="https://hningoba.github.io/">
+            <img class="image" src="https://i.loli.net/2020/04/24/e6sjXx98TprtqyF.jpg"/>
         </a>
     </div>
     <div class="item__content">
-        <a href="http://www.whdreamblog.cn/">
+        <a href="https://hningoba.github.io/">
             <div class="item__header">
-                <h4>WangHao</h4>
+                <h4>hningoba</h4>
             </div>
             <div class="item__description">
                 <p>
-                    A nice Android and Server developer, have unique view of some problems, love to share, now focus on MySQL.
+                    为人谦和, 热爱生活的资深客户端工程师
                 </p>
-            </div>
-        </a>
-    </div>
-</div>
-
-
----
-<div class="card">
-    <div class="card__image">
-        <a href="http://www.whdreamblog.cn/">
-            <img class="image" src="https://i.loli.net/2019/11/08/IGeMbl3r5SOgXw8.jpg"/>
-        </a>
-    </div>
-    <div class="card__content">
-        <a href="https://hningoba.github.io/">
-            <div class="card__header">
-                <h4>hningoba</h4>
             </div>
         </a>
     </div>
