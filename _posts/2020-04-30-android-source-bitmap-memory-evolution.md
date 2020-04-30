@@ -1,5 +1,5 @@
 ---
-title: Android 源码 - Bitmap 位图内存的演进流程
+title: Android 源码 —— Bitmap 位图内存的演进流程
 permalink: android-source/bitmap-memory-evolution
 tags: AndroidSource
 ---
@@ -17,7 +17,7 @@ Android 中的 Bitmap 像素内存演进流程如下, 摘录自
 
 这里就系统的学习一下 NativeAllocationRegistry 的技术, 然后看看他解决了 Android2.3.3 的哪些问题
 
-## Bitmap 的构造
+## 一. Bitmap 的构造
 
 ```java
 public final class Bitmap implements Parcelable {
