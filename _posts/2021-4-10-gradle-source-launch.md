@@ -16,6 +16,8 @@ Gradle Wrapper 是帮助工程实现 Gradle 版本兼容的工具
 
  Gradle 是一个不断发展的工具, 新版本可能会打破向后兼容性, 如果升级了系统的 Gradle 版本, 可能会导致依赖 Gradle 构建的工程无法编译通过
 
+<!--more-->
+
 ## 获取 Gradle Wrapper
 
 安装了 Gradle 并添加到环境变量之后, 创建以下的 `build.gradle` 文件

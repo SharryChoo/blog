@@ -8,6 +8,8 @@ tags: Gradle
 
 前面分析了 Gradle 脚本的启动分析, 这里我们看看启动后, Gradle 脚本的执行流程
 
+<!--more-->
+
 ```
 public class DefaultGradleLauncher implements GradleLauncher {
 
